@@ -12,7 +12,7 @@ func main() {
 
 	h.Handle("generic", generic{})
 
-	r := h.Do(hive.NewJob("generic", "first"))
+	r := h.Do(h.Job("generic", "first"))
 
 	res, err := r.Then()
 	if err != nil {

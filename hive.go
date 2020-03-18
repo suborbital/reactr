@@ -18,3 +18,8 @@ func New() *Hive {
 func (h *Hive) Do(job Job) *Result {
 	return h.schedule(job)
 }
+
+// Job is a shorter alias for NewJob
+func (h *Hive) Job(jobType string, data interface{}) Job {
+	return NewJob(jobType, data)
+}

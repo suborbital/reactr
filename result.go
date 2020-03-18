@@ -26,6 +26,8 @@ func newResult() *Result {
 }
 
 func (r *Result) sendResult(result interface{}) {
+	// if the result is another Result,
+	// wait for its result and recursively send it
 	if res, ok := result.(*Result); ok {
 		go func() {
 			if newResult, err := res.Then(); err != nil {
