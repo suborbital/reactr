@@ -90,4 +90,29 @@ done! finished last
 ```
 Think about that for a minute, and let it sink in, it can be quite powerful!
 
+There are also some shortcuts to make working with Hive a bit easier:
+```golang
+type input struct {
+	First, Second int
+}
+
+type math struct{}
+
+// Run runs a math job
+func (g math) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
+	in := job.Data().(input)
+
+	return in.First + in.Second, nil
+}
+```
+```golang
+doMath := h.Handle("math", math{})
+
+for i := 1; i < 10; i++ {
+	equals, _ := doMath(input{i, i * 3}).Then()
+	fmt.Println("result", equals.(int))
+}
+```
+The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `h.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
+
 More to come, including better performance, library stability, etc. Cheers!

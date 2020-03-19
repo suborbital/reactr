@@ -56,3 +56,8 @@ func (j *Job) Int() int {
 
 	return 0
 }
+
+// Data returns the "raw" data for the job
+func (j *Job) Data() interface{} {
+	return j.data
+}

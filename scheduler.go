@@ -55,8 +55,8 @@ type handler struct {
 	sync.Mutex
 }
 
-// Handle adds a handler
-func (h *handler) Handle(jobType string, runnable Runnable) {
+// handle adds a handler
+func (h *handler) handle(jobType string, runnable Runnable) {
 	h.Lock()
 	defer h.Unlock()
 

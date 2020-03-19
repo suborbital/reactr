@@ -20,6 +20,13 @@ func main() {
 	}
 
 	fmt.Println("done!", res.(string))
+
+	doMath := h.Handle("math", math{})
+
+	for i := 1; i < 10; i++ {
+		equals, _ := doMath(input{i, i * 3}).Then()
+		fmt.Println("result", equals.(int))
+	}
 }
 
 type generic struct{}
@@ -35,4 +42,17 @@ func (g generic) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 	}
 
 	return fmt.Sprintf("finished %s", job.String()), nil
+}
+
+type input struct {
+	First, Second int
+}
+
+type math struct{}
+
+// Run runs a math job
+func (g math) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
+	in := job.Data().(input)
+
+	return in.First + in.Second, nil
 }
