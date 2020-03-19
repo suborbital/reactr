@@ -1,5 +1,7 @@
 # hive
 
+![Sanity](https://github.com/suborbital/hive/workflows/Sanity/badge.svg)
+
 Hive is a job scheduler, plain and simple. It is designed to allow multiple workers to exist in paralell, with each worker processing jobs in sequence.
 
 Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
