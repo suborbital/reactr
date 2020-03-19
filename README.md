@@ -109,8 +109,8 @@ func (g math) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 doMath := h.Handle("math", math{})
 
 for i := 1; i < 10; i++ {
-	equals, _ := doMath(input{i, i * 3}).Then()
-	fmt.Println("result", equals.(int))
+	equals, _ := doMath(input{i, i * 3}).ThenInt()
+	fmt.Println("result", equals)
 }
 ```
 The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `h.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!

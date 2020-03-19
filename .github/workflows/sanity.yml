@@ -1,4 +1,4 @@
-name: Go
+name: Sanity
 
 on:
   push:
@@ -27,4 +27,4 @@ jobs:
         go get -v -t -d ./...
       
     - name: Run test
-      run: go run /tester/main.go
+      run: go run ./tester/main.go

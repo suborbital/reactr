@@ -1,5 +1,7 @@
 package hive
 
+import "errors"
+
 // Result describes a result
 type Result struct {
 	resultChan chan interface{}
@@ -11,6 +13,21 @@ func (r *Result) Then() (interface{}, error) {
 	select {
 	case res := <-r.resultChan:
 		return res, nil
+	case err := <-r.errChan:
+		return nil, err
+	}
+}
+
+// ThenInt returns the result or error from a Result
+func (r *Result) ThenInt() (int, error) {
+	select {
+	case res := <-r.resultChan:
+		intVal, ok := res.(int)
+		if !ok {
+			return 0, errors.New("failed to convert result to Int")
+		}
+
+		return intVal, nil
 	case err := <-r.errChan:
 		return nil, err
 	}

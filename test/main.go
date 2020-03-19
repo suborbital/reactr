@@ -24,8 +24,8 @@ func main() {
 	doMath := h.Handle("math", math{})
 
 	for i := 1; i < 10; i++ {
-		equals, _ := doMath(input{i, i * 3}).Then()
-		fmt.Println("result", equals.(int))
+		equals, _ := doMath(input{i, i * 3}).ThenInt()
+		fmt.Println("result", equals)
 	}
 }
 
