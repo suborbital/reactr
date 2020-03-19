@@ -29,7 +29,7 @@ func (r *Result) ThenInt() (int, error) {
 
 		return intVal, nil
 	case err := <-r.errChan:
-		return nil, err
+		return 0, err
 	}
 }
 
