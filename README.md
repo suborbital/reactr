@@ -1,4 +1,4 @@
-# hive
+![logo_transparent](https://user-images.githubusercontent.com/5942370/77077088-21871580-69cb-11ea-865c-bb6be0d025fe.png)
 
 ![Sanity](https://github.com/suborbital/hive/workflows/Sanity/badge.svg)
 
