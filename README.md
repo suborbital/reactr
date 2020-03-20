@@ -6,6 +6,8 @@ Hive is a job scheduler, plain and simple. It is designed to allow multiple work
 
 Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
+### Jobs
+
 To get started, define something `Runnable`:
 ```golang
 type generic struct{}
@@ -91,6 +93,36 @@ doing job: last
 done! finished last
 ```
 Think about that for a minute, and let it sink in, it can be quite powerful!
+
+### Groups
+
+A hive `Group` is a set of `Result`s that belong together. If you're familiar with Go's `errgroup.Group{}`, it is similar. Adding results to a group will allow you to collect many jobs, and then evaluate them later, together.
+```golang
+grp := hive.NewGroup()
+
+grp.Add(run(hive.NewJob("generic", "first")))
+grp.Add(run(hive.NewJob("generic", "group work")))
+grp.Add(run(hive.NewJob("generic", "group work")))
+
+if err := grp.Wait(); err != nil {
+	log.Fatal(err)
+}
+```
+Will print: 
+```
+doing job: first
+doing job: group work
+doing job: group work
+doing job: second
+doing job: last
+```
+As you can see, the "recursive" jobs from the `generic` runner get queued up after the two jobs that don't recurse.
+
+Note that you cannot get result values from job groups, the error returned from `Wait()` will be the first error from any of the results in the group, if any. To get result values from a group of jobs, put them in an array and call `Then` on them individually.
+
+**TIP** If you return a group from a Runnable's `Run`, calling `Then()` on the result will recursively call `Wait()` on the group and return the error to the original caller! You can easily chain jobs and job groups in various orders.
+
+### Shortcuts
 
 There are also some shortcuts to make working with Hive a bit easier:
 ```golang
