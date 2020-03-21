@@ -2,9 +2,9 @@
 
 ![Sanity](https://github.com/suborbital/hive/workflows/Sanity/badge.svg)
 
-Hive is a job scheduler, plain and simple. It is designed to allow multiple workers to exist in paralell, with each worker processing jobs in sequence.
+Hive is a fast, performant job scheduler, plain and simple. Why does Hive exist? Go has tons of primitives to do what Hive is doing! That's correct, but after re-writing the same boilerplate event loops and scheduling logic time and time again, I decided to put all my learnings about Go concurrency into one library that can handle anything you throw at it without needing to think about what primitives to use or how to organize everything.
 
-Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
+Hive is designed to allow multiple goroutine workers to exist in paralell, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
 ### Jobs
 
@@ -96,7 +96,7 @@ Think about that for a minute, and let it sink in, it can be quite powerful!
 
 ### Groups
 
-A hive `Group` is a set of `Result`s that belong together. If you're familiar with Go's `errgroup.Group{}`, it is similar. Adding results to a group will allow you to collect many jobs, and then evaluate them later, together.
+A hive `Group` is a set of `Result`s that belong together. If you're familiar with Go's `errgroup.Group{}`, it is similar. Adding results to a group will allow you to evaluate them all together at a later time.
 ```golang
 grp := hive.NewGroup()
 
@@ -118,7 +118,7 @@ doing job: last
 ```
 As you can see, the "recursive" jobs from the `generic` runner get queued up after the two jobs that don't recurse.
 
-Note that you cannot get result values from job groups, the error returned from `Wait()` will be the first error from any of the results in the group, if any. To get result values from a group of jobs, put them in an array and call `Then` on them individually.
+Note that you cannot get result values from result groups, the error returned from `Wait()` will be the first error from any of the results in the group, if any. To get result values from a group of jobs, put them in an array and call `Then` on them individually.
 
 **TIP** If you return a group from a Runnable's `Run`, calling `Then()` on the result will recursively call `Wait()` on the group and return the error to the original caller! You can easily chain jobs and job groups in various orders.
 
@@ -149,4 +149,4 @@ for i := 1; i < 10; i++ {
 ```
 The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `h.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
 
-More to come, including better performance, library stability, etc. Cheers!
+More to come, including better performance, lower memory usage, library stability data persistence, etc. Cheers!
