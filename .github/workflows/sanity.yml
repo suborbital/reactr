@@ -1,4 +1,4 @@
-name: Sanity
+name: Testapalooza
 
 on:
   push:
@@ -27,4 +27,4 @@ jobs:
         go get -v -t -d ./...
       
     - name: Run test
-      run: go run ./test/main.go
+      run: go test -v ./...
