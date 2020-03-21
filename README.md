@@ -2,7 +2,7 @@
 
 ![Sanity](https://github.com/suborbital/hive/workflows/Sanity/badge.svg)
 
-Hive is a fast, performant job scheduler, plain and simple. Why does Hive exist? Go has tons of primitives to do what Hive is doing! That's correct, but after re-writing the same boilerplate event loops and scheduling logic time and time again, I decided to put all my learnings about Go concurrency into one library that can handle anything you throw at it without needing to think about what primitives to use or how to organize everything.
+Hive is a fast, performant job scheduler, plain and simple. Why does Hive exist? Go has tons of primitives to do what Hive is doing! That's correct, but after re-writing the same boilerplate event loops and scheduling logic time and time again, I decided to put all my learnings about Go concurrency into one library that can handle anything you throw at it without needing to think about gotchas or even the goroutines themselves.
 
 Hive is designed to allow multiple goroutine workers to exist in paralell, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
