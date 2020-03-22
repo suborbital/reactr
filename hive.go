@@ -1,5 +1,8 @@
 package hive
 
+//DoFunc is a function that runs a job of a predetermined type
+type DoFunc func(interface{}) *Result
+
 // Hive represents the main control object
 type Hive struct {
 	*scheduler
@@ -20,7 +23,7 @@ func (h *Hive) Do(job Job) *Result {
 }
 
 // Handle registers a Runnable with the Hive and returns a shortcut function to run those jobs
-func (h *Hive) Handle(jobType string, runner Runnable, options ...Option) func(interface{}) *Result {
+func (h *Hive) Handle(jobType string, runner Runnable, options ...Option) DoFunc {
 	h.handle(jobType, runner, options...)
 
 	helper := func(data interface{}) *Result {
