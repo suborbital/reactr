@@ -4,7 +4,7 @@
 
 Hive is a fast, performant job scheduler, plain and simple. Why does Hive exist? Go has tons of primitives to do what Hive is doing! That's correct, but after re-writing the same boilerplate event loops and scheduling logic time and time again, I decided to put all my learnings about Go concurrency into one library that can handle anything you throw at it without needing to think about gotchas or even the goroutines themselves.
 
-Hive is designed to allow multiple goroutine workers to exist in paralell, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
+Hive is designed to allow multiple goroutine workers to exist in parallel, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
 ### Jobs
 
@@ -122,6 +122,23 @@ Note that you cannot get result values from result groups, the error returned fr
 
 **TIP** If you return a group from a Runnable's `Run`, calling `Then()` on the result will recursively call `Wait()` on the group and return the error to the original caller! You can easily chain jobs and job groups in various orders.
 
+### Pools
+Each `Runnable` that you register is given a worker to process their jobs. By default, each worker has one goroutine processing jobs in sequence. If you want a particular worker to process more than one job concurrently, you can increase its `PoolSize`:
+```golang
+doGeneric := h.Handle("generic", generic{}, PoolSize(3))
+
+grp := NewGroup()
+grp.Add(doGeneric("first"))
+grp.Add(doGeneric("second"))
+grp.Add(doGeneric("random"))
+
+if err := grp.Wait(); err != nil {
+	log.Fatal(err)
+}
+```
+Passing `PoolSize(3)` will spawn three goroutines to process `generic` jobs.
+
+
 ### Shortcuts
 
 There are also some shortcuts to make working with Hive a bit easier:
@@ -150,3 +167,7 @@ for i := 1; i < 10; i++ {
 The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `h.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
 
 More to come, including better performance, lower memory usage, library stability data persistence, etc. Cheers!
+
+If your company builds anything using Hive and derives revenue from it, please contact @cohix to discuss a sponsorship. OSS works better when we all work together.
+
+Copyright Suborbital contributors 2020

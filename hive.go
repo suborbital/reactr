@@ -20,8 +20,8 @@ func (h *Hive) Do(job Job) *Result {
 }
 
 // Handle registers a Runnable with the Hive and returns a shortcut function to run those jobs
-func (h *Hive) Handle(jobType string, runner Runnable) func(interface{}) *Result {
-	h.handle(jobType, runner)
+func (h *Hive) Handle(jobType string, runner Runnable, options ...Option) func(interface{}) *Result {
+	h.handle(jobType, runner, options...)
 
 	helper := func(data interface{}) *Result {
 		job := Job{
