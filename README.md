@@ -125,9 +125,9 @@ Note that you cannot get result values from result groups, the error returned fr
 ### Pools
 Each `Runnable` that you register is given a worker to process their jobs. By default, each worker has one goroutine processing jobs in sequence. If you want a particular worker to process more than one job concurrently, you can increase its `PoolSize`:
 ```golang
-doGeneric := h.Handle("generic", generic{}, PoolSize(3))
+doGeneric := h.Handle("generic", generic{}, hive.PoolSize(3))
 
-grp := NewGroup()
+grp := hive.NewGroup()
 grp.Add(doGeneric("first"))
 grp.Add(doGeneric("second"))
 grp.Add(doGeneric("random"))
