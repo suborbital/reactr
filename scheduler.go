@@ -6,18 +6,21 @@ import (
 )
 
 type scheduler struct {
-	handler
-	workers map[string]*worker
+	registered map[string]handler
+	workers    map[string]*worker
 	sync.Mutex
+}
+
+type handler struct {
+	runnable Runnable
+	options  workerOpts
 }
 
 func newScheduler() *scheduler {
 	s := &scheduler{
-		handler: handler{
-			registered: map[string]Runnable{},
-		},
-		workers: map[string]*worker{},
-		Mutex:   sync.Mutex{},
+		registered: map[string]handler{},
+		workers:    map[string]*worker{},
+		Mutex:      sync.Mutex{},
 	}
 
 	return s
@@ -28,16 +31,19 @@ func (s *scheduler) schedule(job Job) *Result {
 		s.workers = map[string]*worker{}
 	}
 
+	s.Lock() // this is probably unneeded but just being safe
 	w, ok := s.workers[job.jobType]
+	s.Unlock()
+
 	if !ok {
-		runner := s.handler.getRunnable(job.jobType)
-		if runner == nil {
+		handler := s.getHandler(job.jobType)
+		if handler == nil {
 			result := newResult()
 			result.sendErr(fmt.Errorf("failed to getRunnable for jobType %q", job.jobType))
 			return result
 		}
 
-		newWorker := newWorker(runner)
+		newWorker := newWorker(handler.runnable, handler.options)
 		newWorker.start(s.schedule) // "recursively" pass this function as the runFunc for the runnable
 
 		s.Lock()
@@ -50,33 +56,35 @@ func (s *scheduler) schedule(job Job) *Result {
 	return w.schedule(job)
 }
 
-type handler struct {
-	registered map[string]Runnable
-	sync.Mutex
-}
-
 // handle adds a handler
-func (h *handler) handle(jobType string, runnable Runnable) {
-	h.Lock()
-	defer h.Unlock()
+func (s *scheduler) handle(jobType string, runnable Runnable, options ...Option) {
+	s.Lock()
+	defer s.Unlock()
 
-	if h.registered == nil {
-		h.registered = map[string]Runnable{jobType: runnable}
+	// apply the provided options
+	opts := defaultOpts()
+	for _, o := range options {
+		opts = o(opts)
+	}
+
+	h := handler{runnable, opts}
+	if s.registered == nil {
+		s.registered = map[string]handler{jobType: h}
 	} else {
-		h.registered[jobType] = runnable
+		s.registered[jobType] = h
 	}
 }
 
-func (h *handler) getRunnable(jobType string) Runnable {
-	h.Lock()
-	defer h.Unlock()
+func (s *scheduler) getHandler(jobType string) *handler {
+	s.Lock()
+	defer s.Unlock()
 
-	if h.registered == nil {
+	if s.registered == nil {
 		return nil
 	}
 
-	if r, ok := h.registered[jobType]; ok {
-		return r
+	if r, ok := s.registered[jobType]; ok {
+		return &r
 	}
 
 	return nil
