@@ -6,6 +6,10 @@ Hive is a fast, performant job scheduler, plain and simple. Why does Hive exist?
 
 Hive is designed to allow multiple goroutine workers to exist in parallel, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
+## WASM
+
+Hive has _very early_ support for WASM-packaged runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./WASM.md) for details.
+
 ### Jobs
 
 To get started, define something `Runnable`:
