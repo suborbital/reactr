@@ -3,11 +3,13 @@ package hive
 import (
 	"fmt"
 	"sync"
+
+	"github.com/pkg/errors"
 )
 
 type scheduler struct {
 	registered map[string]handler
-	workers    map[string]*worker
+	workers    map[string]worker
 	sync.Mutex
 }
 
@@ -19,7 +21,7 @@ type handler struct {
 func newScheduler() *scheduler {
 	s := &scheduler{
 		registered: map[string]handler{},
-		workers:    map[string]*worker{},
+		workers:    map[string]worker{},
 		Mutex:      sync.Mutex{},
 	}
 
@@ -28,14 +30,14 @@ func newScheduler() *scheduler {
 
 func (s *scheduler) schedule(job Job) *Result {
 	if s.workers == nil {
-		s.workers = map[string]*worker{}
+		s.workers = map[string]worker{}
 	}
 
 	s.Lock() // this is probably unneeded but just being safe
-	w, ok := s.workers[job.jobType]
+	w, isStarted := s.workers[job.jobType]
 	s.Unlock()
 
-	if !ok {
+	if !isStarted {
 		handler := s.getHandler(job.jobType)
 		if handler == nil {
 			result := newResult()
@@ -43,8 +45,21 @@ func (s *scheduler) schedule(job Job) *Result {
 			return result
 		}
 
-		newWorker := newWorker(handler.runnable, handler.options)
-		newWorker.start(s.schedule) // "recursively" pass this function as the runFunc for the runnable
+		var newWorker worker
+
+		// determine what type of runnable we have
+		if _, useWasm := handler.runnable.(*WasmRunner); useWasm {
+			newWorker = newWasmWorker(handler.runnable, handler.options)
+		} else {
+			newWorker = newGoWorker(handler.runnable, handler.options)
+		}
+
+		// "recursively" pass this function as the runFunc for the runnable
+		if err := newWorker.start(s.schedule); err != nil {
+			result := newResult()
+			result.sendErr(errors.Wrapf(err, "failed start worker for jobType %q", job.jobType))
+			return result
+		}
 
 		s.Lock()
 		s.workers[job.jobType] = newWorker
