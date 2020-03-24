@@ -1,8 +1,9 @@
-
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::{c_char, c_void};
 use wasm_bindgen::prelude::*;
+
+mod run;
 
 #[no_mangle]
 #[wasm_bindgen]
@@ -34,17 +35,9 @@ pub extern fn run_e(input: *mut c_char) -> *mut c_char {
     let in_str = String::from(in_cstr.to_str().unwrap());
 
     // run the runnable and convert it to a Vec
-    let output = run(in_str).unwrap().as_bytes().to_vec();
+    let output = run::run(in_str).unwrap().as_bytes().to_vec();
 
     // convert the Vec to a pointer and return
     let owned = unsafe { CString::from_vec_unchecked(output) };
     return owned.into_raw();
-}
-
-
-fn run(input: String) -> Option<String> {
-    
-    let out = String::from(format!("hello {}", input));
-    
-    return Some(out);
 }
