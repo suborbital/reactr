@@ -2,7 +2,13 @@ package hive
 
 const defaultChanSize = 1024
 
-type worker struct {
+// worker describes a worker
+type worker interface {
+	schedule(Job) *Result
+	start(RunFunc) error
+}
+
+type goWorker struct {
 	workChan chan Job
 	runner   Runnable
 	options  workerOpts
@@ -12,9 +18,9 @@ type workerOpts struct {
 	poolSize int
 }
 
-// newWorker creates a new worker
-func newWorker(runner Runnable, opts workerOpts) *worker {
-	w := &worker{
+// newGoWorker creates a new goWorker
+func newGoWorker(runner Runnable, opts workerOpts) *goWorker {
+	w := &goWorker{
 		workChan: make(chan Job, defaultChanSize),
 		runner:   runner,
 		options:  opts,
@@ -23,7 +29,7 @@ func newWorker(runner Runnable, opts workerOpts) *worker {
 	return w
 }
 
-func (w *worker) schedule(job Job) *Result {
+func (w *goWorker) schedule(job Job) *Result {
 	result := newResult()
 	job.result = result
 
@@ -34,7 +40,7 @@ func (w *worker) schedule(job Job) *Result {
 	return result
 }
 
-func (w *worker) start(runFunc RunFunc) {
+func (w *goWorker) start(runFunc RunFunc) error {
 	if w.workChan == nil {
 		w.workChan = make(chan Job, defaultChanSize)
 	}
@@ -55,6 +61,8 @@ func (w *worker) start(runFunc RunFunc) {
 			}
 		}()
 	}
+
+	return nil
 }
 
 func defaultOpts() workerOpts {
