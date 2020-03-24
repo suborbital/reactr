@@ -28,5 +28,4 @@ jobs:
       
     - name: Run test
       run: |
-        ls -a .
         make test
