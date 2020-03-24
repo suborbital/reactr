@@ -8,7 +8,7 @@ import (
 func TestWasmRunner(t *testing.T) {
 	h := New()
 
-	doWasm := h.Handle("wasm", NewWasm("./pkg/wasm_runner_bg.wasm"))
+	doWasm := h.Handle("wasm", NewWasm("./wasm/wasm_runner_bg.wasm"))
 
 	grp := NewGroup()
 	for i := 0; i < 50000; i++ {

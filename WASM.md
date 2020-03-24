@@ -16,7 +16,7 @@ Due to the memory limitations of WASM, WASM runners accept a string (rather than
 
 In this repo, look at `src/run.rs`. You'll find the `run` function already defined for you. Add whatever code you want, just don't change the function signature.
 
-Once you're done, run `make wasm`, which will generate `pkg/wasm_runner_bg.wasm` (among other things). This is your WASM runner file, and should be included wherever you want to run Hive with WASM.
+Once you're done, run `make wasm`, which will generate `wasm/wasm_runner_bg.wasm` (among other things). This is your WASM runner file, and should be included wherever you want to run Hive with WASM.
 
 Here's how to use it:
 ```golang
