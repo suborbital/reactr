@@ -12,12 +12,14 @@ func main() {
 
 	doWasm := h.Handle("wasm", hive.NewWasm("./pkg/wasm_test_bg.wasm"))
 
-	res, err := doWasm("world").Then()
-	if err != nil {
-		log.Fatal(err)
+	grp := hive.NewGroup()
+	for i := 0; i < 50000; i++ {
+		grp.Add(doWasm(fmt.Sprintf("world %d", i)))
 	}
 
-	fmt.Println(res.(string))
+	if err := grp.Wait(); err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println("done")
 }
