@@ -117,7 +117,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc9f36ad51f25b0219a3d4d13b90eb44cd075dff8b6280cca015775d7acaddd8"
 
 [[package]]
-name = "wasm-test"
+name = "wasm-runner"
 version = "0.1.0"
 dependencies = [
  "wasm-bindgen",

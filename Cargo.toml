@@ -1,5 +1,5 @@
 [package]
-name = "wasm-test"
+name = "wasm-runner"
 version = "0.1.0"
 authors = ["cohix <connor@agilebits.com>"]
 edition = "2018"
