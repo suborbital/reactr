@@ -24,8 +24,9 @@ jobs:
 
     - name: Get dependencies
       run: |
-        ls -a ./pkg
         go get -v -t -d ./...
       
     - name: Run test
-      run: make test
+      run: |
+        ls -a ./pkg
+        make test
