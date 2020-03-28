@@ -8,15 +8,9 @@ The process for creating a WASM runnable is currently also _very rough_, so bear
 
 The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/WASM code. Any language that compiles to WASM can be used if the functions in `src/lib.rs` are re-created for that language. In the future, a proper WASM repo will be created for Hive that will include the boilerplate for a number of languages.
 
-To get started, you'll need the `Cargo` toolchain installed (with a recent version of Rust), [`wasm-pack`](https://rustwasm.github.io/wasm-pack/installer/), and the `wasm32-unknown-unknown` rust compilation target installed. You should also clone this repo.
-
-In the future, this will all be Dockerized so you won't need to concern yourself :)
+To create a WASM runnable, check out our [WASM packaging repo](https://github.com/suborbital/hive-wasm). Once you've generated a `wasm_runner_bg.wasm` file, you can use it with Hive.
 
 Due to the memory limitations of WASM, WASM runners accept a string (rather than arbitrary input) and return a string. WASM runners cannot currently schedule other jobs, though support for that is coming.
-
-In this repo, look at `src/run.rs`. You'll find the `run` function already defined for you. Add whatever code you want, just don't change the function signature.
-
-Once you're done, run `make wasm`, which will generate `wasm/wasm_runner_bg.wasm` (among other things). This is your WASM runner file, and should be included wherever you want to run Hive with WASM.
 
 Here's how to use it:
 ```golang
