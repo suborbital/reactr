@@ -104,7 +104,7 @@ A hive `Group` is a set of `Result`s that belong together. If you're familiar wi
 ```golang
 grp := hive.NewGroup()
 
-grp.Add(run(hive.NewJob("generic", "first")))
+grp.Add(run(hive.NewJob("recursive", "first")))
 grp.Add(run(hive.NewJob("generic", "group work")))
 grp.Add(run(hive.NewJob("generic", "group work")))
 
