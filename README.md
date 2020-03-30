@@ -172,6 +172,4 @@ The `Handle` function returns an optional helper function. Instead of passing a 
 
 More to come, including better performance, lower memory usage, library stability data persistence, etc. Cheers!
 
-If your company builds anything using Hive and derives revenue from it, please contact @cohix to discuss a sponsorship. OSS works better when we all work together.
-
 Copyright Suborbital contributors 2020
