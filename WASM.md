@@ -4,19 +4,19 @@ Hive has early support for WASM-packaged runnables. WASM runnables are not ready
 
 WASM support in Hive is powered by [Wasmer](https://github.com/wasmerio/go-ext-wasm), the hard work they've done to create a powerful WASM runtime that is extensible has been very much appreciated, and it's been very cool seeing that project grow.
 
-The process for creating a WASM runnable is currently also _very rough_, so bear with us!
+The `hivew` toolchain is also in its early days, so please bear with us!
 
-The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/WASM code. Any language that compiles to WASM can be used if the functions in `src/lib.rs` are re-created for that language. In the future, a proper WASM repo will be created for Hive that will include the boilerplate for a number of languages.
+The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/WASM code. Any language that compiles to WASM can be used if the functions in [lib.rs](https://github.com/suborbital/hivew/blob/master/rs-builder/src/lib.rs) are re-created for that language.
 
-To create a WASM runnable, check out our [WASM packaging repo](https://github.com/suborbital/hive-wasm). Once you've generated a `wasm_runner_bg.wasm` file, you can use it with Hive.
+To create a WASM runnable, check out the [hivew CLI](https://github.com/suborbital/hivew). Once you've generated a `.wasm` file, you can use it with Hive just like any other Runnable!
 
-Due to the memory limitations of WASM, WASM runners accept a string (rather than arbitrary input) and return a string. WASM runners cannot currently schedule other jobs, though support for that is coming.
+Due to the memory limitations of WASM, WASM runners can only accept a string (rather than arbitrary input) and return a string. WASM runners cannot currently schedule other jobs, though support for that is coming.
 
 Here's how to use it:
 ```golang
 h := hive.New()
 
-doWasm := h.Handle("wasm", hive.NewWasm("{path/to/wasm_runner_bg.wasm}"))
+doWasm := h.Handle("wasm", hive.NewWasm("{path/to/runnable/file.wasm}"))
 
 res, err := doWasm("input_must_be_a_string").Then()
 if err != nil {
@@ -26,6 +26,6 @@ if err != nil {
 fmt.Println(res.(string))
 ```
 
-And that's it! You can schedule WASM jobs as normal, and WASM instances will be managed automatically to run your jobs.
+And that's it! You can schedule WASM jobs as normal, and WASM runtimes will be managed automatically to run your jobs.
 
 Please file issues if you encounter anything, and please give the Wasmer team a shout-out for all the great work!
