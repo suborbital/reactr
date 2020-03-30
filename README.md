@@ -8,7 +8,7 @@ Hive is designed to allow multiple goroutine workers to exist in parallel, with 
 
 ## WASM
 
-Hive has _very early_ support for WASM-packaged runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./WASM.md) for details.
+Hive has _very early_ support for WASM-packaged runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./WASM.md) and the [hivew toolchain](https://github.com/suborbital/hivew) for details.
 
 ### Jobs
 
