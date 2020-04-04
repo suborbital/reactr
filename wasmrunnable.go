@@ -3,6 +3,8 @@ package hive
 import (
 	"strings"
 
+	"github.com/suborbital/hivew/hivew/util"
+
 	"github.com/pkg/errors"
 
 	wasm "github.com/wasmerio/go-ext-wasm/wasmer"
@@ -11,6 +13,7 @@ import (
 //WasmRunner represents a wasm-based runnable
 type WasmRunner struct {
 	wasmFile string
+	raw      *util.RawWASM
 	inst     *wasm.Instance
 }
 
@@ -18,6 +21,14 @@ type WasmRunner struct {
 func NewWasm(path string) *WasmRunner {
 	w := &WasmRunner{
 		wasmFile: path,
+	}
+
+	return w
+}
+
+func newWasmFromRaw(raw *util.RawWASM) *WasmRunner {
+	w := &WasmRunner{
+		raw: raw,
 	}
 
 	return w
@@ -50,6 +61,15 @@ func (w *WasmRunner) Run(job Job, run RunFunc) (interface{}, error) {
 	deallocate(w.inst, res.ToI32(), len(output))
 
 	return output, nil
+}
+
+// WasmBytes returns the raw bytes of the runner's wasm
+func (w *WasmRunner) WasmBytes() ([]byte, error) {
+	if w.raw != nil {
+		return w.raw.Contents, nil
+	}
+
+	return wasm.ReadBytes(w.wasmFile)
 }
 
 func (w *WasmRunner) useInstance(i *wasm.Instance) {
