@@ -16,7 +16,7 @@ Here's how to use it:
 ```golang
 h := hive.New()
 
-doWasm := h.Handle("wasm", hive.NewWasm("{path/to/runnable/file.wasm}"))
+doWasm := h.Handle("wasm", hive.NewWasm("path/to/runnable/file.wasm"))
 
 res, err := doWasm("input_must_be_a_string").Then()
 if err != nil {
@@ -25,6 +25,18 @@ if err != nil {
 
 fmt.Println(res.(string))
 ```
+
+## Bundles
+If you use `hivew` to create a [bundle](https://github.com/suborbital/hivew#bundles), you can load the entire bundle with all of its runnables into your Hive instance:
+```golang
+if err := h.HandleBundle("path/to/runnables.wasm.zip"); err != nil {
+	//handle failure
+}
+
+res := h.Do(hive.NewJob("name_of_runnable", "input_must_be_a_string"))
+[...]
+```
+The name of each runnable will be the name of the directory that the original source was found in. 
 
 And that's it! You can schedule WASM jobs as normal, and WASM runtimes will be managed automatically to run your jobs.
 
