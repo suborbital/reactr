@@ -22,6 +22,25 @@ func TestWasmRunner(t *testing.T) {
 	}
 }
 
+func TestWasmBundle(t *testing.T) {
+	h := New()
+
+	if err := h.HandleBundle("./wasm-test/runnables.wasm.zip"); err != nil {
+		t.Error(errors.Wrap(err, "failed to HandleBundle"))
+		return
+	}
+
+	res, err := h.Do(NewJob("helloworld-rs", "wasmWorker!")).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "Then returned error"))
+		return
+	}
+
+	if res.(string) != "hello wasmWorker!" {
+		t.Error(fmt.Errorf("expected incorrect output, got %s", res.(string)))
+	}
+}
+
 const largeInput = `
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris vel ante a tellus consequat placerat at ut odio. Sed ut sagittis turpis. Sed ullamcorper in magna id posuere. Maecenas turpis nibh, vestibulum quis arcu vitae, commodo dignissim massa. Sed blandit, ligula ut euismod elementum, massa odio varius eros, vitae euismod eros ligula vel diam. Donec odio sapien, placerat vitae velit a, facilisis scelerisque libero. Suspendisse vel blandit ex, vitae cursus ex.
 

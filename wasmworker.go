@@ -7,15 +7,15 @@ import (
 
 type wasmWorker struct {
 	workChan chan Job
-	runner   Runnable
+	runnable Runnable
 	options  workerOpts
 }
 
 // newWasmWorker creates a new wasmWorker
-func newWasmWorker(runner Runnable, opts workerOpts) *wasmWorker {
+func newWasmWorker(runnable Runnable, opts workerOpts) *wasmWorker {
 	w := &wasmWorker{
 		workChan: make(chan Job, defaultChanSize),
-		runner:   runner,
+		runnable: runnable,
 		options:  opts,
 	}
 
@@ -38,25 +38,30 @@ func (w *wasmWorker) start(runFunc RunFunc) error {
 		w.workChan = make(chan Job, defaultChanSize)
 	}
 
+	wasmBytes, err := w.runnable.(*WasmRunner).WasmBytes()
+	if err != nil {
+		return errors.Wrap(err, "failed to WasmBytes")
+	}
+
 	// fill the "pool" with goroutines
 	for i := 0; i < w.options.poolSize; i++ {
-		runnerCopy := *w.runner.(*WasmRunner)
+		runnableCopy := *w.runnable.(*WasmRunner)
 
-		instance, err := newInstance(runnerCopy.wasmFile)
+		instance, err := wasm.NewInstance(wasmBytes)
 		if err != nil {
-			return errors.Wrap(err, "wasmWorker failed to newInstance")
+			return errors.Wrap(err, "failed to wasm.NewInstance")
 		}
 
-		runnerCopy.useInstance(instance)
+		runnableCopy.useInstance(&instance)
 
-		runner := &runnerCopy // make it a pointer again
+		runnable := &runnableCopy // make it a pointer again
 
 		go func() {
 			for {
 				// wait for the next job
 				job := <-w.workChan
 
-				result, err := runner.Run(job, runFunc)
+				result, err := runnable.Run(job, runFunc)
 				if err != nil {
 					job.result.sendErr(err)
 				}
@@ -67,18 +72,4 @@ func (w *wasmWorker) start(runFunc RunFunc) error {
 	}
 
 	return nil
-}
-
-func newInstance(path string) (*wasm.Instance, error) {
-	bytes, err := wasm.ReadBytes(path)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to wasm.ReadBytes")
-	}
-
-	instance, err := wasm.NewInstance(bytes)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to wasm.NewInstance")
-	}
-
-	return &instance, nil
 }
