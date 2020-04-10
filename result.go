@@ -3,11 +3,14 @@ package hive
 import (
 	"encoding/json"
 
+	"github.com/suborbital/hive/util"
+
 	"github.com/pkg/errors"
 )
 
 // Result describes a result
 type Result struct {
+	ID         string
 	resultChan chan interface{}
 	errChan    chan error
 }
@@ -58,6 +61,7 @@ func (r *Result) ThenJSON(out interface{}) error {
 
 func newResult() *Result {
 	r := &Result{
+		ID:         util.GenerateResultID(),
 		resultChan: make(chan interface{}, 1), // buffered, so the result can be written and related goroutines can end before Then() is called
 		errChan:    make(chan error, 1),
 	}
