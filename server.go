@@ -1,8 +1,10 @@
 package hive
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
+	"sync"
 
 	"github.com/pkg/errors"
 	gapi "github.com/suborbital/gust/gapi/server"
@@ -11,6 +13,7 @@ import (
 // Server is a hive server
 type Server struct {
 	*gapi.Server
+	sync.Mutex
 	h        *Hive
 	inFlight map[string]*Result
 }
@@ -20,11 +23,13 @@ func newServer(h *Hive, opts ...gapi.OptionsModifier) *Server {
 
 	server := &Server{
 		Server:   s,
+		Mutex:    sync.Mutex{},
 		h:        h,
 		inFlight: make(map[string]*Result),
 	}
 
 	server.POST("/do/:jobtype", server.scheduleHandler())
+	server.GET("/then/:id", server.thenHandler())
 
 	return server
 }
@@ -60,15 +65,51 @@ func (s *Server) scheduleHandler() gapi.HandlerFunc {
 	}
 }
 
+func (s *Server) thenHandler() gapi.HandlerFunc {
+	return func(r *http.Request, ctx *gapi.Ctx) (interface{}, error) {
+		id := ctx.Params.ByName("id")
+		if len(id) != 24 {
+			return nil, gapi.E(http.StatusBadRequest, "invalid result ID")
+		}
+
+		res := s.getInFlight(id)
+		if res == nil {
+			return nil, gapi.E(http.StatusNotFound, fmt.Sprintf("result with ID %s not found", id))
+		}
+
+		result, err := res.Then()
+		if err != nil {
+			return nil, gapi.E(http.StatusNoContent, errors.Wrap(err, "job resulted in error").Error())
+		}
+
+		defer s.removeInFlight(id)
+
+		return result, nil
+	}
+}
+
 func (s *Server) addInFlight(r *Result) {
+	s.Lock()
+	defer s.Unlock()
+
 	s.inFlight[r.ID] = r
 }
 
 func (s *Server) getInFlight(id string) *Result {
+	s.Lock()
+	defer s.Unlock()
+
 	r, ok := s.inFlight[id]
 	if !ok {
 		return nil
 	}
 
 	return r
+}
+
+func (s *Server) removeInFlight(id string) {
+	s.Lock()
+	defer s.Unlock()
+
+	delete(s.inFlight, id)
 }
