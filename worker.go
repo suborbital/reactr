@@ -55,6 +55,7 @@ func (w *goWorker) start(runFunc RunFunc) error {
 				result, err := w.runner.Run(job, runFunc)
 				if err != nil {
 					job.result.sendErr(err)
+					continue
 				}
 
 				job.result.sendResult(result)

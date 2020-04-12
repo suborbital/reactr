@@ -1,9 +1,10 @@
 package main
 
 import (
+	"errors"
 	"log"
 
-	gapi "github.com/suborbital/gust/gapi/server"
+	"github.com/suborbital/gust/gapi"
 	"github.com/suborbital/hive"
 )
 
@@ -27,6 +28,10 @@ func (g generic) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 		return run(hive.NewJob("generic", []byte("second"))), nil
 	} else if string(job.Bytes()) == "second" {
 		return run(hive.NewJob("generic", []byte("last"))), nil
+	}
+
+	if string(job.Bytes()) == "error" {
+		return nil, errors.New("bad!!")
 	}
 
 	return job.Bytes(), nil

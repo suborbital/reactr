@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/pkg/errors"
-	gapi "github.com/suborbital/gust/gapi/server"
+	"github.com/suborbital/gust/gapi"
 )
 
 // Server is a hive server
@@ -53,7 +53,7 @@ func (s *Server) scheduleHandler() gapi.HandlerFunc {
 		if then == "true" {
 			result, err := res.Then()
 			if err != nil {
-				return nil, gapi.E(http.StatusNoContent, errors.Wrap(err, "job resulted in error").Error())
+				return nil, gapi.E(http.StatusInternalServerError, errors.Wrap(err, "job resulted in error").Error())
 			}
 
 			return result, nil
@@ -77,12 +77,12 @@ func (s *Server) thenHandler() gapi.HandlerFunc {
 			return nil, gapi.E(http.StatusNotFound, fmt.Sprintf("result with ID %s not found", id))
 		}
 
+		defer s.removeInFlight(id)
+
 		result, err := res.Then()
 		if err != nil {
-			return nil, gapi.E(http.StatusNoContent, errors.Wrap(err, "job resulted in error").Error())
+			return nil, gapi.E(http.StatusInternalServerError, errors.Wrap(err, "job resulted in error").Error())
 		}
-
-		defer s.removeInFlight(id)
 
 		return result, nil
 	}

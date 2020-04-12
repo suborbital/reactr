@@ -64,6 +64,7 @@ func (w *wasmWorker) start(runFunc RunFunc) error {
 				result, err := runnable.Run(job, runFunc)
 				if err != nil {
 					job.result.sendErr(err)
+					continue
 				}
 
 				job.result.sendResult(result)

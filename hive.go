@@ -1,7 +1,7 @@
 package hive
 
 import (
-	gapi "github.com/suborbital/gust/gapi/server"
+	"github.com/suborbital/gust/gapi"
 )
 
 //DoFunc is a function that runs a job of a predetermined type
