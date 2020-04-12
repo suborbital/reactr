@@ -15,6 +15,16 @@ type Result struct {
 	errChan    chan error
 }
 
+// Discard returns immediately and discards the eventual results and thus prevents the memory from hanging around
+func (r *Result) Discard() {
+	go func() {
+		select {
+		case <-r.resultChan:
+		case <-r.errChan:
+		}
+	}()
+}
+
 // Then returns the result or error from a Result
 func (r *Result) Then() (interface{}, error) {
 	select {
