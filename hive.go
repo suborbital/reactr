@@ -1,5 +1,9 @@
 package hive
 
+import (
+	"github.com/suborbital/gust/gapi"
+)
+
 //DoFunc is a function that runs a job of a predetermined type
 type DoFunc func(interface{}) *Result
 
@@ -41,4 +45,9 @@ func (h *Hive) Handle(jobType string, runner Runnable, options ...Option) DoFunc
 // Job is a shorter alias for NewJob
 func (h *Hive) Job(jobType string, data interface{}) Job {
 	return NewJob(jobType, data)
+}
+
+// Server returns a new Hive server
+func (h *Hive) Server(opts ...gapi.OptionsModifier) *Server {
+	return newServer(h, opts...)
 }
