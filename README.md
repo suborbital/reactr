@@ -2,13 +2,17 @@
 
 ![Testapalooza](https://github.com/suborbital/hive/workflows/Testapalooza/badge.svg)
 
-Hive is a fast, performant job scheduler, plain and simple. Why does Hive exist? Go has tons of primitives to do what Hive is doing! That's correct, but after re-writing the same boilerplate event loops and scheduling logic time and time again, I decided to put all my learnings about Go concurrency into one library that can handle anything you throw at it without needing to think about gotchas or even the goroutines themselves.
+Hive is a fast, performant job scheduling system, plain and simple. Hive is designed to be flexible, with the ability to run embedded in your Go applications or as a standalone FaaS server, and has early support for running WASM/WASI bundles.
 
-Hive is designed to allow multiple goroutine workers to exist in parallel, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
+Hive transparently spawns workers to process jobs, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled by clients, and their results can be retreived at a later time.
 
 ## WASM
 
-Hive has _very early_ support for WASM-packaged runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./WASM.md) and the [hivew toolchain](https://github.com/suborbital/hivew) for details.
+Hive has _very early_ (read: pre-alpha) support for WASM-packaged runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./WASM.md) and the [hivew toolchain](https://github.com/suborbital/hivew) for details.
+
+## FaaS
+
+Hive also has early (read: alpha) support for acting as a Functions-as-a-Service system. Hive can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. gRPC support is planned.
 
 ### Jobs
 
