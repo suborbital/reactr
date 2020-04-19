@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log"
 
-	"github.com/suborbital/gust/gapi"
 	"github.com/suborbital/hive"
+	"github.com/suborbital/vektor/vk"
 )
 
 func main() {
@@ -13,7 +13,7 @@ func main() {
 
 	h.Handle("generic", generic{})
 
-	server := h.Server(gapi.UseInsecureHTTP(8080), gapi.UseAppName("hivetest"))
+	server := h.Server(vk.UseInsecureHTTP(8080), vk.UseAppName("hivetest"))
 
 	if err := server.Start(); err != nil {
 		log.Fatal(err)

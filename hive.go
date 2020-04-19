@@ -1,8 +1,6 @@
 package hive
 
-import (
-	"github.com/suborbital/gust/gapi"
-)
+import "github.com/suborbital/vektor/vk"
 
 //DoFunc is a function that runs a job of a predetermined type
 type DoFunc func(interface{}) *Result
@@ -48,6 +46,6 @@ func (h *Hive) Job(jobType string, data interface{}) Job {
 }
 
 // Server returns a new Hive server
-func (h *Hive) Server(opts ...gapi.OptionsModifier) *Server {
+func (h *Hive) Server(opts ...vk.OptionsModifier) *Server {
 	return newServer(h, opts...)
 }

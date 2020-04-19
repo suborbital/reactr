@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/gust/gapi"
-	"github.com/suborbital/gust/glog"
+	"github.com/suborbital/vektor/vk"
+	"github.com/suborbital/vektor/vlog"
 )
 
 // Server is a hive server
 type Server struct {
-	*gapi.Server
+	*vk.Server
 	h        *Hive
 	inFlight map[string]*Result
 	sync.Mutex
@@ -29,8 +29,8 @@ func init() {
 	client.Timeout = time.Duration(time.Second * 5)
 }
 
-func newServer(h *Hive, opts ...gapi.OptionsModifier) *Server {
-	s := gapi.New(opts...)
+func newServer(h *Hive, opts ...vk.OptionsModifier) *Server {
+	s := vk.New(opts...)
 
 	server := &Server{
 		Server:   s,
@@ -49,16 +49,16 @@ type doResponse struct {
 	ResultID string `json:"resultId"`
 }
 
-func (s *Server) scheduleHandler() gapi.HandlerFunc {
-	return func(r *http.Request, ctx *gapi.Ctx) (interface{}, error) {
+func (s *Server) scheduleHandler() vk.HandlerFunc {
+	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
 		jobType := ctx.Params.ByName("jobtype")
 		if jobType == "" {
-			return nil, gapi.E(http.StatusBadRequest, "missing jobtype")
+			return nil, vk.E(http.StatusBadRequest, "missing jobtype")
 		}
 
 		data, err := ioutil.ReadAll(r.Body)
 		if err != nil {
-			return nil, gapi.E(http.StatusInternalServerError, "failed to read request body")
+			return nil, vk.E(http.StatusInternalServerError, "failed to read request body")
 		}
 		defer r.Body.Close()
 
@@ -68,19 +68,19 @@ func (s *Server) scheduleHandler() gapi.HandlerFunc {
 		if callback != "" {
 			callbackURL, err := url.Parse(callback)
 			if err != nil {
-				return nil, gapi.E(http.StatusBadRequest, errors.Wrap(err, "failed to parse callback URL").Error())
+				return nil, vk.E(http.StatusBadRequest, errors.Wrap(err, "failed to parse callback URL").Error())
 			}
 
 			res.ThenDo(webhookCallback(callbackURL, ctx.Log))
 
-			return gapi.R(http.StatusOK, nil), nil
+			return vk.R(http.StatusOK, nil), nil
 		}
 
 		then := r.URL.Query().Get("then")
 		if then == "true" {
 			result, err := res.Then()
 			if err != nil {
-				return nil, gapi.E(http.StatusInternalServerError, errors.Wrap(err, "job resulted in error").Error())
+				return nil, vk.E(http.StatusInternalServerError, errors.Wrap(err, "job resulted in error").Error())
 			}
 
 			return result, nil
@@ -96,30 +96,30 @@ func (s *Server) scheduleHandler() gapi.HandlerFunc {
 	}
 }
 
-func (s *Server) thenHandler() gapi.HandlerFunc {
-	return func(r *http.Request, ctx *gapi.Ctx) (interface{}, error) {
+func (s *Server) thenHandler() vk.HandlerFunc {
+	return func(r *http.Request, ctx *vk.Ctx) (interface{}, error) {
 		id := ctx.Params.ByName("id")
 		if len(id) != 24 {
-			return nil, gapi.E(http.StatusBadRequest, "invalid result ID")
+			return nil, vk.E(http.StatusBadRequest, "invalid result ID")
 		}
 
 		res := s.getInFlight(id)
 		if res == nil {
-			return nil, gapi.E(http.StatusNotFound, fmt.Sprintf("result with ID %s not found", id))
+			return nil, vk.E(http.StatusNotFound, fmt.Sprintf("result with ID %s not found", id))
 		}
 
 		defer s.removeInFlight(id)
 
 		result, err := res.Then()
 		if err != nil {
-			return nil, gapi.E(http.StatusInternalServerError, errors.Wrap(err, "job resulted in error").Error())
+			return nil, vk.E(http.StatusInternalServerError, errors.Wrap(err, "job resulted in error").Error())
 		}
 
 		return result, nil
 	}
 }
 
-func webhookCallback(callbackURL *url.URL, log glog.Logger) ResultFunc {
+func webhookCallback(callbackURL *url.URL, log vlog.Logger) ResultFunc {
 	return func(res interface{}, err error) {
 		var body []byte
 		var contentType = "application/octet-stream"

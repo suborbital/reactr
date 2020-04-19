@@ -4,7 +4,7 @@ Hive has built-in support for acting as a Functions-as-a-Service system (FaaS). 
 
 Hive FaaS operates with similar semantics to the Hive Go library. Jobs are triggered by making a POST request, and the caller receives a result ID in return. The job will be automatically scheduled and the result can be fetched later by passing the result ID in a later GET request. Results can optionally be waited for by passing the `?then=true` query parameter.
 
-An example of creating a Hive FaaS server can be found in [servertest](../servertest/main.go). Hive FaaS uses SubOrbital's [GusT API framework](https://github.com/suborbital/gust), and so all of its options are available, and the resulting server object can be optionally extended with other handlers. Below are the API calls available for Hive jobs.
+An example of creating a Hive FaaS server can be found in [servertest](../servertest/main.go). Hive FaaS uses SubOrbital's [Vektor API framework](https://github.com/suborbital/vektor), and so all of its options are available, and the resulting server object can be optionally extended with other handlers. Below are the API calls available for Hive jobs.
 
 ## Schedule a Job
 
