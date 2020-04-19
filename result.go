@@ -15,6 +15,9 @@ type Result struct {
 	errChan    chan error
 }
 
+// ResultFunc is a result callback function.
+type ResultFunc func(interface{}, error)
+
 // Then returns the result or error from a Result
 func (r *Result) Then() (interface{}, error) {
 	select {
@@ -59,13 +62,18 @@ func (r *Result) ThenJSON(out interface{}) error {
 	return nil
 }
 
+// ThenDo accepts a callback function to be called asynchronously when the result completes.
+func (r *Result) ThenDo(do ResultFunc) {
+	go func() {
+		res, err := r.Then()
+		do(res, err)
+	}()
+}
+
 // Discard returns immediately and discards the eventual results and thus prevents the memory from hanging around
 func (r *Result) Discard() {
 	go func() {
-		select {
-		case <-r.resultChan:
-		case <-r.errChan:
-		}
+		r.Then()
 	}()
 }
 
