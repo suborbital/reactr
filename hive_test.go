@@ -1,8 +1,11 @@
 package hive
 
 import (
+	"fmt"
 	"log"
 	"testing"
+
+	"github.com/pkg/errors"
 )
 
 type generic struct{}
@@ -13,6 +16,8 @@ func (g generic) Run(job Job, run RunFunc) (interface{}, error) {
 		return run(NewJob("generic", "second")), nil
 	} else if job.String() == "second" {
 		return run(NewJob("generic", "last")), nil
+	} else if job.String() == "fail" {
+		return nil, errors.New("error!")
 	}
 
 	return job.String(), nil
@@ -76,4 +81,38 @@ func TestHiveResultDiscard(t *testing.T) {
 
 	// basically just making sure that it doesn't hold up the line
 	r.Discard()
+}
+
+func TestHiveResultThenDo(t *testing.T) {
+	h := New()
+
+	h.Handle("generic", generic{})
+
+	wait := make(chan bool)
+
+	h.Do(h.Job("generic", "first")).ThenDo(func(res interface{}, err error) {
+		if err != nil {
+			t.Error(errors.Wrap(err, "did not expect error"))
+			wait <- false
+		}
+
+		if res.(string) != "last" {
+			t.Error(fmt.Errorf("expected 'last', got %s", res.(string)))
+		}
+
+		wait <- true
+	})
+
+	h.Do(h.Job("generic", "fail")).ThenDo(func(res interface{}, err error) {
+		if err == nil {
+			t.Error(errors.New("expected error, did not get one"))
+			wait <- false
+		}
+
+		wait <- true
+	})
+
+	// poor man's async testing
+	<-wait
+	<-wait
 }

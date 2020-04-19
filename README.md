@@ -107,6 +107,18 @@ You won't always need or care about a job's output, and in those cases, make sur
 h.Do(h.Job("recursive", "first")).Discard()
 ```
 
+To to something asynchronously with the `Result` once it completes, call `ThenDo` on the result:
+```golang
+h.Do(h.Job("generic", "first")).ThenDo(func(res interface{}, err error) {
+	if err != nil {
+		// do something with the error
+	}
+
+	//do something with the result
+})
+```
+`ThenDo` will return immediately, and provided callback will be run on a background goroutine. This is useful for handling results that don't need to be consumed by your main program execution.
+
 ### Groups
 
 A hive `Group` is a set of `Result`s that belong together. If you're familiar with Go's `errgroup.Group{}`, it is similar. Adding results to a group will allow you to evaluate them all together at a later time.
