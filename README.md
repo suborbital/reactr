@@ -102,6 +102,11 @@ done! finished last
 ```
 Think about that for a minute, and let it sink in, it can be quite powerful!
 
+You won't always need or care about a job's output, and in those cases, make sure to call `Discard()` on the result to prevent keeping the underlying resources allocated!
+```golang
+h.Do(h.Job("recursive", "first")).Discard()
+```
+
 ### Groups
 
 A hive `Group` is a set of `Result`s that belong together. If you're familiar with Go's `errgroup.Group{}`, it is similar. Adding results to a group will allow you to evaluate them all together at a later time.
