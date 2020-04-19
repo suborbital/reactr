@@ -1,13 +1,18 @@
 package hive
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"sync"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/suborbital/gust/gapi"
+	"github.com/suborbital/gust/glog"
 )
 
 // Server is a hive server
@@ -16,6 +21,12 @@ type Server struct {
 	h        *Hive
 	inFlight map[string]*Result
 	sync.Mutex
+}
+
+var client = &http.Client{}
+
+func init() {
+	client.Timeout = time.Duration(time.Second * 5)
 }
 
 func newServer(h *Hive, opts ...gapi.OptionsModifier) *Server {
@@ -52,6 +63,18 @@ func (s *Server) scheduleHandler() gapi.HandlerFunc {
 		defer r.Body.Close()
 
 		res := s.h.Do(NewJob(jobType, data))
+
+		callback := r.URL.Query().Get("callback")
+		if callback != "" {
+			callbackURL, err := url.Parse(callback)
+			if err != nil {
+				return nil, gapi.E(http.StatusBadRequest, errors.Wrap(err, "failed to parse callback URL").Error())
+			}
+
+			res.ThenDo(webhookCallback(callbackURL, ctx.Log))
+
+			return gapi.R(http.StatusOK, nil), nil
+		}
 
 		then := r.URL.Query().Get("then")
 		if then == "true" {
@@ -93,6 +116,38 @@ func (s *Server) thenHandler() gapi.HandlerFunc {
 		}
 
 		return result, nil
+	}
+}
+
+func webhookCallback(callbackURL *url.URL, log glog.Logger) ResultFunc {
+	return func(res interface{}, err error) {
+		var body []byte
+		var contentType = "application/octet-stream"
+
+		if err != nil {
+			body = []byte(errors.Wrap(err, "job_err_result").Error())
+		} else {
+			// if result is bytes, send that
+			if bytes, isBytes := res.([]byte); isBytes {
+				body = bytes
+			} else {
+				// if not, attempt to Marshal it from a struct or error out
+				json, err := json.Marshal(res)
+				if err != nil {
+					body = []byte(errors.Wrap(err, "job_err_result failed to Marshal result").Error())
+				} else {
+					contentType = "application/json"
+					body = json
+				}
+			}
+		}
+
+		log.Info("sending callback to", callbackURL.String())
+
+		_, postErr := client.Post(callbackURL.String(), contentType, bytes.NewBuffer(body))
+		if postErr != nil {
+			log.Error(errors.Wrap(postErr, "failed to Post"))
+		}
 	}
 }
 

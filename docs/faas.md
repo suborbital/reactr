@@ -9,12 +9,13 @@ An example of creating a Hive FaaS server can be found in [servertest](../server
 ## Schedule a Job
 
 URI: | `/do/:jobname`
---- | ---
+--- | :---
 Method: | `POST`
 Body: | Job payload (raw bytes)
 Response: | JSON bytes representing the result
 **Parameter** | **Effect**
- `?then=true` | when provided, causes the request to wait until the scheduled job is completed, and returns the job result as raw bytes
+ `then=true` | When provided, causes the request to wait until the scheduled job is completed, and returns the job result as raw bytes. If the job result was a struct, an attempt will be made to JSON marshal it before sending. If any error occurs, the response will have a non-200 HTTP status code and a body containing an error message.
+ `callback={url}` | When provided, a webhook POST request will be sent to the provided URL when the job completes. The request will contain the bytes of the job result. If the job result was a struct, an attempt will be made to JSON marshal it before sending. If any error occurs, the request payload will be a string beginning with `job_err_result` followed by an error message. When `callback` is set, `then` will be ignored, and the response to the caller will be empty with HTTP status 200 OK.
 **Example Request** | **Example Response**
 `POST` `/do/compressimage` | `{"resultId":"7gj9n0adohm36zeqbfys4re6"}`
 
