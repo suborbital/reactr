@@ -59,6 +59,16 @@ func (r *Result) ThenJSON(out interface{}) error {
 	return nil
 }
 
+// Discard returns immediately and discards the eventual results and thus prevents the memory from hanging around
+func (r *Result) Discard() {
+	go func() {
+		select {
+		case <-r.resultChan:
+		case <-r.errChan:
+		}
+	}()
+}
+
 func newResult() *Result {
 	r := &Result{
 		ID:         util.GenerateResultID(),

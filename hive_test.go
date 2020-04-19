@@ -66,3 +66,14 @@ func TestHiveJobHelperFunc(t *testing.T) {
 		}
 	}
 }
+
+func TestHiveResultDiscard(t *testing.T) {
+	h := New()
+
+	h.Handle("generic", generic{})
+
+	r := h.Do(h.Job("generic", "first"))
+
+	// basically just making sure that it doesn't hold up the line
+	r.Discard()
+}

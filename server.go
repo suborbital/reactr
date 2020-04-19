@@ -13,9 +13,9 @@ import (
 // Server is a hive server
 type Server struct {
 	*gapi.Server
-	sync.Mutex
 	h        *Hive
 	inFlight map[string]*Result
+	sync.Mutex
 }
 
 func newServer(h *Hive, opts ...gapi.OptionsModifier) *Server {
@@ -32,6 +32,10 @@ func newServer(h *Hive, opts ...gapi.OptionsModifier) *Server {
 	server.GET("/then/:id", server.thenHandler())
 
 	return server
+}
+
+type doResponse struct {
+	ResultID string `json:"resultId"`
 }
 
 func (s *Server) scheduleHandler() gapi.HandlerFunc {
@@ -61,7 +65,11 @@ func (s *Server) scheduleHandler() gapi.HandlerFunc {
 
 		s.addInFlight(res)
 
-		return []byte(res.ID), nil
+		resp := doResponse{
+			ResultID: res.ID,
+		}
+
+		return resp, nil
 	}
 }
 
