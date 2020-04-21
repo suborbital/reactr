@@ -28,6 +28,12 @@ func (g generic) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 
 	return fmt.Sprintf("finished %s", job.String()), nil
 }
+
+// OnStart is called when Hive starts up a worker to handle jobs,
+// and allows the Runnable to set itself up before receiving jobs
+func (g generic) OnStart() error {
+	return nil
+}
 ```
 A `Runnable` is something that can take care of a job, all it needs to do is conform to the `Runnable` interface as you see above.
 
@@ -66,7 +72,7 @@ There are some more advanced things you can do with Runnables:
 type recursive struct{}
 
 // Run runs a recursive job
-func (g recursive) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
+func (r recursive) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 	fmt.Println("doing job:", job.String())
 
 	if job.String() == "first" {
@@ -76,6 +82,10 @@ func (g recursive) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 	}
 
 	return fmt.Sprintf("finished %s", job.String()), nil
+}
+
+func (r recursive) OnStart() error {
+	return nil
 }
 ```
 The `hive.RunFunc` that you see there is a way for your Runnable to, well, run more things!
@@ -162,6 +172,10 @@ if err := grp.Wait(); err != nil {
 }
 ```
 Passing `PoolSize(3)` will spawn three goroutines to process `generic` jobs.
+
+### Advanced Runnables
+
+The `Runnable` interface defines an `OnStart` function which gives the Runnable the ability to prepare itself for incoming jobs. For example, when a Runnable is registered with a pool size greater than 1, the Runnable may need to provision resources for itself to enable handling jobs concurrently, and `OnStart` will be called once for each of those workers. Our [wasm implementation](https://github.com/suborbital/hivew/wasm) is a good example of this. Most Runnables can return `nil` from this function, however returning an error will cause the worker start to be paused and retried until the required pool size has been created.
 
 
 ### Shortcuts

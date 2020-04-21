@@ -10,3 +10,19 @@ func PoolSize(size int) Option {
 		return opts
 	}
 }
+
+//RetrySeconds returns an Option to set the worker retry seconds
+func RetrySeconds(secs int) Option {
+	return func(opts workerOpts) workerOpts {
+		opts.retrySecs = secs
+		return opts
+	}
+}
+
+//MaxRetries returns an Option to set the worker maximum retry count
+func MaxRetries(count int) Option {
+	return func(opts workerOpts) workerOpts {
+		opts.numRetries = count
+		return opts
+	}
+}
