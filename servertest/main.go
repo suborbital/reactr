@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 
-	"github.com/suborbital/hive"
+	"github.com/suborbital/hive/hive"
 	"github.com/suborbital/vektor/vk"
 )
 
@@ -35,4 +35,8 @@ func (g generic) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
 	}
 
 	return job.Bytes(), nil
+}
+
+func (g generic) OnStart() error {
+	return nil
 }

@@ -23,6 +23,10 @@ func (g generic) Run(job Job, run RunFunc) (interface{}, error) {
 	return job.String(), nil
 }
 
+func (g generic) OnStart() error {
+	return nil
+}
+
 func TestHiveJob(t *testing.T) {
 	h := New()
 
@@ -55,6 +59,10 @@ func (g math) Run(job Job, run RunFunc) (interface{}, error) {
 	in := job.Data().(input)
 
 	return in.First + in.Second, nil
+}
+
+func (g math) OnStart() error {
+	return nil
 }
 
 func TestHiveJobHelperFunc(t *testing.T) {

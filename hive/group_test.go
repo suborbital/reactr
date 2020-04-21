@@ -66,6 +66,10 @@ func (g groupWork) Run(job Job, run RunFunc) (interface{}, error) {
 	return grp, nil
 }
 
+func (g groupWork) OnStart() error {
+	return nil
+}
+
 func TestHiveChainedGroup(t *testing.T) {
 	h := New()
 
