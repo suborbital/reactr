@@ -1,4 +1,4 @@
-## Hive FaaS
+## Hive FaaS ☁️
 
 Hive has built-in support for acting as a Functions-as-a-Service system (FaaS). Hive Runnables can be exposed as endpoints to be triggered by an API request. Hive will automatically create and manage the server on your behalf and allow for efficient execution of your Runnables over the network.
 
@@ -9,7 +9,7 @@ An example of creating a Hive FaaS server can be found in [servertest](../server
 ## Schedule a Job
 
 URI: | `/do/:jobname`
---- | :---
+:--- | :---
 Method: | `POST`
 Body: | Job payload (raw bytes)
 Response: | JSON bytes representing the result
@@ -22,7 +22,7 @@ Response: | JSON bytes representing the result
 ## Get a result
 
 URI: | `/then/:resultid`
---- | ---
+:--- | :---
 Method: | `GET`
 Body: | none
 Response: | Job result (raw bytes)
