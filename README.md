@@ -175,8 +175,13 @@ Passing `PoolSize(3)` will spawn three goroutines to process `generic` jobs.
 
 ### Advanced Runnables
 
-The `Runnable` interface defines an `OnStart` function which gives the Runnable the ability to prepare itself for incoming jobs. For example, when a Runnable is registered with a pool size greater than 1, the Runnable may need to provision resources for itself to enable handling jobs concurrently, and `OnStart` will be called once for each of those workers. Our [wasm implementation](https://github.com/suborbital/hivew/wasm) is a good example of this. Most Runnables can return `nil` from this function, however returning an error will cause the worker start to be paused and retried until the required pool size has been created.
+The `Runnable` interface defines an `OnStart` function which gives the Runnable the ability to prepare itself for incoming jobs. For example, when a Runnable is registered with a pool size greater than 1, the Runnable may need to provision resources for itself to enable handling jobs concurrently, and `OnStart` will be called once for each of those workers. Our [wasm implementation](https://github.com/suborbital/hivew/wasm) is a good example of this. 
 
+Most Runnables can return `nil` from this function, however returning an error will cause the worker start to be paused and retried until the required pool size has been created. The number of seconds between retries (default 3) and the maximum number of retries (default 5) can be configured when registering a Runnable:
+```golang
+doBad := h.Handle("badRunner", badRunner{}, RetrySeconds(1), MaxRetries(1))
+```
+Any error from a failed worker will be returned to the first job that is attempted for that Runnable.
 
 ### Shortcuts
 
