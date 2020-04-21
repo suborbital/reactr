@@ -21,6 +21,36 @@ func TestHiveJobGroup(t *testing.T) {
 	}
 }
 
+func TestLargeGroup(t *testing.T) {
+	h := New()
+
+	doMath := h.Handle("math", math{})
+
+	grp := NewGroup()
+	for i := 0; i < 50000; i++ {
+		grp.Add(doMath(input{5, 6}))
+	}
+
+	if err := grp.Wait(); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestLargeGroupWithPool(t *testing.T) {
+	h := New()
+
+	doMath := h.Handle("math", math{}, PoolSize(3))
+
+	grp := NewGroup()
+	for i := 0; i < 50000; i++ {
+		grp.Add(doMath(input{5, i}))
+	}
+
+	if err := grp.Wait(); err != nil {
+		t.Error(err)
+	}
+}
+
 type groupWork struct{}
 
 // Run runs a groupWork job
