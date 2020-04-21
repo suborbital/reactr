@@ -47,12 +47,14 @@ func (w *goWorker) start(runFunc RunFunc) error {
 
 	// fill the "pool" with goroutines
 	for i := 0; i < w.options.poolSize; i++ {
+		runnerCopy := w.runner
+
 		go func() {
 			for {
 				// wait for the next job
 				job := <-w.workChan
 
-				result, err := w.runner.Run(job, runFunc)
+				result, err := runnerCopy.Run(job, runFunc)
 				if err != nil {
 					job.result.sendErr(err)
 					continue

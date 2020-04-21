@@ -45,14 +45,7 @@ func (s *scheduler) schedule(job Job) *Result {
 			return result
 		}
 
-		var newWorker worker
-
-		// determine what type of runnable we have
-		if _, useWasm := handler.runnable.(*WasmRunner); useWasm {
-			newWorker = newWasmWorker(handler.runnable, handler.options)
-		} else {
-			newWorker = newGoWorker(handler.runnable, handler.options)
-		}
+		newWorker := newGoWorker(handler.runnable, handler.options)
 
 		// "recursively" pass this function as the runFunc for the runnable
 		if err := newWorker.start(s.schedule); err != nil {
