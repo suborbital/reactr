@@ -13,10 +13,16 @@ To create a WASM runnable, check out the [hivew CLI](https://github.com/suborbit
 Due to the memory limitations of WASM, WASM runners can only accept a string (rather than arbitrary input) and return a string. WASM runners cannot currently schedule other jobs, though support for that is coming.
 
 Here's how to use it:
+
+First, install hivew's wasm package:
+```bash
+go get github.com/suborbital/hivew/wasm
+```
+
 ```golang
 h := hive.New()
 
-doWasm := h.Handle("wasm", hive.NewWasm("path/to/runnable/file.wasm"))
+doWasm := h.Handle("wasm", wasm.NewRunner("path/to/runnable/file.wasm"))
 
 res, err := doWasm("input_must_be_a_string").Then()
 if err != nil {
@@ -29,7 +35,7 @@ fmt.Println(res.(string))
 ## Bundles
 If you use `hivew` to create a [bundle](https://github.com/suborbital/hivew#bundles), you can load the entire bundle with all of its runnables into your Hive instance:
 ```golang
-if err := h.HandleBundle("path/to/runnables.wasm.zip"); err != nil {
+if err := wasm.HandleBundle(h, "path/to/runnables.wasm.zip"); err != nil {
 	//handle failure
 }
 
