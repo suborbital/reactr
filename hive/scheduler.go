@@ -8,60 +8,50 @@ import (
 )
 
 type scheduler struct {
-	registered map[string]handler
-	workers    map[string]worker
-	sync.Mutex
-}
+	workers map[string]*worker
 
-type handler struct {
-	runnable Runnable
-	options  workerOpts
+	starter sync.Once
+	sync.Mutex
 }
 
 func newScheduler() *scheduler {
 	s := &scheduler{
-		registered: map[string]handler{},
-		workers:    map[string]worker{},
-		Mutex:      sync.Mutex{},
+		workers: map[string]*worker{},
+		Mutex:   sync.Mutex{},
 	}
 
 	return s
 }
 
 func (s *scheduler) schedule(job Job) *Result {
-	if s.workers == nil {
-		s.workers = map[string]worker{}
+	s.starter.Do(func() {
+		if s.workers == nil {
+			s.workers = map[string]*worker{}
+		}
+	})
+
+	result := newResult()
+
+	worker := s.getWorker(job.jobType)
+	if worker == nil {
+		result.sendErr(fmt.Errorf("failed to getRunnable for jobType %q", job.jobType))
+		return result
 	}
 
-	s.Lock() // this is probably unneeded but just being safe
-	w, isStarted := s.workers[job.jobType]
-	s.Unlock()
-
-	if !isStarted {
-		handler := s.getHandler(job.jobType)
-		if handler == nil {
-			result := newResult()
-			result.sendErr(fmt.Errorf("failed to getRunnable for jobType %q", job.jobType))
-			return result
+	go func() {
+		if !worker.isStarted() {
+			// "recursively" pass this function as the runFunc for the runnable
+			if err := worker.start(s.schedule); err != nil {
+				result.sendErr(errors.Wrapf(err, "failed start worker for jobType %q", job.jobType))
+				return
+			}
 		}
 
-		newWorker := newGoWorker(handler.runnable, handler.options)
+		job.result = result
+		worker.schedule(job)
+	}()
 
-		// "recursively" pass this function as the runFunc for the runnable
-		if err := newWorker.start(s.schedule); err != nil {
-			result := newResult()
-			result.sendErr(errors.Wrapf(err, "failed start worker for jobType %q", job.jobType))
-			return result
-		}
-
-		s.Lock()
-		s.workers[job.jobType] = newWorker
-		s.Unlock()
-
-		w = newWorker
-	}
-
-	return w.schedule(job)
+	return result
 }
 
 // handle adds a handler
@@ -70,29 +60,29 @@ func (s *scheduler) handle(jobType string, runnable Runnable, options ...Option)
 	defer s.Unlock()
 
 	// apply the provided options
-	opts := defaultOpts()
+	opts := defaultOpts(jobType)
 	for _, o := range options {
 		opts = o(opts)
 	}
 
-	h := handler{runnable, opts}
-	if s.registered == nil {
-		s.registered = map[string]handler{jobType: h}
+	w := newWorker(runnable, opts)
+	if s.workers == nil {
+		s.workers = map[string]*worker{jobType: w}
 	} else {
-		s.registered[jobType] = h
+		s.workers[jobType] = w
 	}
 }
 
-func (s *scheduler) getHandler(jobType string) *handler {
+func (s *scheduler) getWorker(jobType string) *worker {
 	s.Lock()
 	defer s.Unlock()
 
-	if s.registered == nil {
+	if s.workers == nil {
 		return nil
 	}
 
-	if r, ok := s.registered[jobType]; ok {
-		return &r
+	if w, ok := s.workers[jobType]; ok {
+		return w
 	}
 
 	return nil

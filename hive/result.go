@@ -10,9 +10,12 @@ import (
 
 // Result describes a result
 type Result struct {
-	ID         string
-	resultChan chan interface{}
-	errChan    chan error
+	ID   string
+	data interface{}
+	err  error
+
+	resultChan chan bool
+	errChan    chan bool
 }
 
 // ResultFunc is a result callback function.
@@ -21,10 +24,10 @@ type ResultFunc func(interface{}, error)
 // Then returns the result or error from a Result
 func (r *Result) Then() (interface{}, error) {
 	select {
-	case res := <-r.resultChan:
-		return res, nil
-	case err := <-r.errChan:
-		return nil, err
+	case <-r.resultChan:
+		return r.data, nil
+	case <-r.errChan:
+		return nil, r.err
 	}
 }
 
@@ -80,19 +83,19 @@ func (r *Result) Discard() {
 func newResult() *Result {
 	r := &Result{
 		ID:         util.GenerateResultID(),
-		resultChan: make(chan interface{}, 1), // buffered, so the result can be written and related goroutines can end before Then() is called
-		errChan:    make(chan error, 1),
+		resultChan: make(chan bool, 1), // buffered, so the result can be written and related goroutines can end before Then() is called
+		errChan:    make(chan bool, 1),
 	}
 
 	return r
 }
 
-func (r *Result) sendResult(result interface{}) {
+func (r *Result) sendResult(data interface{}) {
 	// if the result is another Result,
 	// wait for its result and recursively send it
 	// or if the result is a group, wait on the
 	// group and propogate the error if any
-	if res, ok := result.(*Result); ok {
+	if res, ok := data.(*Result); ok {
 		go func() {
 			if newResult, err := res.Then(); err != nil {
 				r.sendErr(err)
@@ -102,7 +105,7 @@ func (r *Result) sendResult(result interface{}) {
 		}()
 
 		return
-	} else if grp, ok := result.(*Group); ok {
+	} else if grp, ok := data.(*Group); ok {
 		go func() {
 			if err := grp.Wait(); err != nil {
 				r.sendErr(err)
@@ -114,9 +117,11 @@ func (r *Result) sendResult(result interface{}) {
 		return
 	}
 
-	r.resultChan <- result
+	r.data = data
+	r.resultChan <- true
 }
 
 func (r *Result) sendErr(err error) {
-	r.errChan <- err
+	r.err = err
+	r.errChan <- true
 }

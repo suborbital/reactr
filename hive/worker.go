@@ -2,6 +2,7 @@ package hive
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -9,50 +10,41 @@ import (
 
 const defaultChanSize = 1024
 
-// worker describes a worker
-type worker interface {
-	schedule(Job) *Result
-	start(RunFunc) error
-}
-
-type goWorker struct {
+type worker struct {
 	workChan chan Job
 	runner   Runnable
 	options  workerOpts
+
+	started bool
+	starter sync.Once
 }
 
-type workerOpts struct {
-	poolSize   int
-	numRetries int
-	retrySecs  int
-}
-
-// newGoWorker creates a new goWorker
-func newGoWorker(runner Runnable, opts workerOpts) *goWorker {
-	w := &goWorker{
+// newWorker creates a new goWorker
+func newWorker(runner Runnable, opts workerOpts) *worker {
+	w := &worker{
 		workChan: make(chan Job, defaultChanSize),
 		runner:   runner,
 		options:  opts,
+		started:  false,
 	}
 
 	return w
 }
 
-func (w *goWorker) schedule(job Job) *Result {
-	result := newResult()
-	job.result = result
-
+func (w *worker) schedule(job Job) {
 	go func() {
 		w.workChan <- job
 	}()
-
-	return result
 }
 
-func (w *goWorker) start(runFunc RunFunc) error {
-	if w.workChan == nil {
-		w.workChan = make(chan Job, defaultChanSize)
-	}
+func (w *worker) start(runFunc RunFunc) error {
+	w.starter.Do(func() {
+		w.started = true
+
+		if w.workChan == nil {
+			w.workChan = make(chan Job, defaultChanSize)
+		}
+	})
 
 	started := 0
 	attempts := 0
@@ -98,8 +90,20 @@ func (w *goWorker) start(runFunc RunFunc) error {
 	return nil
 }
 
-func defaultOpts() workerOpts {
+func (w *worker) isStarted() bool {
+	return w.started
+}
+
+type workerOpts struct {
+	jobType    string
+	poolSize   int
+	numRetries int
+	retrySecs  int
+}
+
+func defaultOpts(jobType string) workerOpts {
 	o := workerOpts{
+		jobType:    jobType,
 		poolSize:   1,
 		retrySecs:  3,
 		numRetries: 5,
