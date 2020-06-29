@@ -1,7 +1,9 @@
 package hive
 
 import (
+	"context"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -9,57 +11,50 @@ import (
 
 const defaultChanSize = 1024
 
-// worker describes a worker
-type worker interface {
-	schedule(Job) *Result
-	start(RunFunc) error
-}
-
-type goWorker struct {
-	workChan chan Job
+type worker struct {
 	runner   Runnable
+	workChan chan Job
 	options  workerOpts
+
+	threads    []*workThread
+	threadLock sync.Mutex
+
+	started bool
+	starter sync.Once
 }
 
-type workerOpts struct {
-	poolSize   int
-	numRetries int
-	retrySecs  int
-}
-
-// newGoWorker creates a new goWorker
-func newGoWorker(runner Runnable, opts workerOpts) *goWorker {
-	w := &goWorker{
-		workChan: make(chan Job, defaultChanSize),
-		runner:   runner,
-		options:  opts,
+// newWorker creates a new goWorker
+func newWorker(runner Runnable, opts workerOpts) *worker {
+	w := &worker{
+		runner:     runner,
+		workChan:   make(chan Job, defaultChanSize),
+		options:    opts,
+		threads:    make([]*workThread, opts.poolSize),
+		threadLock: sync.Mutex{},
+		started:    false,
 	}
 
 	return w
 }
 
-func (w *goWorker) schedule(job Job) *Result {
-	result := newResult()
-	job.result = result
-
+func (w *worker) schedule(job Job) {
 	go func() {
 		w.workChan <- job
 	}()
-
-	return result
 }
 
-func (w *goWorker) start(runFunc RunFunc) error {
-	if w.workChan == nil {
-		w.workChan = make(chan Job, defaultChanSize)
-	}
+func (w *worker) start(runFunc RunFunc) error {
+	w.starter.Do(func() { w.started = true })
 
 	started := 0
 	attempts := 0
 
 	for {
-		// fill the "pool" with goroutines
+		// fill the "pool" with workThreads
 		for i := started; i < w.options.poolSize; i++ {
+			wt := newWorkThread(w.runner, w.workChan)
+
+			// give the runner opportunity to provision resources if needed
 			if err := w.runner.OnStart(); err != nil {
 				fmt.Println(errors.Wrapf(err, "Runnable returned OnStart error, will retry in %ds", w.options.retrySecs))
 				break
@@ -67,20 +62,9 @@ func (w *goWorker) start(runFunc RunFunc) error {
 				started++
 			}
 
-			go func() {
-				for {
-					// wait for the next job
-					job := <-w.workChan
+			wt.run(runFunc)
 
-					result, err := w.runner.Run(job, runFunc)
-					if err != nil {
-						job.result.sendErr(err)
-						continue
-					}
-
-					job.result.sendResult(result)
-				}
-			}()
+			w.threads[i] = wt
 		}
 
 		if started == w.options.poolSize {
@@ -98,8 +82,66 @@ func (w *goWorker) start(runFunc RunFunc) error {
 	return nil
 }
 
-func defaultOpts() workerOpts {
+func (w *worker) isStarted() bool {
+	return w.started
+}
+
+type workThread struct {
+	runner     Runnable
+	workChan   chan Job
+	ctx        context.Context
+	cancelFunc context.CancelFunc
+}
+
+func newWorkThread(runner Runnable, workChan chan Job) *workThread {
+	ctx, cancelFunc := context.WithCancel(context.Background())
+
+	wt := &workThread{
+		runner:     runner,
+		workChan:   workChan,
+		ctx:        ctx,
+		cancelFunc: cancelFunc,
+	}
+
+	return wt
+}
+
+func (wt *workThread) run(runFunc RunFunc) {
+	go func() {
+		for {
+			// die if the context has been cancelled
+			if wt.ctx.Err() != nil {
+				break
+			}
+
+			// wait for the next job
+			job := <-wt.workChan
+
+			result, err := wt.runner.Run(job, runFunc)
+			if err != nil {
+				job.result.sendErr(err)
+				continue
+			}
+
+			job.result.sendResult(result)
+		}
+	}()
+}
+
+func (wt *workThread) Stop() {
+	wt.cancelFunc()
+}
+
+type workerOpts struct {
+	jobType    string
+	poolSize   int
+	numRetries int
+	retrySecs  int
+}
+
+func defaultOpts(jobType string) workerOpts {
 	o := workerOpts{
+		jobType:    jobType,
 		poolSize:   1,
 		retrySecs:  3,
 		numRetries: 5,
