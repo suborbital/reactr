@@ -1,4 +1,4 @@
-![logo_transparent](https://user-images.githubusercontent.com/5942370/77077333-7165dc80-69cb-11ea-9bf1-795aba6addf6.png)
+![logo_transparent](https://user-images.githubusercontent.com/5942370/88548780-87288580-cfed-11ea-8239-991b6ac420e3.png)
 
 ![Testapalooza](https://github.com/suborbital/hive/workflows/Testapalooza/badge.svg)
 
