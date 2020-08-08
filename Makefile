@@ -5,4 +5,7 @@ wasm:
 	wasm-pack build
 	cp ./pkg/wasm_runner_bg.wasm ./wasm/
 
-.PHONY: wasm
+deps:
+	go get -u -d ./...
+
+.PHONY: wasm deps
