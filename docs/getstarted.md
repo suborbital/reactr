@@ -110,6 +110,15 @@ if err := grp.Wait(); err != nil {
 ```
 Passing `PoolSize(3)` will spawn three goroutines to process `generic` jobs.
 
+### Timeouts
+By default, if a job becomes stuck and is blocking execution, it will block forever. If you want to have a worker time out after a certain amount of seconds on a stuck job, pass `hive.TimeoutSeconds` to Handle:
+``` golang
+h := hive.New()
+
+doTimeout := h.Handle("timeout", timeoutRunner{}, hive.TimeoutSeconds(3))
+```
+When `TimeoutSeconds` is set and a job executes for longer than the provided number of seconds, the worker will move on to the next job and `ErrJobTimeout` will be returned to the Result. The failed job will continue to execute in the background, but its result will be discarded.
+
 ### Advanced Runnables
 
 The `Runnable` interface defines an `OnStart` function which gives the Runnable the ability to prepare itself for incoming jobs. For example, when a Runnable is registered with a pool size greater than 1, the Runnable may need to provision resources for itself to enable handling jobs concurrently, and `OnStart` will be called once for each of those workers. Our [wasm implementation](https://github.com/suborbital/hivew/wasm) is a good example of this. 

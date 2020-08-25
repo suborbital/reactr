@@ -11,6 +11,14 @@ func PoolSize(size int) Option {
 	}
 }
 
+//TimeoutSeconds returns an Option with the job timeout seconds set
+func TimeoutSeconds(timeout int) Option {
+	return func(opts workerOpts) workerOpts {
+		opts.jobTimeoutSeconds = timeout
+		return opts
+	}
+}
+
 //RetrySeconds returns an Option to set the worker retry seconds
 func RetrySeconds(secs int) Option {
 	return func(opts workerOpts) workerOpts {
