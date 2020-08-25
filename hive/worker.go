@@ -10,9 +10,10 @@ import (
 )
 
 const (
-	defaultChanSize = 1024
+	defaultChanSize = 256
 )
 
+// ErrJobTimeout and others are errors related to workers
 var (
 	ErrJobTimeout = errors.New("job timeout")
 )
