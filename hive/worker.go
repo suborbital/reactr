@@ -9,7 +9,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-const defaultChanSize = 1024
+const (
+	defaultChanSize = 256
+)
+
+// ErrJobTimeout and others are errors related to workers
+var (
+	ErrJobTimeout = errors.New("job timeout")
+)
 
 type worker struct {
 	runner   Runnable
@@ -52,7 +59,7 @@ func (w *worker) start(runFunc RunFunc) error {
 	for {
 		// fill the "pool" with workThreads
 		for i := started; i < w.options.poolSize; i++ {
-			wt := newWorkThread(w.runner, w.workChan)
+			wt := newWorkThread(w.runner, w.workChan, w.options.jobTimeoutSeconds)
 
 			// give the runner opportunity to provision resources if needed
 			if err := w.runner.OnStart(); err != nil {
@@ -87,20 +94,22 @@ func (w *worker) isStarted() bool {
 }
 
 type workThread struct {
-	runner     Runnable
-	workChan   chan Job
-	ctx        context.Context
-	cancelFunc context.CancelFunc
+	runner         Runnable
+	workChan       chan Job
+	timeoutSeconds int
+	ctx            context.Context
+	cancelFunc     context.CancelFunc
 }
 
-func newWorkThread(runner Runnable, workChan chan Job) *workThread {
+func newWorkThread(runner Runnable, workChan chan Job, timeoutSeconds int) *workThread {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
 	wt := &workThread{
-		runner:     runner,
-		workChan:   workChan,
-		ctx:        ctx,
-		cancelFunc: cancelFunc,
+		runner:         runner,
+		workChan:       workChan,
+		timeoutSeconds: timeoutSeconds,
+		ctx:            ctx,
+		cancelFunc:     cancelFunc,
 	}
 
 	return wt
@@ -117,7 +126,15 @@ func (wt *workThread) run(runFunc RunFunc) {
 			// wait for the next job
 			job := <-wt.workChan
 
-			result, err := wt.runner.Run(job, runFunc)
+			var result interface{}
+			var err error
+
+			if wt.timeoutSeconds == 0 {
+				result, err = wt.runner.Run(job, runFunc)
+			} else {
+				result, err = wt.runWithTimeout(job, runFunc)
+			}
+
 			if err != nil {
 				job.result.sendErr(err)
 				continue
@@ -128,23 +145,48 @@ func (wt *workThread) run(runFunc RunFunc) {
 	}()
 }
 
+func (wt *workThread) runWithTimeout(job Job, runFunc RunFunc) (interface{}, error) {
+	resultChan := make(chan interface{})
+	errChan := make(chan error)
+
+	go func() {
+		result, err := wt.runner.Run(job, runFunc)
+		if err != nil {
+			errChan <- err
+		} else {
+			resultChan <- result
+		}
+	}()
+
+	select {
+	case result := <-resultChan:
+		return result, nil
+	case err := <-errChan:
+		return nil, err
+	case <-time.After(time.Duration(time.Second * time.Duration(wt.timeoutSeconds))):
+		return nil, ErrJobTimeout
+	}
+}
+
 func (wt *workThread) Stop() {
 	wt.cancelFunc()
 }
 
 type workerOpts struct {
-	jobType    string
-	poolSize   int
-	numRetries int
-	retrySecs  int
+	jobType           string
+	poolSize          int
+	jobTimeoutSeconds int
+	numRetries        int
+	retrySecs         int
 }
 
 func defaultOpts(jobType string) workerOpts {
 	o := workerOpts{
-		jobType:    jobType,
-		poolSize:   1,
-		retrySecs:  3,
-		numRetries: 5,
+		jobType:           jobType,
+		poolSize:          1,
+		jobTimeoutSeconds: 0,
+		retrySecs:         3,
+		numRetries:        5,
 	}
 
 	return o

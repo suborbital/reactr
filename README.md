@@ -70,7 +70,7 @@ func main() {
 ```
 When you `Do` some work, you get a `Result`. A result is like a Rust future or a JavaScript promise, it is something you can get the job's result from once it is finished.
 
-Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Make sense?
+Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Cool, right?
 
 ### Hive has some very powerful capabilities, visit the [get started guide](./docs/getstarted.md) to learn more.
 

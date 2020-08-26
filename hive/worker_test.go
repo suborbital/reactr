@@ -3,6 +3,7 @@ package hive
 import (
 	"log"
 	"testing"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -52,5 +53,28 @@ func TestRunnerWithOptionsAndError(t *testing.T) {
 	_, err := doBad(nil).Then()
 	if err == nil {
 		t.Error("expected error, did not get one")
+	}
+}
+
+type timeoutRunner struct{}
+
+// Run runs a timeoutRunner job
+func (g timeoutRunner) Run(job Job, run RunFunc) (interface{}, error) {
+	time.Sleep(time.Duration(time.Second * 3))
+
+	return nil, nil
+}
+
+func (g timeoutRunner) OnStart() error {
+	return nil
+}
+
+func TestRunnerWithJobTimeout(t *testing.T) {
+	h := New()
+
+	doTimeout := h.Handle("timeout", timeoutRunner{}, TimeoutSeconds(1))
+
+	if _, err := doTimeout("hello").Then(); err != ErrJobTimeout {
+		t.Error("job should have timed out, but did not")
 	}
 }
