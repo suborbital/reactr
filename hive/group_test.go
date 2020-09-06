@@ -54,14 +54,14 @@ func TestLargeGroupWithPool(t *testing.T) {
 type groupWork struct{}
 
 // Run runs a groupWork job
-func (g groupWork) Run(job Job, run RunFunc) (interface{}, error) {
+func (g groupWork) Run(job Job, do DoFunc) (interface{}, error) {
 	grp := NewGroup()
 
-	grp.Add(run(NewJob("generic", "first")))
-	grp.Add(run(NewJob("generic", "group work")))
-	grp.Add(run(NewJob("generic", "group work")))
-	grp.Add(run(NewJob("generic", "group work")))
-	grp.Add(run(NewJob("generic", "group work")))
+	grp.Add(do(NewJob("generic", "first")))
+	grp.Add(do(NewJob("generic", "group work")))
+	grp.Add(do(NewJob("generic", "group work")))
+	grp.Add(do(NewJob("generic", "group work")))
+	grp.Add(do(NewJob("generic", "group work")))
 
 	return grp, nil
 }

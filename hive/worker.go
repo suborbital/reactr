@@ -50,7 +50,7 @@ func (w *worker) schedule(job Job) {
 	}()
 }
 
-func (w *worker) start(runFunc RunFunc) error {
+func (w *worker) start(doFunc DoFunc) error {
 	w.starter.Do(func() { w.started = true })
 
 	started := 0
@@ -69,7 +69,7 @@ func (w *worker) start(runFunc RunFunc) error {
 				started++
 			}
 
-			wt.run(runFunc)
+			wt.run(doFunc)
 
 			w.threads[i] = wt
 		}
@@ -115,7 +115,7 @@ func newWorkThread(runner Runnable, workChan chan Job, timeoutSeconds int) *work
 	return wt
 }
 
-func (wt *workThread) run(runFunc RunFunc) {
+func (wt *workThread) run(doFunc DoFunc) {
 	go func() {
 		for {
 			// die if the context has been cancelled
@@ -130,9 +130,9 @@ func (wt *workThread) run(runFunc RunFunc) {
 			var err error
 
 			if wt.timeoutSeconds == 0 {
-				result, err = wt.runner.Run(job, runFunc)
+				result, err = wt.runner.Run(job, doFunc)
 			} else {
-				result, err = wt.runWithTimeout(job, runFunc)
+				result, err = wt.runWithTimeout(job, doFunc)
 			}
 
 			if err != nil {
@@ -145,12 +145,12 @@ func (wt *workThread) run(runFunc RunFunc) {
 	}()
 }
 
-func (wt *workThread) runWithTimeout(job Job, runFunc RunFunc) (interface{}, error) {
+func (wt *workThread) runWithTimeout(job Job, doFunc DoFunc) (interface{}, error) {
 	resultChan := make(chan interface{})
 	errChan := make(chan error)
 
 	go func() {
-		result, err := wt.runner.Run(job, runFunc)
+		result, err := wt.runner.Run(job, doFunc)
 		if err != nil {
 			errChan <- err
 		} else {

@@ -26,7 +26,7 @@ And then get started by defining something `Runnable`:
 type generic struct{}
 
 // Run runs a generic job
-func (g generic) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
+func (g generic) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
 	fmt.Println("doing job:", job.String()) // get the string value of the job's data
 
 	// do your work here
