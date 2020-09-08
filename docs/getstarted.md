@@ -156,4 +156,8 @@ for i := 1; i < 10; i++ {
 ```
 The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `h.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
 
+## Additional features
+
+Hive can integrate with [Grav](https://github.com/suborbital/grav), which is the decentralized message bus developed as part of the Suborbital development framework. Read about the integration on [the grav documentation page.](./grav.md)
+
 Hive provides the building blocks for scalable asynchronous systems. This should be everything you need to help you improve the performance of your application. When you are looking to take advantage of Hive's other features, check out its [FaaS](./faas.md) and [WASM](./wasm.md) capabilities!
