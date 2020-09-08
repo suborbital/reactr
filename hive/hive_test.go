@@ -11,11 +11,11 @@ import (
 type generic struct{}
 
 // Run runs a generic job
-func (g generic) Run(job Job, run RunFunc) (interface{}, error) {
+func (g generic) Run(job Job, do DoFunc) (interface{}, error) {
 	if job.String() == "first" {
-		return run(NewJob("generic", "second")), nil
+		return do(NewJob("generic", "second")), nil
 	} else if job.String() == "second" {
-		return run(NewJob("generic", "last")), nil
+		return do(NewJob("generic", "last")), nil
 	} else if job.String() == "fail" {
 		return nil, errors.New("error!")
 	}
@@ -55,7 +55,7 @@ type input struct {
 type math struct{}
 
 // Run runs a math job
-func (g math) Run(job Job, run RunFunc) (interface{}, error) {
+func (g math) Run(job Job, do DoFunc) (interface{}, error) {
 	in := job.Data().(input)
 
 	return in.First + in.Second, nil

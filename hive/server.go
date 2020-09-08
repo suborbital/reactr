@@ -119,7 +119,7 @@ func (s *Server) thenHandler() vk.HandlerFunc {
 	}
 }
 
-func webhookCallback(callbackURL *url.URL, log vlog.Logger) ResultFunc {
+func webhookCallback(callbackURL *url.URL, log *vlog.Logger) ResultFunc {
 	return func(res interface{}, err error) {
 		var body []byte
 		var contentType = "application/octet-stream"

@@ -26,7 +26,7 @@ func TestHiveJobWithPool(t *testing.T) {
 type badRunner struct{}
 
 // Run runs a badRunner job
-func (g badRunner) Run(job Job, run RunFunc) (interface{}, error) {
+func (g badRunner) Run(job Job, do DoFunc) (interface{}, error) {
 	return job.String(), nil
 }
 
@@ -59,7 +59,7 @@ func TestRunnerWithOptionsAndError(t *testing.T) {
 type timeoutRunner struct{}
 
 // Run runs a timeoutRunner job
-func (g timeoutRunner) Run(job Job, run RunFunc) (interface{}, error) {
+func (g timeoutRunner) Run(job Job, do DoFunc) (interface{}, error) {
 	time.Sleep(time.Duration(time.Second * 3))
 
 	return nil, nil

@@ -9,13 +9,13 @@ There are some more complicated things you can do with Runnables:
 type recursive struct{}
 
 // Run runs a recursive job
-func (r recursive) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
+func (r recursive) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
 	fmt.Println("doing job:", job.String())
 
 	if job.String() == "first" {
-		return run(hive.NewJob("recursive", "second")), nil
+		return do(hive.NewJob("recursive", "second")), nil
 	} else if job.String() == "second" {
-		return run(hive.NewJob("recursive", "last")), nil
+		return do(hive.NewJob("recursive", "last")), nil
 	}
 
 	return fmt.Sprintf("finished %s", job.String()), nil
@@ -25,9 +25,9 @@ func (r recursive) OnStart() error {
 	return nil
 }
 ```
-The `hive.RunFunc` that you see there is a way for your Runnable to, well, run more things!
+The `hive.DoFunc` that you see there is a way for your Runnable to, well, run more things!
 
-Calling the `RunFunc` will schedule another job to be executed and give you a `Result`. If you return a `Result` from `Run`, then the caller will recursively recieve that `Result` when they call `Then()`!
+Calling the `DoFunc` will schedule another job to be executed and give you a `Result`. If you return a `Result` from `Run`, then the caller will recursively recieve that `Result` when they call `Then()`!
 
 For example:
 ```golang
@@ -47,7 +47,7 @@ doing job: second
 doing job: last
 done! finished last
 ```
-Think about that for a minute, and let it sink in, it can be quite powerful!
+The ability to chain jobs is quite powerful!
 
 You won't always need or care about a job's output, and in those cases, make sure to call `Discard()` on the result to allow the underlying resources to be deallocated!
 ```golang
@@ -72,9 +72,9 @@ A hive `Group` is a set of `Result`s that belong together. If you're familiar wi
 ```golang
 grp := hive.NewGroup()
 
-grp.Add(run(hive.NewJob("recursive", "first")))
-grp.Add(run(hive.NewJob("generic", "group work")))
-grp.Add(run(hive.NewJob("generic", "group work")))
+grp.Add(do(hive.NewJob("recursive", "first")))
+grp.Add(do(hive.NewJob("generic", "group work")))
+grp.Add(do(hive.NewJob("generic", "group work")))
 
 if err := grp.Wait(); err != nil {
 	log.Fatal(err)
@@ -95,7 +95,7 @@ Note that you cannot get result values from result groups, the error returned fr
 **TIP** If you return a group from a Runnable's `Run`, calling `Then()` on the result will recursively call `Wait()` on the group and return the error to the original caller! You can easily chain jobs and job groups in various orders.
 
 ### Pools
-Each `Runnable` that you register is given a worker to process their jobs. By default, each worker has one goroutine processing jobs in sequence. If you want a particular worker to process more than one job concurrently, you can increase its `PoolSize`:
+Each `Runnable` that you register is given a worker to process their jobs. By default, each worker has one work thread processing jobs in sequence. If you want a particular worker to process more than one job concurrently, you can increase its `PoolSize`:
 ```golang
 doGeneric := h.Handle("generic", generic{}, hive.PoolSize(3))
 
@@ -108,7 +108,7 @@ if err := grp.Wait(); err != nil {
 	log.Fatal(err)
 }
 ```
-Passing `PoolSize(3)` will spawn three goroutines to process `generic` jobs.
+Passing `PoolSize(3)` will spawn three work threads to process `generic` jobs.
 
 ### Timeouts
 By default, if a job becomes stuck and is blocking execution, it will block forever. If you want to have a worker time out after a certain amount of seconds on a stuck job, pass `hive.TimeoutSeconds` to Handle:
@@ -125,7 +125,7 @@ The `Runnable` interface defines an `OnStart` function which gives the Runnable 
 
 Most Runnables can return `nil` from this function, however returning an error will cause the worker start to be paused and retried until the required pool size has been created. The number of seconds between retries (default 3) and the maximum number of retries (default 5) can be configured when registering a Runnable:
 ```golang
-doBad := h.Handle("badRunner", badRunner{}, RetrySeconds(1), MaxRetries(1))
+doBad := h.Handle("badRunner", badRunner{}, hive.RetrySeconds(1), hive.MaxRetries(10))
 ```
 Any error from a failed worker will be returned to the first job that is attempted for that Runnable.
 
@@ -140,7 +140,7 @@ type input struct {
 type math struct{}
 
 // Run runs a math job
-func (g math) Run(job hive.Job, run hive.RunFunc) (interface{}, error) {
+func (g math) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
 	in := job.Data().(input)
 
 	return in.First + in.Second, nil
@@ -155,5 +155,9 @@ for i := 1; i < 10; i++ {
 }
 ```
 The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `h.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
+
+## Additional features
+
+Hive can integrate with [Grav](https://github.com/suborbital/grav), which is the decentralized message bus developed as part of the Suborbital development framework. Read about the integration on [the grav documentation page.](./grav.md)
 
 Hive provides the building blocks for scalable asynchronous systems. This should be everything you need to help you improve the performance of your application. When you are looking to take advantage of Hive's other features, check out its [FaaS](./faas.md) and [WASM](./wasm.md) capabilities!

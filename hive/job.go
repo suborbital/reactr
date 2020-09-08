@@ -3,6 +3,8 @@ package hive
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/suborbital/grav/grav"
 )
 
 // Job describes a job to be done
@@ -60,4 +62,14 @@ func (j *Job) Int() int {
 // Data returns the "raw" data for the job
 func (j *Job) Data() interface{} {
 	return j.data
+}
+
+// Msg returns a grav.Message stored in the Job, if any
+func (j *Job) Msg() grav.Message {
+	msg, ok := j.data.(grav.Message)
+	if !ok {
+		return nil
+	}
+
+	return msg
 }
