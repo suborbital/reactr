@@ -6,11 +6,11 @@ WASM support in Hive is powered by [Wasmer](https://github.com/wasmerio/go-ext-w
 
 The `hivew` toolchain is also in its early days, so please bear with us!
 
-The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/WASM code. Any language that compiles to WASM can be used if the functions in [lib.rs](https://github.com/suborbital/hivew/blob/master/rs-builder/src/lib.rs) are re-created for that language.
+The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/WASM code. Any language that compiles to WASM can be used if the functions in [lib.rs](https://github.com/suborbital/hivew-rs-builder/blob/master/src/lib.rs) are re-created for that language.
 
 To create a WASM runnable, check out the [hivew CLI](https://github.com/suborbital/hivew). Once you've generated a `.wasm` file, you can use it with Hive just like any other Runnable!
 
-Due to the memory limitations of WASM, WASM runners can only accept a string (rather than arbitrary input) and return a string. WASM runners cannot currently schedule other jobs, though support for that is coming.
+WASM runners can only accept `[]byte` as input (rather than arbitrary input) and always return `[]byte`. WASM runners cannot currently schedule other jobs, though support for that is coming.
 
 Here's how to use it:
 
