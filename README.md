@@ -8,7 +8,7 @@ Hive transparently spawns workers to process jobs, with each worker processing j
 
 ## WASM
 
-Hive has alpha support for WASM-packaged runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./docs/wasm.md) and the [hivew toolchain](https://github.com/suborbital/hivew) for details.
+Hive has alpha support for WASM-packaged Runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier. See the [wasm docs](./docs/wasm.md) and the [hivew toolchain](https://github.com/suborbital/hivew) for details.
 
 ## FaaS
 
