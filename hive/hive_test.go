@@ -34,7 +34,7 @@ func TestHiveJob(t *testing.T) {
 
 	r := h.Do(h.Job("generic", "first"))
 
-	if r.ID == "" {
+	if r.UUID() == "" {
 		t.Error("result ID is empty")
 	}
 

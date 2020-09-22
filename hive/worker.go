@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/pkg/errors"
@@ -20,38 +21,46 @@ var (
 
 type worker struct {
 	runner   Runnable
-	workChan chan Job
+	workChan chan *JobReference
+	store    Storage
 	options  workerOpts
 
 	threads    []*workThread
 	threadLock sync.Mutex
 
-	started bool
-	starter sync.Once
+	started atomic.Value
 }
 
 // newWorker creates a new goWorker
-func newWorker(runner Runnable, opts workerOpts) *worker {
+func newWorker(runner Runnable, store Storage, opts workerOpts) *worker {
 	w := &worker{
 		runner:     runner,
-		workChan:   make(chan Job, defaultChanSize),
+		workChan:   make(chan *JobReference, defaultChanSize),
+		store:      store,
 		options:    opts,
 		threads:    make([]*workThread, opts.poolSize),
 		threadLock: sync.Mutex{},
-		started:    false,
+		started:    atomic.Value{},
 	}
+
+	w.started.Store(false)
 
 	return w
 }
 
-func (w *worker) schedule(job Job) {
+func (w *worker) schedule(job *JobReference) {
 	go func() {
 		w.workChan <- job
 	}()
 }
 
 func (w *worker) start(doFunc DoFunc) error {
-	w.starter.Do(func() { w.started = true })
+	// this should only be run once per worker
+	if isStarted := w.started.Load().(bool); isStarted {
+		return nil
+	}
+
+	w.started.Store(true)
 
 	started := 0
 	attempts := 0
@@ -59,7 +68,7 @@ func (w *worker) start(doFunc DoFunc) error {
 	for {
 		// fill the "pool" with workThreads
 		for i := started; i < w.options.poolSize; i++ {
-			wt := newWorkThread(w.runner, w.workChan, w.options.jobTimeoutSeconds)
+			wt := newWorkThread(w.runner, w.workChan, w.store, w.options.jobTimeoutSeconds)
 
 			// give the runner opportunity to provision resources if needed
 			if err := w.runner.OnStart(); err != nil {
@@ -90,23 +99,25 @@ func (w *worker) start(doFunc DoFunc) error {
 }
 
 func (w *worker) isStarted() bool {
-	return w.started
+	return w.started.Load().(bool)
 }
 
 type workThread struct {
 	runner         Runnable
-	workChan       chan Job
+	workChan       chan *JobReference
+	store          Storage
 	timeoutSeconds int
 	ctx            context.Context
 	cancelFunc     context.CancelFunc
 }
 
-func newWorkThread(runner Runnable, workChan chan Job, timeoutSeconds int) *workThread {
+func newWorkThread(runner Runnable, workChan chan *JobReference, store Storage, timeoutSeconds int) *workThread {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
 	wt := &workThread{
 		runner:         runner,
 		workChan:       workChan,
+		store:          store,
 		timeoutSeconds: timeoutSeconds,
 		ctx:            ctx,
 		cancelFunc:     cancelFunc,
@@ -124,10 +135,16 @@ func (wt *workThread) run(doFunc DoFunc) {
 			}
 
 			// wait for the next job
-			job := <-wt.workChan
+			jobRef := <-wt.workChan
+
+			// fetch the full job from storage
+			job, err := wt.store.Get(jobRef.uuid)
+			if err != nil {
+				jobRef.result.sendErr(err)
+				continue
+			}
 
 			var result interface{}
-			var err error
 
 			if wt.timeoutSeconds == 0 {
 				result, err = wt.runner.Run(job, doFunc)
@@ -135,12 +152,14 @@ func (wt *workThread) run(doFunc DoFunc) {
 				result, err = wt.runWithTimeout(job, doFunc)
 			}
 
+			wt.store.AddResult(job.UUID(), result, err)
+
 			if err != nil {
-				job.result.sendErr(err)
+				jobRef.result.sendErr(err)
 				continue
 			}
 
-			job.result.sendResult(result)
+			jobRef.result.sendResult(result)
 		}
 	}()
 }

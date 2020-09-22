@@ -4,28 +4,50 @@ import (
 	"encoding/json"
 	"errors"
 
+	"github.com/google/uuid"
 	"github.com/suborbital/grav/grav"
 )
 
+// JobReference is a lightweight reference to a Job
+type JobReference struct {
+	uuid    string
+	jobType string
+	result  *Result
+}
+
 // Job describes a job to be done
 type Job struct {
-	jobType string
-	data    interface{}
-	result  *Result
+	JobReference
+	data       interface{}
+	resultData interface{}
+	resultErr  error
 }
 
 // NewJob creates a new job
 func NewJob(jobType string, data interface{}) Job {
 	j := Job{
-		jobType: jobType,
-		data:    data,
+		JobReference: JobReference{
+			uuid:    uuid.New().String(),
+			jobType: jobType,
+		},
+		data: data,
 	}
 
 	return j
 }
 
+// UUID returns the Job's UUID
+func (j *JobReference) UUID() string {
+	return j.uuid
+}
+
+// Reference returns a reference to the Job
+func (j Job) Reference() *JobReference {
+	return &j.JobReference
+}
+
 // Unmarshal unmarshals the job's data into a struct
-func (j *Job) Unmarshal(target interface{}) error {
+func (j Job) Unmarshal(target interface{}) error {
 	if bytes, ok := j.data.([]byte); ok {
 		return json.Unmarshal(bytes, target)
 	}
@@ -33,16 +55,19 @@ func (j *Job) Unmarshal(target interface{}) error {
 	return errors.New("failed to Unmarshal, job data is not []byte")
 }
 
-func (j *Job) String() string {
-	if s, ok := j.data.(string); ok {
+// String returns the string value of a job's data
+func (j Job) String() string {
+	if s, isString := j.data.(string); isString {
 		return s
+	} else if b, isBytes := j.data.([]byte); isBytes {
+		return string(b)
 	}
 
 	return ""
 }
 
 // Bytes returns the []byte value of the job's data
-func (j *Job) Bytes() []byte {
+func (j Job) Bytes() []byte {
 	if v, ok := j.data.([]byte); ok {
 		return v
 	}
@@ -51,7 +76,7 @@ func (j *Job) Bytes() []byte {
 }
 
 // Int returns the int value of the job's data
-func (j *Job) Int() int {
+func (j Job) Int() int {
 	if v, ok := j.data.(int); ok {
 		return v
 	}
@@ -60,16 +85,22 @@ func (j *Job) Int() int {
 }
 
 // Data returns the "raw" data for the job
-func (j *Job) Data() interface{} {
+func (j Job) Data() interface{} {
 	return j.data
 }
 
 // Msg returns a grav.Message stored in the Job, if any
-func (j *Job) Msg() grav.Message {
+func (j Job) Msg() grav.Message {
 	msg, ok := j.data.(grav.Message)
 	if !ok {
 		return nil
 	}
 
 	return msg
+}
+
+// loadResult has a pointer reciever such that it actually modifies the object it's being called on
+func (j *Job) loadResult(resultData interface{}, errString string) {
+	j.resultData = resultData
+	j.resultErr = errors.New(errString)
 }
