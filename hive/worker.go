@@ -21,7 +21,7 @@ var (
 
 type worker struct {
 	runner   Runnable
-	workChan chan *JobReference
+	workChan chan JobReference
 	store    Storage
 	options  workerOpts
 
@@ -35,7 +35,7 @@ type worker struct {
 func newWorker(runner Runnable, store Storage, opts workerOpts) *worker {
 	w := &worker{
 		runner:     runner,
-		workChan:   make(chan *JobReference, defaultChanSize),
+		workChan:   make(chan JobReference, defaultChanSize),
 		store:      store,
 		options:    opts,
 		threads:    make([]*workThread, opts.poolSize),
@@ -48,7 +48,7 @@ func newWorker(runner Runnable, store Storage, opts workerOpts) *worker {
 	return w
 }
 
-func (w *worker) schedule(job *JobReference) {
+func (w *worker) schedule(job JobReference) {
 	go func() {
 		w.workChan <- job
 	}()
@@ -104,14 +104,14 @@ func (w *worker) isStarted() bool {
 
 type workThread struct {
 	runner         Runnable
-	workChan       chan *JobReference
+	workChan       chan JobReference
 	store          Storage
 	timeoutSeconds int
 	ctx            context.Context
 	cancelFunc     context.CancelFunc
 }
 
-func newWorkThread(runner Runnable, workChan chan *JobReference, store Storage, timeoutSeconds int) *workThread {
+func newWorkThread(runner Runnable, workChan chan JobReference, store Storage, timeoutSeconds int) *workThread {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
 	wt := &workThread{

@@ -37,13 +37,13 @@ func NewJob(jobType string, data interface{}) Job {
 }
 
 // UUID returns the Job's UUID
-func (j *JobReference) UUID() string {
+func (j JobReference) UUID() string {
 	return j.uuid
 }
 
 // Reference returns a reference to the Job
-func (j Job) Reference() *JobReference {
-	return &j.JobReference
+func (j Job) Reference() JobReference {
+	return j.JobReference
 }
 
 // Unmarshal unmarshals the job's data into a struct
