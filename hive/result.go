@@ -3,26 +3,43 @@ package hive
 import (
 	"encoding/json"
 
-	"github.com/suborbital/hive/util"
-
 	"github.com/pkg/errors"
 )
 
 // Result describes a result
 type Result struct {
-	ID   string
+	uuid string
 	data interface{}
 	err  error
 
 	resultChan chan bool
 	errChan    chan bool
+	removeFunc removeFunc
 }
 
 // ResultFunc is a result callback function.
 type ResultFunc func(interface{}, error)
 
+func newResult(uuid string, remove removeFunc) *Result {
+	r := &Result{
+		uuid:       uuid,
+		resultChan: make(chan bool, 1), // buffered, so the result can be written and related goroutines can end before Then() is called
+		errChan:    make(chan bool, 1),
+		removeFunc: remove,
+	}
+
+	return r
+}
+
+// UUID returns the result/job's UUID
+func (r *Result) UUID() string {
+	return r.uuid
+}
+
 // Then returns the result or error from a Result
 func (r *Result) Then() (interface{}, error) {
+	defer r.removeFunc(r.uuid)
+
 	select {
 	case <-r.resultChan:
 		return r.data, nil
@@ -78,16 +95,6 @@ func (r *Result) Discard() {
 	go func() {
 		r.Then()
 	}()
-}
-
-func newResult() *Result {
-	r := &Result{
-		ID:         util.GenerateResultID(),
-		resultChan: make(chan bool, 1), // buffered, so the result can be written and related goroutines can end before Then() is called
-		errChan:    make(chan bool, 1),
-	}
-
-	return r
 }
 
 func (r *Result) sendResult(data interface{}) {

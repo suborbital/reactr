@@ -89,7 +89,7 @@ func (s *Server) scheduleHandler() vk.HandlerFunc {
 		s.addInFlight(res)
 
 		resp := doResponse{
-			ResultID: res.ID,
+			ResultID: res.UUID(),
 		}
 
 		return resp, nil
@@ -155,7 +155,7 @@ func (s *Server) addInFlight(r *Result) {
 	s.Lock()
 	defer s.Unlock()
 
-	s.inFlight[r.ID] = r
+	s.inFlight[r.UUID()] = r
 }
 
 func (s *Server) getInFlight(id string) *Result {

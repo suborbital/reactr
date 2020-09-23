@@ -23,9 +23,10 @@ type Hive struct {
 
 // New returns a Hive ready to accept Jobs
 func New() *Hive {
+	logger := vlog.Default()
 	h := &Hive{
-		scheduler: newScheduler(),
-		log:       vlog.Default(),
+		scheduler: newScheduler(logger),
+		log:       logger,
 	}
 
 	return h
@@ -41,10 +42,7 @@ func (h *Hive) Handle(jobType string, runner Runnable, options ...Option) JobFun
 	h.handle(jobType, runner, options...)
 
 	helper := func(data interface{}) *Result {
-		job := Job{
-			jobType: jobType,
-			data:    data,
-		}
+		job := NewJob(jobType, data)
 
 		return h.Do(job)
 	}
@@ -60,10 +58,7 @@ func (h *Hive) HandleMsg(pod *grav.Pod, msgType string, runner Runnable, options
 	h.handle(msgType, runner, options...)
 
 	helper := func(data interface{}) *Result {
-		job := Job{
-			jobType: msgType,
-			data:    data,
-		}
+		job := NewJob(msgType, data)
 
 		return h.Do(job)
 	}

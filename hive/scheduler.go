@@ -5,18 +5,21 @@ import (
 	"sync"
 
 	"github.com/pkg/errors"
+	"github.com/suborbital/vektor/vlog"
 )
 
 type scheduler struct {
 	workers map[string]*worker
-
-	starter sync.Once
+	store   Storage
+	logger  *vlog.Logger
 	sync.Mutex
 }
 
-func newScheduler() *scheduler {
+func newScheduler(logger *vlog.Logger) *scheduler {
 	s := &scheduler{
 		workers: map[string]*worker{},
+		store:   newMemoryStorage(),
+		logger:  logger,
 		Mutex:   sync.Mutex{},
 	}
 
@@ -24,13 +27,11 @@ func newScheduler() *scheduler {
 }
 
 func (s *scheduler) schedule(job Job) *Result {
-	s.starter.Do(func() {
-		if s.workers == nil {
-			s.workers = map[string]*worker{}
+	result := newResult(job.UUID(), func(uuid string) {
+		if err := s.store.Remove(uuid); err != nil {
+			s.logger.Error(errors.Wrap(err, "scheduler failed to Remove Job from storage"))
 		}
 	})
-
-	result := newResult()
 
 	worker := s.getWorker(job.jobType)
 	if worker == nil {
@@ -48,7 +49,9 @@ func (s *scheduler) schedule(job Job) *Result {
 		}
 
 		job.result = result
-		worker.schedule(job)
+		s.store.Add(job)
+
+		worker.schedule(job.Reference())
 	}()
 
 	return result
@@ -65,7 +68,7 @@ func (s *scheduler) handle(jobType string, runnable Runnable, options ...Option)
 		opts = o(opts)
 	}
 
-	w := newWorker(runnable, opts)
+	w := newWorker(runnable, s.store, opts)
 	if s.workers == nil {
 		s.workers = map[string]*worker{jobType: w}
 	} else {
