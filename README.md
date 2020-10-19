@@ -8,11 +8,11 @@ Hive transparently spawns workers to process jobs, with each worker processing j
 
 ## WASM
 
-Hive has alpha support for WASM-packaged Runnables. This is actively being worked on, as WASM is an exciting new standard that makes cross-language and cross-platform code just a bit easier. See the [wasm docs](./docs/wasm.md) and the [hivew toolchain](https://github.com/suborbital/hivew) for details.
+Hive has early (read: alpha) support for acting as a Functions-as-a-Service system. Hive can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details. gRPC support is planned.
 
 ## FaaS
 
-Hive also has alpha support for acting as a Functions-as-a-Service system. Hive can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details. gRPC support is planned.
+Hive has early (read: alpha) support for Wasm-packaged runnables. This is actively being worked on, as Wasm is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
 
 ### The Basics
 
