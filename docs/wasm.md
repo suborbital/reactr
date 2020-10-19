@@ -6,7 +6,7 @@ Wasm support in Hive is powered by [Wasmer](https://github.com/wasmerio/wasmer-g
 
 The `subo` CLI is also in its early days, so please bear with us!
 
-The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/Wasm code. Any language that compiles to Wasm can be used if the functions in [lib.rs](https://github.com/suborbital/hive-wasm/blob/master/rs-builder/src/lib.rs) are re-created for that language.
+The currently "supported" language is Rust, but that only means we are providing the boilerplate needed to use Rust/Wasm code. Any language that compiles to Wasm can be used if the functions in [lib.rs](https://github.com/suborbital/subo/blob/main/builders/rust/src/lib.rs) are re-created for that language.
 
 To create a Wasm runnable, check out the [subo CLI](https://github.com/suborbital/subo). Once you've generated a `.wasm` file, you can use it with Hive just like any other Runnable!
 
