@@ -6,11 +6,11 @@ Hive is a fast, performant job scheduling system, plain and simple. Hive is desi
 
 Hive transparently spawns workers to process jobs, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled by clients, and their results can be retreived at a later time.
 
-## WASM
+## FaaS
 
 Hive has early (read: alpha) support for acting as a Functions-as-a-Service system. Hive can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details. gRPC support is planned.
 
-## FaaS
+## WASM
 
 Hive has early (read: alpha) support for Wasm-packaged runnables. This is actively being worked on, as Wasm is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
 
