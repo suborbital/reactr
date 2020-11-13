@@ -14,12 +14,7 @@ const msgTypeTester = "hive.test"
 type msgRunner struct{}
 
 func (m *msgRunner) Run(job Job, do DoFunc) (interface{}, error) {
-	msg := job.Msg()
-	if msg == nil {
-		return nil, errors.New("not a message")
-	}
-
-	name := string(msg.Data())
+	name := string(job.Bytes())
 
 	reply := grav.NewMsg(msgTypeTester, []byte(fmt.Sprintf("hello, %s", name)))
 
