@@ -71,7 +71,7 @@ func (w *worker) start(doFunc DoFunc) error {
 			wt := newWorkThread(w.runner, w.workChan, w.store, w.options.jobTimeoutSeconds)
 
 			// give the runner opportunity to provision resources if needed
-			if err := w.runner.OnStart(); err != nil {
+			if err := w.runner.OnChange(ChangeTypeStart); err != nil {
 				fmt.Println(errors.Wrapf(err, "Runnable returned OnStart error, will retry in %ds", w.options.retrySecs))
 				break
 			} else {
@@ -144,12 +144,16 @@ func (wt *workThread) run(doFunc DoFunc) {
 				continue
 			}
 
+			ctx := &Ctx{
+				doFunc: doFunc,
+			}
+
 			var result interface{}
 
 			if wt.timeoutSeconds == 0 {
-				result, err = wt.runner.Run(job, doFunc)
+				result, err = wt.runner.Run(job, ctx)
 			} else {
-				result, err = wt.runWithTimeout(job, doFunc)
+				result, err = wt.runWithTimeout(job, ctx)
 			}
 
 			wt.store.AddResult(job.UUID(), result, err)
@@ -164,12 +168,12 @@ func (wt *workThread) run(doFunc DoFunc) {
 	}()
 }
 
-func (wt *workThread) runWithTimeout(job Job, doFunc DoFunc) (interface{}, error) {
+func (wt *workThread) runWithTimeout(job Job, ctx *Ctx) (interface{}, error) {
 	resultChan := make(chan interface{})
 	errChan := make(chan error)
 
 	go func() {
-		result, err := wt.runner.Run(job, doFunc)
+		result, err := wt.runner.Run(job, ctx)
 		if err != nil {
 			errChan <- err
 		} else {

@@ -15,7 +15,7 @@ const msgTypeNil = "hive.testnil"
 // to test jobs listening to a Grav message
 type msgRunner struct{}
 
-func (m *msgRunner) Run(job Job, do DoFunc) (interface{}, error) {
+func (m *msgRunner) Run(job Job, ctx *Ctx) (interface{}, error) {
 	name := string(job.Bytes())
 
 	reply := grav.NewMsg(msgTypeTester, []byte(fmt.Sprintf("hello, %s", name)))
@@ -23,16 +23,16 @@ func (m *msgRunner) Run(job Job, do DoFunc) (interface{}, error) {
 	return reply, nil
 }
 
-func (m *msgRunner) OnStart() error { return nil }
+func (m *msgRunner) OnChange(change ChangeEvent) error { return nil }
 
 // to test jobs with a nil result
 type nilRunner struct{}
 
-func (m *nilRunner) Run(job Job, do DoFunc) (interface{}, error) {
+func (m *nilRunner) Run(job Job, ctx *Ctx) (interface{}, error) {
 	return nil, nil
 }
 
-func (m *nilRunner) OnStart() error { return nil }
+func (m *nilRunner) OnChange(change ChangeEvent) error { return nil }
 
 func TestHandleMessage(t *testing.T) {
 	hive := New()

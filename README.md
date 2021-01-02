@@ -36,7 +36,7 @@ func (g generic) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
 
 // OnStart is called when Hive starts up a worker to handle jobs,
 // and allows the Runnable to set itself up before receiving jobs
-func (g generic) OnStart() error {
+func (g generic) OnChange(change ChangeEvent) error {
 	return nil
 }
 ```
