@@ -12,9 +12,9 @@ To create a Wasm runnable, check out the [subo CLI](https://github.com/suborbita
 
 Due to the memory limitations of Wasm, Wasm runners accept bytes (rather than arbitrary input) and return bytes. Hive will handle the conversion of inputs and outputs automatically. Wasm runners cannot currently schedule other jobs, though support for that is coming.
 
-Here's how to use hivew Runnables:
+Here's how to use Wasm Runnables:
 
-First, install hive-wasm's wasm package:
+First, install hive-wasm:
 ```bash
 go get github.com/suborbital/hive-wasm/wasm
 ```
@@ -22,7 +22,7 @@ go get github.com/suborbital/hive-wasm/wasm
 ```golang
 h := hive.New()
 
-doWasm := h.Handle("wasm", wasm.NewRunner("path/to/Runnable/file.wasm"))
+doWasm := h.Handle("wasm", wasm.NewRunner("path/to/runnable/file.wasm"))
 
 res, err := doWasm("input_will_be_converted_to_bytes").Then()
 if err != nil {
@@ -42,7 +42,7 @@ if err := wasm.HandleBundle(h, "path/to/runnables.wasm.zip"); err != nil {
 res := h.Do(hive.NewJob("name_of_runnable", "input_will_be_converted_to_bytes"))
 [...]
 ```
-The name of each runnable will be the name of the directory that the original source was found in.
+The name of each runnable is defined in the `.runnable.yaml` file it was built with.
 
 And that's it! You can schedule Wasm jobs as normal, and Wasm runtimes will be managed automatically to run your jobs.
 

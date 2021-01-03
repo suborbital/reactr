@@ -23,11 +23,11 @@ func main() {
 type generic struct{}
 
 // Run runs a generic job
-func (g generic) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
+func (g generic) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 	if string(job.Bytes()) == "first" {
-		return do(hive.NewJob("generic", []byte("second"))), nil
+		return ctx.Do(hive.NewJob("generic", []byte("second"))), nil
 	} else if string(job.Bytes()) == "second" {
-		return do(hive.NewJob("generic", []byte("last"))), nil
+		return ctx.Do(hive.NewJob("generic", []byte("last"))), nil
 	}
 
 	if string(job.Bytes()) == "error" {
@@ -37,6 +37,6 @@ func (g generic) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
 	return job.Bytes(), nil
 }
 
-func (g generic) OnStart() error {
+func (g generic) OnChange(change hive.ChangeEvent) error {
 	return nil
 }
