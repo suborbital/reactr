@@ -70,6 +70,8 @@ func (j Job) String() string {
 func (j Job) Bytes() []byte {
 	if v, ok := j.data.([]byte); ok {
 		return v
+	} else if s, ok := j.data.(string); ok {
+		return []byte(s)
 	}
 
 	return nil
