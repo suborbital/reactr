@@ -6,13 +6,13 @@ Hive is a fast, performant job scheduling system, plain and simple. Hive is desi
 
 Hive transparently spawns workers to process jobs, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled by clients, and their results can be retreived at a later time.
 
+## WASM
+
+Hive has early (read: beta) support for Wasm-packaged runnables. This is actively being worked on, as Wasm is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
+
 ## FaaS
 
 Hive has early (read: alpha) support for acting as a Functions-as-a-Service system. Hive can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details. gRPC support is planned.
-
-## WASM
-
-Hive has early (read: alpha) support for Wasm-packaged runnables. This is actively being worked on, as Wasm is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
 
 ### The Basics
 
@@ -26,7 +26,7 @@ And then get started by defining something `Runnable`:
 type generic struct{}
 
 // Run runs a generic job
-func (g generic) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
+func (g generic) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 	fmt.Println("doing job:", job.String()) // get the string value of the job's data
 
 	// do your work here
@@ -34,8 +34,8 @@ func (g generic) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
 	return fmt.Sprintf("finished %s", job.String()), nil
 }
 
-// OnStart is called when Hive starts up a worker to handle jobs,
-// and allows the Runnable to set itself up before receiving jobs
+// OnChange is called when Hive starts or stops a worker to handle jobs,
+// and allows the Runnable to set up before receiving jobs or tear down if needed.
 func (g generic) OnChange(change ChangeEvent) error {
 	return nil
 }

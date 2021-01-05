@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
-	"github.com/suborbital/grav/grav"
 )
 
 // JobReference is a lightweight reference to a Job
@@ -89,16 +88,6 @@ func (j Job) Int() int {
 // Data returns the "raw" data for the job
 func (j Job) Data() interface{} {
 	return j.data
-}
-
-// Msg returns a grav.Message stored in the Job, if any
-func (j Job) Msg() grav.Message {
-	msg, ok := j.data.(grav.Message)
-	if !ok {
-		return nil
-	}
-
-	return msg
 }
 
 // loadResult has a pointer reciever such that it actually modifies the object it's being called on

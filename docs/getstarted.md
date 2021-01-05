@@ -9,13 +9,13 @@ There are some more complicated things you can do with Runnables:
 type recursive struct{}
 
 // Run runs a recursive job
-func (r recursive) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
+func (r recursive) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 	fmt.Println("doing job:", job.String())
 
 	if job.String() == "first" {
-		return do(hive.NewJob("recursive", "second")), nil
+		return ctx.Do(hive.NewJob("recursive", "second")), nil
 	} else if job.String() == "second" {
-		return do(hive.NewJob("recursive", "last")), nil
+		return ctx.Do(hive.NewJob("recursive", "last")), nil
 	}
 
 	return fmt.Sprintf("finished %s", job.String()), nil
@@ -25,9 +25,9 @@ func (r recursive) OnChange(change ChangeEvent) error {
 	return nil
 }
 ```
-The `hive.DoFunc` that you see there is a way for your Runnable to, well, run more things!
+The `hive.Ctx` you see there is the job context, and one of the things it can do is run more things!
 
-Calling the `DoFunc` will schedule another job to be executed and give you a `Result`. If you return a `Result` from `Run`, then the caller will recursively recieve that `Result` when they call `Then()`!
+Calling `ctx.Do` will schedule another job to be executed and give you a `Result`. If you return a `Result` from `Run`, then the caller will recursively recieve that `Result` when they call `Then()`!
 
 For example:
 ```golang
@@ -72,9 +72,9 @@ A hive `Group` is a set of `Result`s that belong together. If you're familiar wi
 ```golang
 grp := hive.NewGroup()
 
-grp.Add(do(hive.NewJob("recursive", "first")))
-grp.Add(do(hive.NewJob("generic", "group work")))
-grp.Add(do(hive.NewJob("generic", "group work")))
+grp.Add(ctx.Do(hive.NewJob("recursive", "first")))
+grp.Add(ctx.Do(hive.NewJob("generic", "group work")))
+grp.Add(ctx.Do(hive.NewJob("generic", "group work")))
 
 if err := grp.Wait(); err != nil {
 	log.Fatal(err)
@@ -140,7 +140,7 @@ type input struct {
 type math struct{}
 
 // Run runs a math job
-func (g math) Run(job hive.Job, do hive.DoFunc) (interface{}, error) {
+func (g math) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 	in := job.Data().(input)
 
 	return in.First + in.Second, nil
