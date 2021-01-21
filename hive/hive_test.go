@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
+	"github.com/suborbital/grav/testutil"
 )
 
 type generic struct{}
@@ -123,4 +124,37 @@ func TestHiveResultThenDo(t *testing.T) {
 	// poor man's async testing
 	<-wait
 	<-wait
+}
+
+type prewarmRunnable struct {
+	counter *testutil.AsyncCounter
+}
+
+func (p *prewarmRunnable) Run(job Job, ctx *Ctx) (interface{}, error) {
+	return nil, nil
+}
+
+func (p *prewarmRunnable) OnChange(change ChangeEvent) error {
+	if change == ChangeTypeStart {
+		p.counter.Count()
+	}
+
+	return nil
+}
+
+func TestPreWarmWorker(t *testing.T) {
+	counter := testutil.NewAsyncCounter(10)
+
+	runnable := &prewarmRunnable{
+		counter: counter,
+	}
+
+	h := New()
+	h.Handle("prewarm", runnable, PoolSize(3), PreWarm())
+
+	// checking to see if the prewarmRunnable's OnChange function is called
+	// without ever sending it a job (see Runnable above)
+	if err := counter.Wait(3, 1); err != nil {
+		t.Error(err)
+	}
 }
