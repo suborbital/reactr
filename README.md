@@ -36,7 +36,7 @@ func (g generic) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 
 // OnChange is called when Hive starts or stops a worker to handle jobs,
 // and allows the Runnable to set up before receiving jobs or tear down if needed.
-func (g generic) OnChange(change ChangeEvent) error {
+func (g generic) OnChange(change hive.ChangeEvent) error {
 	return nil
 }
 ```

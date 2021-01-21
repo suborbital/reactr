@@ -21,7 +21,7 @@ func (r recursive) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 	return fmt.Sprintf("finished %s", job.String()), nil
 }
 
-func (r recursive) OnChange(change ChangeEvent) error {
+func (r recursive) OnChange(change hive.ChangeEvent) error {
 	return nil
 }
 ```
@@ -128,6 +128,12 @@ Most Runnables can return `nil` from this function, however returning an error w
 doBad := h.Handle("badRunner", badRunner{}, hive.RetrySeconds(1), hive.MaxRetries(10))
 ```
 Any error from a failed worker will be returned to the first job that is attempted for that Runnable.
+
+### Pre-warming
+When a Runnable is mounted, it is simply registered as available to receive work. The Runnable is not actually invoked until the first job of the given type is received. For basic Runnables, this is normally fine, but for Runnables who use the `OnChange` method to provision resources, this can cause the first job to be slow. The `PreWarm` option is available to allow Runnables to be started as soon as they are mounted, rather than waiting for the first job. This mitigates cold-starts when anything expensive is needed at startup.
+```
+doExpensive := h.Handle("expensive", expensiveRunnable{}, hive.PreWarm())
+```
 
 ### Shortcuts
 
