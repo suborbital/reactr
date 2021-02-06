@@ -40,7 +40,7 @@ func (g generic) OnChange(change rt.ChangeEvent) error {
 ```
 A `Runnable` is something that can take care of a job, all it needs to do is conform to the `Runnable` interface as you see above.
 
-Once you have a Runnable, create a hive, register it, and `Do` some work:
+Once you have a Runnable, create a Reactr instance, register it, and `Do` some work:
 ```golang
 package main
 
