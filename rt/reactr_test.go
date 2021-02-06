@@ -18,7 +18,7 @@ func (g generic) Run(job Job, ctx *Ctx) (interface{}, error) {
 	} else if job.String() == "second" {
 		return ctx.Do(NewJob("generic", "last")), nil
 	} else if job.String() == "fail" {
-		return nil, errors.New("error!")
+		return nil, errors.New("error")
 	}
 
 	return job.String(), nil

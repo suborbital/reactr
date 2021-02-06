@@ -17,7 +17,7 @@ type Cache interface {
 	Delete(key string) error
 }
 
-// memoryCache is a "default" cache implementation for Hive
+// memoryCache is a "default" cache implementation for Reactr
 type memoryCache struct {
 	values map[string]*uniqueVal
 
