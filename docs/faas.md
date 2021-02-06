@@ -1,10 +1,10 @@
-## Hive FaaS ☁️
+## Reactr FaaS ☁️
 
-Hive has built-in support for acting as a Functions-as-a-Service system (FaaS). Hive Runnables can be exposed as endpoints to be triggered by an API request. Hive will automatically create and manage the server on your behalf and allow for efficient execution of your Runnables over the network.
+Reactr has built-in support for acting as a Functions-as-a-Service system (FaaS). Reactr Runnables can be exposed as endpoints to be triggered by an API request. Reactr will automatically create and manage the server on your behalf and allow for efficient execution of your Runnables over the network.
 
-Hive FaaS operates with similar semantics to the Hive Go library. Jobs are triggered by making a POST request, and the caller receives a result ID in return. The job will be automatically scheduled and the result can be fetched later by passing the result ID in a later GET request. Results can optionally be waited for by passing the `?then=true` query parameter.
+Reactr FaaS operates with similar semantics to the Reactr Go library. Jobs are triggered by making a POST request, and the caller receives a result ID in return. The job will be automatically scheduled and the result can be fetched later by passing the result ID in a later GET request. Results can optionally be waited for by passing the `?then=true` query parameter.
 
-An example of creating a Hive FaaS server can be found in [servertest](../servertest/main.go). Hive FaaS uses SubOrbital's [Vektor API framework](https://github.com/suborbital/vektor), and so all of its options are available, and the resulting server object can be optionally extended with other handlers. Below are the API calls available for Hive jobs.
+An example of creating a Reactr FaaS server can be found in [servertest](../rfaasservertest/main.go). Reactr FaaS uses Suborbital's [Vektor API framework](https://github.com/suborbital/vektor), and so all of its options are available, and the resulting server object can be optionally extended with other handlers. Below are the API calls available for Reactr jobs.
 
 ## Schedule a Job
 

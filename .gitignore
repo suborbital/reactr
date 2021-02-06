@@ -17,3 +17,10 @@
 target/
 
 test
+
+.DS_Store
+
+target
+
+.build
+Suborbital.wasm
