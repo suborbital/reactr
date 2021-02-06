@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"fmt"
@@ -11,19 +11,19 @@ type HostFn struct {
 	name   string
 	args   []wasmer.ValueKind
 	ret    []wasmer.ValueKind
-	hostFn func(...wasmer.Value) (interface{}, error)
+	hostFn func(...wasmer.Value) (interface{}, interface{}, error)
 }
 
 // newHostFn creates a new host funcion
-func newHostFn(name string, argLen int, returns bool, fn func(...wasmer.Value) (interface{}, error)) *HostFn {
-	retVals := []wasmer.ValueKind{}
-	if returns {
-		retVals = append(retVals, wasmer.I32)
-	}
-
+func newHostFn(name string, argLen int, retLen int, fn func(...wasmer.Value) (interface{}, interface{}, error)) *HostFn {
 	args := make([]wasmer.ValueKind, argLen)
 	for i := 0; i < argLen; i++ {
 		args[i] = wasmer.I32
+	}
+
+	retVals := []wasmer.ValueKind{}
+	for i := 0; i < retLen; i++ {
+		retVals = append(retVals, wasmer.I32)
 	}
 
 	hfn := &HostFn{
@@ -98,7 +98,7 @@ func (h *HostFn) fnReturns() []*wasmer.ValueType {
 // Fn translates wraps the host fn in a Wasmer fn
 func (h *HostFn) fn() func([]wasmer.Value) ([]wasmer.Value, error) {
 	return func(argL []wasmer.Value) ([]wasmer.Value, error) {
-		result, err := h.hostFn(argL...)
+		result, size, err := h.hostFn(argL...)
 		if err != nil {
 			return nil, err
 		}
@@ -106,6 +106,10 @@ func (h *HostFn) fn() func([]wasmer.Value) ([]wasmer.Value, error) {
 		retVals := []wasmer.Value{}
 		if result != nil {
 			retVals = append(retVals, wasmer.NewValue(result, wasmer.I32))
+		}
+
+		if size != nil {
+			retVals = append(retVals, wasmer.NewValue(size, wasmer.I32))
 		}
 
 		return retVals, nil

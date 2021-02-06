@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"bytes"
@@ -32,37 +32,35 @@ var methodValToMethod = map[int32]string{
 }
 
 func fetchURL() *HostFn {
-	fn := func(args ...wasmer.Value) (interface{}, error) {
+	fn := func(args ...wasmer.Value) (interface{}, interface{}, error) {
 		method := args[0].I32()
 		urlPointer := args[1].I32()
 		urlSize := args[2].I32()
 		bodyPointer := args[3].I32()
 		bodySize := args[4].I32()
-		destPointer := args[5].I32()
-		destMaxSize := args[6].I32()
-		ident := args[7].I32()
+		ident := args[5].I32()
 
-		ret := fetch_url(method, urlPointer, urlSize, bodyPointer, bodySize, destPointer, destMaxSize, ident)
+		ptr, size := fetch_url(method, urlPointer, urlSize, bodyPointer, bodySize, ident)
 
-		return ret, nil
+		return ptr, size, nil
 	}
 
-	return newHostFn("fetch_url", 8, true, fn)
+	return newHostFn("fetch_url", 8, 2, fn)
 }
 
-func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32, bodySize int32, destPointer int32, destMaxSize int32, identifier int32) int32 {
+func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32, bodySize int32, identifier int32) (int32, int32) {
 	// fetch makes a network request on bahalf of the wasm runner.
 	// fetch writes the http response body into memory starting at returnBodyPointer, and the return value is a pointer to that memory
 	inst, err := instanceForIdentifier(identifier)
 	if err != nil {
 		logger.Error(errors.Wrap(err, "[rwasm] alert: invalid identifier used, potential malicious activity"))
-		return -1
+		return -1, 0
 	}
 
 	httpMethod, exists := methodValToMethod[method]
 	if !exists {
 		logger.ErrorString("invalid method provided")
-		return -2
+		return -2, 0
 	}
 
 	urlBytes := inst.readMemory(urlPointer, urlSize)
@@ -75,13 +73,13 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 	headers, err := parseHTTPHeaders(urlParts)
 	if err != nil {
 		logger.Error(errors.Wrap(err, "could not parse URL headers"))
-		return -2
+		return -2, 0
 	}
 
 	urlObj, err := url.Parse(urlString)
 	if err != nil {
 		logger.ErrorString("couldn't parse URL")
-		return -2
+		return -2, 0
 	}
 
 	body := inst.readMemory(bodyPointer, bodySize)
@@ -95,7 +93,7 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 	req, err := http.NewRequest(httpMethod, urlObj.String(), bytes.NewBuffer(body))
 	if err != nil {
 		logger.ErrorString("failed to build request")
-		return -2
+		return -2, 0
 	}
 
 	req.Header = *headers
@@ -103,20 +101,20 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		logger.Error(errors.Wrap(err, "failed to Do request"))
-		return -3
+		return -3, 0
 	}
 
 	defer resp.Body.Close()
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.ErrorString("failed to Read response body")
-		return -4
+		return -4, 0
 	}
 
-	// if the size is greater than what's been allocated, then the module will increase the size and try again
-	if len(respBytes) <= int(destMaxSize) {
-		inst.writeMemoryAtLocation(destPointer, respBytes)
+	ptr, err := inst.writeMemory(respBytes)
+	if err != nil {
+		return -5, 0
 	}
 
-	return int32(len(respBytes))
+	return ptr, int32(len(respBytes))
 }

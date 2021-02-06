@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"github.com/pkg/errors"
@@ -6,7 +6,7 @@ import (
 )
 
 func cacheSet() *HostFn {
-	fn := func(args ...wasmer.Value) (interface{}, error) {
+	fn := func(args ...wasmer.Value) (interface{}, interface{}, error) {
 		keyPointer := args[0].I32()
 		keySize := args[1].I32()
 		valPointer := args[2].I32()
@@ -16,10 +16,10 @@ func cacheSet() *HostFn {
 
 		ret := cache_set(keyPointer, keySize, valPointer, valSize, ttl, ident)
 
-		return ret, nil
+		return ret, nil, nil
 	}
 
-	return newHostFn("cache_set", 6, true, fn)
+	return newHostFn("cache_set", 6, 1, fn)
 }
 
 func cache_set(keyPointer int32, keySize int32, valPointer int32, valSize int32, ttl int32, identifier int32) int32 {
@@ -43,7 +43,7 @@ func cache_set(keyPointer int32, keySize int32, valPointer int32, valSize int32,
 }
 
 func cacheGet() *HostFn {
-	fn := func(args ...wasmer.Value) (interface{}, error) {
+	fn := func(args ...wasmer.Value) (interface{}, interface{}, error) {
 		keyPointer := args[0].I32()
 		keySize := args[1].I32()
 		destPointer := args[2].I32()
@@ -52,10 +52,10 @@ func cacheGet() *HostFn {
 
 		ret := cache_get(keyPointer, keySize, destPointer, destMaxSize, ident)
 
-		return ret, nil
+		return ret, nil, nil
 	}
 
-	return newHostFn("cache_get", 5, true, fn)
+	return newHostFn("cache_get", 5, 1, fn)
 }
 
 func cache_get(keyPointer int32, keySize int32, destPointer int32, destMaxSize int32, identifier int32) int32 {

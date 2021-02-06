@@ -98,7 +98,7 @@ pub mod http {
     static METHOD_DELETE: i32 = 4;
 
     extern {
-        fn fetch_url(method: i32, url_pointer: *const u8, url_size: i32, body_pointer: *const u8, body_size: i32, dest_pointer: *const u8, dest_max_size: i32, ident: i32) -> i32;
+        fn fetch_url(method: i32, url_pointer: *const u8, url_size: i32, body_pointer: *const u8, body_size: i32, ident: i32) -> [i32; 2];
     }
 
     pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Vec<u8> {
@@ -126,10 +126,6 @@ pub mod http {
             Some(h) => format!("{}::{}", url, h),
             None => String::from(url)
         };
-        
-        let mut dest_pointer: *const u8;
-        let mut dest_size: i32;
-        let mut capacity: i32 = 256000;
 
         let body_pointer: *const u8;
         let mut body_size: i32 = 0;
@@ -142,32 +138,23 @@ pub mod http {
             },
             None => body_pointer = 0 as *const u8
         }
-        
-        // make the request, and if the response size is greater than that of capacity, increase the capacity and try again
-        loop {
-            let cap = &mut capacity;
-            
-            let mut dest_bytes = Vec::with_capacity(*cap as usize);
-            let dest_slice = dest_bytes.as_mut_slice();
-            dest_pointer = dest_slice.as_mut_ptr() as *const u8;
-            
-            // do the request over FFI
-            dest_size = unsafe { fetch_url(method, url_string.as_str().as_ptr(), url_string.len() as i32, body_pointer, body_size, dest_pointer, *cap, super::STATE.ident) };
-
-            if dest_size < 0 {
-                return Vec::from(format!("request_failed:{}", dest_size))
-            } else if dest_size > *cap {
-                *cap = dest_size;
-            } else {
-                break;
-            }
-        }
-
-        let result: &[u8] = unsafe {
-            slice::from_raw_parts(dest_pointer, dest_size as usize)
+    
+        // do the request over FFI
+        let result = unsafe { 
+            fetch_url(method, url_string.as_str().as_ptr(), url_string.len() as i32, body_pointer, body_size, super::STATE.ident)
         };
 
-        return Vec::from(result)
+        let (result_ptr, result_size) = (result[0], result[1]);
+
+        if (result_ptr) < 0 {
+            return Vec::from(format!("request_failed:{}", result_ptr))
+        } 
+
+        let data: &[u8] = unsafe {
+            slice::from_raw_parts(result_ptr as *const u8, result_size as usize)
+        };
+
+        return Vec::from(data)
 	}
 	
 	fn render_header_string(headers: Option<BTreeMap<&str, &str>>) -> Option<String> {

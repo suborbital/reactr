@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"net/http"

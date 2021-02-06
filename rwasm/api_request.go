@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"github.com/pkg/errors"
@@ -14,7 +14,7 @@ const (
 )
 
 func requestGetField() *HostFn {
-	fn := func(args ...wasmer.Value) (interface{}, error) {
+	fn := func(args ...wasmer.Value) (interface{}, interface{}, error) {
 		fieldType := args[0].I32()
 		keyPointer := args[1].I32()
 		keySize := args[2].I32()
@@ -24,10 +24,10 @@ func requestGetField() *HostFn {
 
 		ret := request_get_field(fieldType, keyPointer, keySize, destPointer, destMaxSize, ident)
 
-		return ret, nil
+		return ret, nil, nil
 	}
 
-	return newHostFn("request_get_field", 6, true, fn)
+	return newHostFn("request_get_field", 6, 1, fn)
 }
 
 func request_get_field(fieldType int32, keyPointer int32, keySize int32, destPointer int32, destMaxSize int32, identifier int32) int32 {

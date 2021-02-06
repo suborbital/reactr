@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"github.com/pkg/errors"
@@ -10,7 +10,7 @@ type logScope struct {
 }
 
 func logMsg() *HostFn {
-	fn := func(args ...wasmer.Value) (interface{}, error) {
+	fn := func(args ...wasmer.Value) (interface{}, interface{}, error) {
 		pointer := args[0].I32()
 		size := args[1].I32()
 		level := args[2].I32()
@@ -18,10 +18,10 @@ func logMsg() *HostFn {
 
 		log_msg(pointer, size, level, ident)
 
-		return nil, nil
+		return nil, nil, nil
 	}
 
-	return newHostFn("log_msg", 4, false, fn)
+	return newHostFn("log_msg", 4, 0, fn)
 }
 
 func log_msg(pointer int32, size int32, level int32, identifier int32) {

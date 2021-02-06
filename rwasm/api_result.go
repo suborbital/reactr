@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"github.com/pkg/errors"
@@ -6,17 +6,17 @@ import (
 )
 
 func returnResult() *HostFn {
-	fn := func(args ...wasmer.Value) (interface{}, error) {
+	fn := func(args ...wasmer.Value) (interface{}, interface{}, error) {
 		pointer := args[0].I32()
 		size := args[1].I32()
 		ident := args[2].I32()
 
 		return_result(pointer, size, ident)
 
-		return nil, nil
+		return nil, nil, nil
 	}
 
-	return newHostFn("return_result", 3, false, fn)
+	return newHostFn("return_result", 3, 0, fn)
 }
 
 func return_result(pointer int32, size int32, identifier int32) {
