@@ -1,24 +1,22 @@
-![logo_transparent](https://user-images.githubusercontent.com/5942370/88548780-87288580-cfed-11ea-8239-991b6ac420e3.png)
+![logo_transparent_wide](https://user-images.githubusercontent.com/5942370/107126087-ca589080-687b-11eb-820e-c6161c355eba.png)
 
-![Testapalooza](https://github.com/suborbital/hive/workflows/Testapalooza/badge.svg)
+Reactr is a fast, performant function scheduling system. Reactr is designed to be flexible, with the ability to run embedded in your Go applications or as a standalone FaaS server, and has first-class support for Wasm/WASI bundles.
 
-Hive is a fast, performant job scheduling system, plain and simple. Hive is designed to be flexible, with the ability to run embedded in your Go applications or as a standalone FaaS server, and has early support for running WASM/WASI bundles.
+Reactr runs functions called Runnables, and transparently spawns workers to process jobs. Each worker processes jobs in sequence, using Runnables to execute them. Reactr jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
-Hive transparently spawns workers to process jobs, with each worker processing jobs in sequence. Hive jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled by clients, and their results can be retreived at a later time.
+## Wasm
 
-## WASM
-
-Hive has early (read: beta) support for Wasm-packaged runnables. This is actively being worked on, as Wasm is an exciting new standard that makes cross-language and cross-platform code just a bit easier :) See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
+Reactr has support for Wasm-packaged Runnables. The `rwasm` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust and Swift. See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
 
 ## FaaS
 
-Hive has early (read: alpha) support for acting as a Functions-as-a-Service system. Hive can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details. gRPC support is planned.
+Reactr has early (read: alpha) support for acting as a Functions-as-a-Service system. Reactr can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details.
 
 ### The Basics
 
-First, install Hive:
+First, install Reactr's core package `rt`:
 ```bash
-go get github.com/suborbital/hive/hive
+go get github.com/suborbital/reactr/rt
 ```
 
 And then get started by defining something `Runnable`:
@@ -26,7 +24,7 @@ And then get started by defining something `Runnable`:
 type generic struct{}
 
 // Run runs a generic job
-func (g generic) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
+func (g generic) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 	fmt.Println("doing job:", job.String()) // get the string value of the job's data
 
 	// do your work here
@@ -34,9 +32,9 @@ func (g generic) Run(job hive.Job, ctx *hive.Ctx) (interface{}, error) {
 	return fmt.Sprintf("finished %s", job.String()), nil
 }
 
-// OnChange is called when Hive starts or stops a worker to handle jobs,
+// OnChange is called when Reactr starts or stops a worker to handle jobs,
 // and allows the Runnable to set up before receiving jobs or tear down if needed.
-func (g generic) OnChange(change hive.ChangeEvent) error {
+func (g generic) OnChange(change rt.ChangeEvent) error {
 	return nil
 }
 ```
@@ -50,17 +48,17 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/suborbital/hive/hive"
+	"github.com/suborbital/reactr/rt"
 )
 
 func main() {
-	h := hive.New()
+	r := rt.New()
 
-	h.Handle("generic", generic{})
+	r.Handle("generic", generic{})
 
-	r := h.Do(h.Job("generic", "hard work"))
+	res := r.Do(r.Job("generic", "hard work"))
 
-	res, err := r.Then()
+	res, err := res.Then()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,8 +70,8 @@ When you `Do` some work, you get a `Result`. A result is like a Rust future or a
 
 Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Cool, right?
 
-### Hive has some very powerful capabilities, visit the [get started guide](./docs/getstarted.md) to learn more.
+## Reactr has some very powerful capabilities, visit the [get started guide](./docs/getstarted.md) to learn more.
 
-Hive is being actively developed and has planned improvements, including optimized memory usage, library stability, data persistence, and more. Cheers!
+Reactr is being actively developed and has planned improvements, including optimized memory usage, library stability, data persistence, and more. Cheers!
 
 Copyright Suborbital contributors 2020
