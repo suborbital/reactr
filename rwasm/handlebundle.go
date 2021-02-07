@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"fmt"
@@ -31,9 +31,9 @@ func HandleBundle(h *rt.Reactr, bundle *bundle.Bundle) error {
 	}
 
 	for i, r := range bundle.Runnables {
-		runner := newRunnerWithRef(&bundle.Runnables[i])
+		runner := newRunnerWithRef(&bundle.Runnables[i], bundle.StaticFile)
 
-		jobName := strings.Replace(r.Name, ".wasm", "", -1)
+		jobName := strings.TrimSuffix(r.Name, ".wasm")
 		fqfn, err := bundle.Directive.FQFN(jobName)
 		if err != nil {
 			return errors.Wrapf(err, "failed to FQFN for %s", jobName)
