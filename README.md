@@ -6,7 +6,7 @@ Reactr runs functions called Runnables, and transparently spawns workers to proc
 
 ## Wasm
 
-Reactr has support for Wasm-packaged Runnables. The `rwasm` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust and Swift. See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
+Reactr has support for Wasm-packaged Runnables. The `rwasm` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable) and Swift (experimental). See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
 
 ## FaaS
 

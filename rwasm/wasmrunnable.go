@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"encoding/json"
@@ -28,25 +28,17 @@ func NewRunner(filepath string) *Runner {
 		Filepath: filepath,
 	}
 
-	return newRunnerWithRef(ref)
+	return newRunnerWithRef(ref, nil)
 }
 
-func newRunnerWithRef(ref *bundle.WasmModuleRef) *Runner {
-	environment := newEnvironment(ref)
+func newRunnerWithRef(ref *bundle.WasmModuleRef, staticFileFunc bundle.FileFunc) *Runner {
+	environment := newEnvironment(ref, staticFileFunc)
 
 	r := &Runner{
 		env: environment,
 	}
 
 	return r
-}
-
-func newRunnerWithEnvironment(env *wasmEnvironment) *Runner {
-	w := &Runner{
-		env: env,
-	}
-
-	return w
 }
 
 // Run runs a Runner

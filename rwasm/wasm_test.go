@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"encoding/json"
@@ -475,5 +475,41 @@ func TestWasmCacheGetSetSwiftToRust(t *testing.T) {
 
 	if string(r2.([]byte)) != "very important" {
 		t.Error(fmt.Errorf("did not get expected output"))
+	}
+}
+
+func TestWasmFileGetStatic(t *testing.T) {
+	getJob := rt.NewJob("get-static", "important.md")
+
+	r, err := sharedRT.Do(getJob).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Do get-static job"))
+		return
+	}
+
+	result := string(r.([]byte))
+
+	expected := "# Hello, World\n\nContents are very important"
+
+	if result != expected {
+		t.Error("failed, got:\n", result, "\nexpeted:\n", expected)
+	}
+}
+
+func TestWasmFileGetStaticSwift(t *testing.T) {
+	getJob := rt.NewJob("get-static-swift", "")
+
+	r, err := sharedRT.Do(getJob).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Do get-static job"))
+		return
+	}
+
+	result := string(r.([]byte))
+
+	expected := "# Hello, World\n\nContents are very important"
+
+	if result != expected {
+		t.Error("failed, got:\n", result, "\nexpeted:\n", expected)
 	}
 }

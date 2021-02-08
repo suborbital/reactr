@@ -3,6 +3,7 @@ package bundle
 import (
 	"archive/zip"
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -12,10 +13,15 @@ import (
 	"github.com/suborbital/reactr/directive"
 )
 
+// FileFunc is a function that returns the contents of a requested file
+type FileFunc func(string) ([]byte, error)
+
 // Bundle represents a Runnable bundle
 type Bundle struct {
-	Directive *directive.Directive
-	Runnables []WasmModuleRef
+	filepath    string
+	Directive   *directive.Directive
+	Runnables   []WasmModuleRef
+	staticFiles map[string]bool
 }
 
 // WasmModuleRef is a reference to a Wasm module (either its filepath or its bytes)
@@ -25,9 +31,43 @@ type WasmModuleRef struct {
 	data     []byte
 }
 
+// StaticFile returns a static file from the bundle, if it exists
+func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
+	if _, exists := b.staticFiles[filePath]; !exists {
+		return nil, os.ErrNotExist
+	}
+
+	r, err := zip.OpenReader(b.filepath)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open bundle")
+	}
+
+	staticFilePath := ensurePrefix(filePath, "static/")
+
+	var contents []byte
+
+	for _, f := range r.File {
+		if f.Name == staticFilePath {
+			file, err := f.Open()
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to Open static file")
+			}
+
+			contents, err = ioutil.ReadAll(file)
+			if err != nil {
+				return nil, errors.Wrap(err, "failed to ReadAll static file")
+			}
+
+			break
+		}
+	}
+
+	return contents, nil
+}
+
 // Write writes a runnable bundle
 // based loosely on https://golang.org/src/archive/zip/example_test.go
-func Write(directive *directive.Directive, files []os.File, targetPath string) error {
+func Write(directive *directive.Directive, files []os.File, staticFiles []os.File, targetPath string) error {
 	if directive == nil {
 		return errors.New("directive must be provided")
 	}
@@ -56,6 +96,19 @@ func Write(directive *directive.Directive, files []os.File, targetPath string) e
 		}
 
 		if err := writeFile(w, filepath.Base(file.Name()), contents); err != nil {
+			return errors.Wrap(err, "failed to writeFile into bundle")
+		}
+	}
+
+	// Add static files to the archive.
+	for _, file := range staticFiles {
+		contents, err := ioutil.ReadAll(&file)
+		if err != nil {
+			return errors.Wrapf(err, "failed to read file %s", file.Name())
+		}
+
+		fileName := fmt.Sprintf("static/%s", filepath.Base(file.Name()))
+		if err := writeFile(w, fileName, contents); err != nil {
 			return errors.Wrap(err, "failed to writeFile into bundle")
 		}
 	}
@@ -110,11 +163,12 @@ func Read(path string) (*Bundle, error) {
 	defer r.Close()
 
 	bundle := &Bundle{
-		Runnables: []WasmModuleRef{},
+		filepath:    path,
+		Runnables:   []WasmModuleRef{},
+		staticFiles: map[string]bool{},
 	}
 
 	// Iterate through the files in the archive,
-
 	for _, f := range r.File {
 		if f.Name == "Directive.yaml" {
 			directive, err := readDirective(f)
@@ -123,6 +177,11 @@ func Read(path string) (*Bundle, error) {
 			}
 
 			bundle.Directive = directive
+			continue
+		} else if strings.HasPrefix(f.Name, "static/") {
+			// build up the list of available static files in the bundle for quick reference later
+			filePath := strings.TrimPrefix(f.Name, "static/")
+			bundle.staticFiles[filePath] = true
 			continue
 		} else if !strings.HasSuffix(f.Name, ".wasm") {
 			continue
@@ -196,4 +255,12 @@ func (w *WasmModuleRef) ModuleBytes() ([]byte, error) {
 	}
 
 	return w.data, nil
+}
+
+func ensurePrefix(val, prefix string) string {
+	if strings.HasPrefix(val, prefix) {
+		return val
+	}
+
+	return fmt.Sprintf("%s%s", prefix, val)
 }

@@ -12,8 +12,8 @@ import (
 
 func main() {
 	files := []os.File{}
-	for _, filename := range []string{"fetch.wasm", "log_example.wasm", "example.wasm"} {
-		path := filepath.Join("./", "wasm", "testdata", filename)
+	for _, filename := range []string{"fetch/fetch.wasm", "log/log.wasm", "hello-echo/hello-echo.wasm"} {
+		path := filepath.Join("./", "rwasm", "testdata", filename)
 
 		file, err := os.Open(path)
 		if err != nil {
@@ -21,6 +21,18 @@ func main() {
 		}
 
 		files = append(files, *file)
+	}
+
+	staticFiles := []os.File{}
+	for _, filename := range []string{"go.mod", "go.sum", "Makefile"} {
+		path := filepath.Join("./", filename)
+
+		file, err := os.Open(path)
+		if err != nil {
+			log.Fatal("failed to open file", err)
+		}
+
+		staticFiles = append(staticFiles, *file)
 	}
 
 	directive := &directive.Directive{
@@ -33,11 +45,11 @@ func main() {
 				Namespace: "default",
 			},
 			{
-				Name:      "log_example",
+				Name:      "log",
 				Namespace: "default",
 			},
 			{
-				Name:      "example",
+				Name:      "hello-echo",
 				Namespace: "default",
 			},
 		},
@@ -56,13 +68,13 @@ func main() {
 								As: "ghData",
 							},
 							{
-								Fn: "log_example",
+								Fn: "log",
 							},
 						},
 					},
 					{
 						CallableFn: directive.CallableFn{
-							Fn: "example",
+							Fn: "hello-echo",
 							With: []string{
 								"data: ghData",
 							},
@@ -78,9 +90,21 @@ func main() {
 		log.Fatal("failed to validate directive: ", err)
 	}
 
-	if err := bundle.Write(directive, files, "./runnables.wasm.zip"); err != nil {
+	if err := bundle.Write(directive, files, staticFiles, "./runnables.wasm.zip"); err != nil {
 		log.Fatal("failed to WriteBundle", err)
 	}
+
+	bdl, err := bundle.Read("./runnables.wasm.zip")
+	if err != nil {
+		log.Fatal("failed to re-read bundle:", err)
+	}
+
+	file, err := bdl.StaticFile("go.mod")
+	if err != nil {
+		log.Fatal("failed to StaticFile:", err)
+	}
+
+	fmt.Println(string(file))
 
 	fmt.Println("done ✨")
 }

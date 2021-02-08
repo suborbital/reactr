@@ -1,4 +1,4 @@
-package wasm
+package rwasm
 
 import (
 	"crypto/rand"
@@ -52,6 +52,8 @@ type wasmEnvironment struct {
 	imports   *wasmer.ImportObject
 	instances []*wasmInstance
 
+	staticFileFunc bundle.FileFunc
+
 	// the index of the last used wasm instance
 	instIndex int
 	lock      sync.Mutex
@@ -59,8 +61,12 @@ type wasmEnvironment struct {
 
 type wasmInstance struct {
 	wasmerInst *wasmer.Instance
-	rtCtx      *rt.Ctx
-	request    *request.CoordinatedRequest
+
+	rtCtx   *rt.Ctx
+	request *request.CoordinatedRequest
+
+	staticFileFunc bundle.FileFunc
+
 	resultChan chan []byte
 	lock       sync.Mutex
 }
@@ -74,16 +80,17 @@ type instanceReference struct {
 
 // newEnvironment creates a new environment and adds it to the shared environments array
 // such that Wasm instances can return data to the correct place
-func newEnvironment(ref *bundle.WasmModuleRef) *wasmEnvironment {
+func newEnvironment(ref *bundle.WasmModuleRef, staticFileFunc bundle.FileFunc) *wasmEnvironment {
 	envLock.Lock()
 	defer envLock.Unlock()
 
 	e := &wasmEnvironment{
-		UUID:      uuid.New().String(),
-		ref:       ref,
-		instances: []*wasmInstance{},
-		instIndex: 0,
-		lock:      sync.Mutex{},
+		UUID:           uuid.New().String(),
+		ref:            ref,
+		instances:      []*wasmInstance{},
+		staticFileFunc: staticFileFunc,
+		instIndex:      0,
+		lock:           sync.Mutex{},
 	}
 
 	environments[e.UUID] = e
@@ -115,9 +122,10 @@ func (w *wasmEnvironment) addInstance() error {
 	}
 
 	instance := &wasmInstance{
-		wasmerInst: inst,
-		resultChan: make(chan []byte, 1),
-		lock:       sync.Mutex{},
+		wasmerInst:     inst,
+		staticFileFunc: w.staticFileFunc,
+		resultChan:     make(chan []byte, 1),
+		lock:           sync.Mutex{},
 	}
 
 	w.instances = append(w.instances, instance)
@@ -196,6 +204,7 @@ func (w *wasmEnvironment) internals() (*wasmer.Module, *wasmer.Store, *wasmer.Im
 			cacheGet(),
 			logMsg(),
 			requestGetField(),
+			getStaticFile(),
 		)
 
 		w.module = mod

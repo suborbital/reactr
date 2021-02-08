@@ -376,6 +376,47 @@ pub mod log {
     }
 }
 
+pub mod file {
+    use std::slice;
+
+    extern {
+        fn get_static_file(name_ptr: *const u8, name_size: i32, dest_ptr: *const u8, dest_max_size: i32, ident: i32) -> i32;
+    }
+
+    pub fn get_static(name: &str) -> Option<Vec<u8>> {
+        let mut dest_pointer: *const u8;
+        let mut result_size: i32;
+        let mut capacity: i32 = 1024;
+
+        // make the request, and if the response size is greater than that of capacity, increase the capacity and try again
+        loop {
+            let cap = &mut capacity;
+
+            let mut dest_bytes = Vec::with_capacity(*cap as usize);
+            let dest_slice = dest_bytes.as_mut_slice();
+            dest_pointer = dest_slice.as_mut_ptr() as *const u8;
+    
+            // do the request over FFI
+            result_size = unsafe { get_static_file(name.as_ptr(), name.len() as i32, dest_pointer, *cap, super::STATE.ident) };
+
+            if result_size < 0 {
+                return None;
+            } else if result_size > *cap {
+                super::log::info(format!("increasing capacity, need {}", result_size).as_str());
+                *cap = result_size;
+            } else {
+                break;
+            }
+        }
+
+        let result: &[u8] = unsafe {
+            slice::from_raw_parts(dest_pointer, result_size as usize)
+        };
+
+        Some(Vec::from(result))
+    }
+}
+
 pub mod util {
     pub fn to_string(input: Vec<u8>) -> String {
         String::from_utf8(input).unwrap()
