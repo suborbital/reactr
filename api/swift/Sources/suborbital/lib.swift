@@ -16,6 +16,9 @@ func cache_get(key_pointer: UnsafeRawPointer, key_size: Int32, dest_pointer: Uns
 @_silgen_name("request_get_field_swift")
 func request_get_field(field_type: Int32, key_pointer: UnsafeRawPointer, key_size: Int32, dest_pointer: UnsafeRawPointer, dest_max_size: Int32, ident: Int32) -> Int32
 
+@_silgen_name("get_static_file_swift")
+func get_static_file(name_pointer: UnsafeRawPointer, name_size: Int32, dest_pointer: UnsafeRawPointer, dest_max_size: Int32, ident: Int32) -> Int32
+
 // keep track of the current ident
 var CURRENT_IDENT: Int32 = 0
 
@@ -205,6 +208,35 @@ func requestGetField(fieldType: Int32, key: String) -> String {
                 maxSize = resultSize
             } else {
                 retVal = fromFFI(ptr: resultPtr, size: resultSize)
+                done = true
+            }
+        })
+    }
+    
+    return retVal
+}
+
+public func GetStaticFile(name: String) -> String {    
+    var maxSize: Int32 = 256000
+    var retVal = ""
+
+    // loop until the returned size is within the defined max size, increasing it as needed
+    var done = false
+    while !done {
+        toFFI(val: name, use: { (namePtr: UnsafePointer<Int8>, nameSize: Int32) in
+            let ptr = allocate(size: Int32(maxSize))
+
+            let resultSize = get_static_file(name_pointer: namePtr, name_size: nameSize, dest_pointer: ptr, dest_max_size: maxSize, ident: CURRENT_IDENT)
+
+            if resultSize == 0 {
+                done = true
+            } else if resultSize < 0 {
+                retVal = "failed to get file"
+                done = true
+            } else if resultSize > maxSize {
+                maxSize = resultSize
+            } else {
+                retVal = fromFFI(ptr: ptr, size: resultSize)
                 done = true
             }
         })

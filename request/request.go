@@ -93,6 +93,10 @@ func FromJSON(jsonBytes []byte) (*CoordinatedRequest, error) {
 		return nil, errors.Wrap(err, "failed to Unmarshal request")
 	}
 
+	if req.Method == "" || req.URL == "" || req.ID == "" {
+		return nil, errors.New("JSON is not CoordinatedRequest, required fields are empty")
+	}
+
 	return &req, nil
 }
 

@@ -380,7 +380,7 @@ pub mod file {
     use std::slice;
 
     extern {
-        fn get_static_file(name_ptr: *const u8, name_size: i32, deest_ptr: *const u8, dest_max_size: i32, ident: i32) -> i32;
+        fn get_static_file(name_ptr: *const u8, name_size: i32, dest_ptr: *const u8, dest_max_size: i32, ident: i32) -> i32;
     }
 
     pub fn get_static(name: &str) -> Option<Vec<u8>> {
