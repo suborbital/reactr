@@ -2,4 +2,4 @@
 # It is not intended for manual editing.
 [[package]]
 name = "suborbital"
-version = "0.5.0"
+version = "0.6.0"

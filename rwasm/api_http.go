@@ -120,3 +120,20 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 
 	return int32(len(respBytes))
 }
+
+func parseHTTPHeaders(urlParts []string) (*http.Header, error) {
+	headers := &http.Header{}
+
+	if len(urlParts) > 1 {
+		for _, p := range urlParts[1:] {
+			headerParts := strings.Split(p, ":")
+			if len(headerParts) != 2 {
+				return nil, errors.New("header was not formatted correctly")
+			}
+
+			headers.Add(headerParts[0], headerParts[1])
+		}
+	}
+
+	return headers, nil
+}
