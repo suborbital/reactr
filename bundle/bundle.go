@@ -67,7 +67,8 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 
 // Write writes a runnable bundle
 // based loosely on https://golang.org/src/archive/zip/example_test.go
-func Write(directive *directive.Directive, files []os.File, staticFiles []os.File, targetPath string) error {
+// staticFiles should be a map of *relative* filepaths to their associated files, with or without the `static/` prefix.
+func Write(directive *directive.Directive, modules []os.File, staticFiles map[string]os.File, targetPath string) error {
 	if directive == nil {
 		return errors.New("directive must be provided")
 	}
@@ -83,8 +84,8 @@ func Write(directive *directive.Directive, files []os.File, staticFiles []os.Fil
 		return errors.Wrap(err, "failed to writeDirective")
 	}
 
-	// Add some files to the archive.
-	for _, file := range files {
+	// Add the Wasm modules to the archive.
+	for _, file := range modules {
 		if file.Name() == "Directive.yaml" || file.Name() == "Directive.yml" {
 			// only allow the canonical directive that's passed in
 			continue
@@ -101,13 +102,13 @@ func Write(directive *directive.Directive, files []os.File, staticFiles []os.Fil
 	}
 
 	// Add static files to the archive.
-	for _, file := range staticFiles {
+	for path, file := range staticFiles {
 		contents, err := ioutil.ReadAll(&file)
 		if err != nil {
 			return errors.Wrapf(err, "failed to read file %s", file.Name())
 		}
 
-		fileName := fmt.Sprintf("static/%s", filepath.Base(file.Name()))
+		fileName := ensurePrefix(path, "static/")
 		if err := writeFile(w, fileName, contents); err != nil {
 			return errors.Wrap(err, "failed to writeFile into bundle")
 		}
