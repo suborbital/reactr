@@ -23,7 +23,7 @@ func main() {
 		files = append(files, *file)
 	}
 
-	staticFiles := []os.File{}
+	staticFiles := map[string]os.File{}
 	for _, filename := range []string{"go.mod", "go.sum", "Makefile"} {
 		path := filepath.Join("./", filename)
 
@@ -32,7 +32,7 @@ func main() {
 			log.Fatal("failed to open file", err)
 		}
 
-		staticFiles = append(staticFiles, *file)
+		staticFiles[path] = *file
 	}
 
 	directive := &directive.Directive{
