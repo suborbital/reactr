@@ -25,7 +25,7 @@ func main() {
 
 	staticFiles := map[string]os.File{}
 	for _, filename := range []string{"go.mod", "go.sum", "Makefile"} {
-		path := filepath.Join("./", filename)
+		path := filepath.Join("/", filename)
 
 		file, err := os.Open(path)
 		if err != nil {
