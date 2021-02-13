@@ -33,6 +33,9 @@ type WasmModuleRef struct {
 
 // StaticFile returns a static file from the bundle, if it exists
 func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
+	// normalize in case the caller added `/` or `./` to the filename
+	filePath = NormalizeStaticFilename(filePath)
+
 	if _, exists := b.staticFiles[filePath]; !exists {
 		return nil, os.ErrNotExist
 	}
@@ -42,6 +45,9 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 		return nil, errors.Wrap(err, "failed to open bundle")
 	}
 
+	defer r.Close()
+
+	// re-add the static/ prefix to ensure sandboxing to the static directory
 	staticFilePath := ensurePrefix(filePath, "static/")
 
 	var contents []byte
@@ -52,6 +58,8 @@ func (b *Bundle) StaticFile(filePath string) ([]byte, error) {
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to Open static file")
 			}
+
+			defer file.Close()
 
 			contents, err = ioutil.ReadAll(file)
 			if err != nil {
@@ -264,4 +272,14 @@ func ensurePrefix(val, prefix string) string {
 	}
 
 	return fmt.Sprintf("%s%s", prefix, val)
+}
+
+// NormalizeStaticFilename will take various variations of a filename and
+// normalize it to what is listed in the staticFile name cache on the Bundle struct
+func NormalizeStaticFilename(fileName string) string {
+	withoutStatic := strings.TrimPrefix(fileName, "static/")
+	withoutLeadingSlash := strings.TrimPrefix(withoutStatic, "/")
+	withoutDotSlash := strings.TrimPrefix(withoutLeadingSlash, "./")
+
+	return withoutDotSlash
 }
