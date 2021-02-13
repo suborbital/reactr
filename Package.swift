@@ -11,8 +11,12 @@ let package = Package(
     dependencies: [],
     targets: [
         .target(
-            name: "Suborbital",
+            name: "runnable_api",
             dependencies: [],
+            path: "api/swift/Sources"),
+        .target(
+            name: "Suborbital",
+            dependencies: ["runnable_api"],
             path: "api/swift/Sources"),
     ]
 )

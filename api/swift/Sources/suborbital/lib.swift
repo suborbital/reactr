@@ -1,6 +1,4 @@
-
-@_silgen_name("return_result_swift")
-func return_result(result_pointer: UnsafeRawPointer, result_size: Int32, ident: Int32)
+import RunnableAPI
 
 @_silgen_name("log_msg_swift")
 func log_msg(pointer: UnsafeRawPointer, size: Int32, level: Int32, ident: Int32)
