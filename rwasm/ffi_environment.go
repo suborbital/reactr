@@ -151,15 +151,15 @@ func (w *wasmEnvironment) useInstance(req *request.CoordinatedRequest, ctx *rt.C
 	inst.lock.Lock()
 	defer inst.lock.Unlock()
 
-	inst.rtCtx = ctx
-	inst.request = req
-
 	// generate a random identifier as a reference to the instance in use to
 	// easily allow the Wasm module to reference itself when calling back over the FFI
 	ident, err := setupNewIdentifier(w.UUID, instIndex)
 	if err != nil {
 		return errors.Wrap(err, "failed to setupNewIdentifier")
 	}
+
+	inst.rtCtx = ctx
+	inst.request = req
 
 	instFunc(inst, ident)
 
