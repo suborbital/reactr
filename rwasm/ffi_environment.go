@@ -2,7 +2,6 @@ package rwasm
 
 import (
 	"crypto/rand"
-	"fmt"
 	"math"
 	"math/big"
 	"sync"
@@ -288,7 +287,6 @@ func randomIdentifier() (int32, error) {
 func (w *wasmInstance) readMemory(pointer int32, size int32) []byte {
 	memory, err := w.wasmerInst.Exports.GetMemory("memory")
 	if err != nil || memory == nil {
-		fmt.Println("MEMORY BAD")
 		// we failed
 		return []byte{}
 	}
@@ -327,7 +325,6 @@ func (w *wasmInstance) writeMemory(data []byte) (int32, error) {
 func (w *wasmInstance) writeMemoryAtLocation(pointer int32, data []byte) {
 	memory, err := w.wasmerInst.Exports.GetMemory("memory")
 	if err != nil || memory == nil {
-		fmt.Println("MEMORY BAD")
 		// we failed
 		return
 	}
@@ -340,7 +337,6 @@ func (w *wasmInstance) writeMemoryAtLocation(pointer int32, data []byte) {
 func (w *wasmInstance) deallocate(pointer int32, length int) {
 	dealloc, err := w.wasmerInst.Exports.GetFunction("deallocate")
 	if err != nil || dealloc == nil {
-		fmt.Println("DEALLOC BAD")
 		// we failed
 		return
 	}
