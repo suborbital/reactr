@@ -24,3 +24,5 @@ target
 
 .build
 Suborbital.wasm
+
+.swiftpm

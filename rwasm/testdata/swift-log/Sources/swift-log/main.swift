@@ -1,4 +1,5 @@
 import Suborbital
+import Foundation
 
 class SwiftEcho: Suborbital.Runnable {
     func run(input: String) -> String {

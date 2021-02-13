@@ -246,7 +246,7 @@ public func GetStaticFile(name: String) -> String {
 }
 
 @_cdecl("run_e")
-func run_e(pointer: UnsafeRawPointer, size: Int32, ident: Int32) {
+func run_e(pointer: UnsafeMutablePointer<Int8>, size: Int32, ident: Int32) {
     CURRENT_IDENT = ident
     
     let inString = fromFFI(ptr: pointer, size: size)
@@ -261,13 +261,14 @@ func run_e(pointer: UnsafeRawPointer, size: Int32, ident: Int32) {
 }
 
 @_cdecl("allocate")
-func allocate(size: Int32) -> UnsafeMutableRawPointer {
-  return UnsafeMutableRawPointer.allocate(byteCount: Int(size), alignment: MemoryLayout<UInt8>.alignment)
+func allocate(size: Int32) -> UnsafeMutablePointer<Int8> {
+  return UnsafeMutablePointer<Int8>.allocate(capacity: Int(size) + 1)
 }
 
 @_cdecl("deallocate")
-func deallocate(pointer: UnsafeRawPointer, size: Int32) {
-    let ptr: UnsafePointer<UInt8> = pointer.bindMemory(to: UInt8.self, capacity: Int(size))
+func deallocate(ptr: UnsafeRawPointer, size: Int32) {
+    let ptr: UnsafeMutablePointer<Int8> = UnsafeMutablePointer(mutating: ptr.bindMemory(to: Int8.self, capacity: Int(size) + 1))
+    ptr.deinitialize(count: Int(size) + 1)
     ptr.deallocate()
 }
 
@@ -283,7 +284,10 @@ func toFFI(val: String, use: (UnsafePointer<Int8>, Int32) -> Void) {
 }
 
 func fromFFI(ptr: UnsafeRawPointer, size: Int32) -> String {
-    let typed: UnsafePointer<UInt8> = ptr.bindMemory(to: UInt8.self, capacity: Int(size))
+    let typed: UnsafeMutablePointer<Int8> = UnsafeMutablePointer(mutating: ptr.bindMemory(to: Int8.self, capacity: Int(size) + 1))
+    let term = typed + Int(size)
+    term.pointee = 0
+    
     let val = String(cString: typed)
     
     return val

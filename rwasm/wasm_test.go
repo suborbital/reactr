@@ -68,6 +68,20 @@ func TestWasmRunnerWithFetchSwift(t *testing.T) {
 	}
 }
 
+func TestWasmRunnerEchoSwift(t *testing.T) {
+	job := rt.NewJob("hello-swift", "Connor")
+
+	res, err := sharedRT.Do(job).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	if string(res.([]byte)) != "hello Connor" {
+		t.Error(fmt.Errorf("hello Connor, got %s", string(res.([]byte))))
+	}
+}
+
 func TestWasmRunnerWithRequest(t *testing.T) {
 	r := rt.New()
 
