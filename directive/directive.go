@@ -147,19 +147,19 @@ func (d *Directive) Validate() error {
 
 	for i, h := range d.Handlers {
 		if h.Input.Type == "" {
-			problems.add(fmt.Errorf("handler at position %d missing type", i))
+			problems.add(fmt.Errorf("handler for resource %s missing type", h.Input.Resource))
 		}
 
 		if h.Input.Resource == "" {
-			problems.add(fmt.Errorf("handler at position %d missing resource", i))
+			problems.add(fmt.Errorf("handler for resource %s missing resource", h.Input.Resource))
 		}
 
 		if h.Input.Type == InputTypeRequest && h.Input.Method == "" {
-			problems.add(fmt.Errorf("handler at position %d is of type request, but does not specify a method", i))
+			problems.add(fmt.Errorf("handler for resource %s is of type request, but does not specify a method", h.Input.Resource))
 		}
 
 		if len(h.Steps) == 0 {
-			problems.add(fmt.Errorf("handler at position %d missing steps", i))
+			problems.add(fmt.Errorf("handler for resource %s missing steps", h.Input.Resource))
 			continue
 		}
 
@@ -170,21 +170,21 @@ func (d *Directive) Validate() error {
 			fnsToAdd := []string{}
 
 			if !s.IsFn() && !s.IsGroup() {
-				problems.add(fmt.Errorf("step at position %d for handler handler at position %d has neither Fn or Group", j, i))
+				problems.add(fmt.Errorf("step at position %d for resource	 %s has neither Fn or Group", j, h.Input.Resource))
 			}
 
 			validateFn := func(fn CallableFn) {
 				if _, exists := fns[fn.Fn]; !exists {
-					problems.add(fmt.Errorf("handler at positiion %d lists fn at step %d that does not exist: %s (did you forget a namespace?)", i, j, s.Fn))
+					problems.add(fmt.Errorf("handler for resource %s lists fn at step %d that does not exist: %s (did you forget a namespace?)", h.Input.Resource, j, fn.Fn))
 				}
 
 				if _, err := fn.ParseWith(); err != nil {
-					problems.add(fmt.Errorf("handler at position %d has invalid 'with' value at step %d: %s", i, j, err.Error()))
+					problems.add(fmt.Errorf("handler for resource %s has invalid 'with' value at step %d: %s", h.Input.Resource, j, err.Error()))
 				}
 
 				for _, d := range fn.DesiredState {
 					if _, exists := fullState[d.Key]; !exists {
-						problems.add(fmt.Errorf("handler at position %d has 'with' value at step %d referencing a key that is not yet available in the handler's state: %s", i, j, d.Key))
+						problems.add(fmt.Errorf("handler for resource %s has 'with' value at step %d referencing a key that is not yet available in the handler's state: %s", h.Input.Resource, j, d.Key))
 					}
 				}
 
@@ -211,7 +211,7 @@ func (d *Directive) Validate() error {
 
 		lastStep := h.Steps[len(h.Steps)-1]
 		if h.Response == "" && lastStep.IsGroup() {
-			problems.add(fmt.Errorf("handler at position %d has group as last step but does not include 'response' field", i))
+			problems.add(fmt.Errorf("handler for resource %s has group as last step but does not include 'response' field", h.Input.Resource))
 		} else if h.Response != "" {
 			if _, exists := fullState[h.Response]; !exists {
 				problems.add(fmt.Errorf("handler at positiion %d lists response state key that does not exist: %s", i, h.Response))

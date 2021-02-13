@@ -2,7 +2,6 @@ package rwasm
 
 import (
 	"crypto/rand"
-	"fmt"
 	"math"
 	"math/big"
 	"sync"
@@ -151,15 +150,15 @@ func (w *wasmEnvironment) useInstance(req *request.CoordinatedRequest, ctx *rt.C
 	inst.lock.Lock()
 	defer inst.lock.Unlock()
 
-	inst.rtCtx = ctx
-	inst.request = req
-
 	// generate a random identifier as a reference to the instance in use to
 	// easily allow the Wasm module to reference itself when calling back over the FFI
 	ident, err := setupNewIdentifier(w.UUID, instIndex)
 	if err != nil {
 		return errors.Wrap(err, "failed to setupNewIdentifier")
 	}
+
+	inst.rtCtx = ctx
+	inst.request = req
 
 	instFunc(inst, ident)
 
@@ -288,7 +287,6 @@ func randomIdentifier() (int32, error) {
 func (w *wasmInstance) readMemory(pointer int32, size int32) []byte {
 	memory, err := w.wasmerInst.Exports.GetMemory("memory")
 	if err != nil || memory == nil {
-		fmt.Println("MEMORY BAD")
 		// we failed
 		return []byte{}
 	}
@@ -327,7 +325,6 @@ func (w *wasmInstance) writeMemory(data []byte) (int32, error) {
 func (w *wasmInstance) writeMemoryAtLocation(pointer int32, data []byte) {
 	memory, err := w.wasmerInst.Exports.GetMemory("memory")
 	if err != nil || memory == nil {
-		fmt.Println("MEMORY BAD")
 		// we failed
 		return
 	}
@@ -340,7 +337,6 @@ func (w *wasmInstance) writeMemoryAtLocation(pointer int32, data []byte) {
 func (w *wasmInstance) deallocate(pointer int32, length int) {
 	dealloc, err := w.wasmerInst.Exports.GetFunction("deallocate")
 	if err != nil || dealloc == nil {
-		fmt.Println("DEALLOC BAD")
 		// we failed
 		return
 	}
