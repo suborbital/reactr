@@ -70,7 +70,7 @@ When you `Do` some work, you get a `Result`. A result is like a Rust future or a
 
 Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Cool, right?
 
-## Reactr has some very powerful capabilities, visit the [get started guide](./docs/getstarted.md) to learn more.
+## Reactr has some very powerful capabilities, visit the [Reactr guide](./docs/guide.md) to learn more.
 
 Reactr is being actively developed and has planned improvements, including optimized memory usage, library stability, data persistence, and more. Cheers!
 
