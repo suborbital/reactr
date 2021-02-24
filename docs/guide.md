@@ -119,6 +119,31 @@ doTimeout := r.Handle("timeout", timeoutRunner{}, rt.TimeoutSeconds(3))
 ```
 When `TimeoutSeconds` is set and a job executes for longer than the provided number of seconds, the worker will move on to the next job and `ErrJobTimeout` will be returned to the Result. The failed job will continue to execute in the background, but its result will be discarded.
 
+### Schedules
+The `r.Do` method will run your job immediately, but if you need to run a job at a later time, at a regular interval, or on some other schedule, then the `Schedule` interface will help. The `Schedule` interface allows for an object to choose when to execute a job. Any object that conforms to the interface can be used as a Schedule:
+```golang
+// Schedule is a type that returns an *optional* job if there is something that should be scheduled.
+// Reactr will poll the Check() method at regular intervals to see if work is available.
+type Schedule interface {
+	Check() *Job
+	Done() bool
+}
+```
+The `r.Schedule` method will allow you to register a Schedule, and there are two built-in schedules(`Every` and `After`) to help:
+```golang
+r := rt.New()
+
+r.Handle("worker", &workerRunner{})
+
+// runs every hour
+r.Schedule(rt.Every(60*60, func() Job {
+	return NewJob("worker", nil)
+}))
+```
+Reactr will poll all registered Schedules at a 1 second interval to `Check` for new jobs. Schedules can end their own execution by returning `false` from the `Done` method. You can use the Schedules provided with Reactr or develop your own.
+
+Scheduled jobs' results are discarded automatically using `Discard()`
+
 ### Advanced Runnables
 
 The `Runnable` interface defines an `OnChange` function which gives the Runnable a chance to prepare itself for changes to the worker running it. For example, when a Runnable is registered with a pool size greater than 1, the Runnable may need to provision resources for itself to enable handling jobs concurrently, and `OnChange` will be called once each time a new worker starts up. Our [Wasm implementation](https://github.com/suborbital/reactr/blob/master/rwasm/wasmrunnable.go) is a good example of this. 
