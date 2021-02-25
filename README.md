@@ -74,4 +74,4 @@ Calling `Then()` will block until the job is complete, and then give you the ret
 
 Reactr is being actively developed and has planned improvements, including optimized memory usage, library stability, data persistence, and more. Cheers!
 
-Copyright Suborbital contributors 2020
+Copyright Suborbital contributors 2021
