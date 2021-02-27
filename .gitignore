@@ -26,3 +26,5 @@ target
 Suborbital.wasm
 
 .swiftpm
+
+bundlewritetester

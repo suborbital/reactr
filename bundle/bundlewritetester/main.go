@@ -25,7 +25,7 @@ func main() {
 
 	staticFiles := map[string]os.File{}
 	for _, filename := range []string{"go.mod", "go.sum", "Makefile"} {
-		path := filepath.Join("/", filename)
+		path := filepath.Join("./", filename)
 
 		file, err := os.Open(path)
 		if err != nil {
@@ -82,6 +82,21 @@ func main() {
 					},
 				},
 				Response: "ghData",
+			},
+		},
+		Schedules: []directive.Schedule{
+			{
+				Name: "user-purger",
+				Every: directive.ScheduleEvery{
+					Minutes: 5,
+				},
+				Steps: []directive.Executable{
+					{
+						CallableFn: directive.CallableFn{
+							Fn: "hello-echo",
+						},
+					},
+				},
 			},
 		},
 	}
