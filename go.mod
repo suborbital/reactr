@@ -8,7 +8,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/suborbital/grav v0.3.0
 	github.com/suborbital/vektor v0.2.3
-	github.com/wasmerio/wasmer-go v1.0.1
+	github.com/wasmerio/wasmer-go v1.0.3
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
