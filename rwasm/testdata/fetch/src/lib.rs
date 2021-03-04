@@ -1,4 +1,4 @@
-use suborbital::runnable;
+use suborbital::runnable::*;
 use suborbital::http;
 use suborbital::util;
 use suborbital::log;
@@ -6,8 +6,8 @@ use std::collections::BTreeMap;
 
 struct Fetch{}
 
-impl runnable::Runnable for Fetch {
-    fn run(&self, input: Vec<u8>) -> Option<Vec<u8>> {
+impl Runnable for Fetch {
+    fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr> {
         let url = util::to_string(input);
         let result = http::get(url.as_str(), None);
 
@@ -21,7 +21,7 @@ impl runnable::Runnable for Fetch {
         let result2 = http::post("https://postman-echo.com/post", Some(body), Some(headers));
         log::info(util::to_string(result2).as_str());
 
-        Some(result)
+        Ok(result)
     }
 }
 
@@ -31,5 +31,5 @@ static RUNNABLE: &Fetch = &Fetch{};
 
 #[no_mangle]
 pub extern fn init() {
-    runnable::set(RUNNABLE);
+    set(RUNNABLE);
 }

@@ -14,8 +14,8 @@ struct State <'a> {
 // something to hold down the fort until a real Runnable is set
 struct DefaultRunnable {}
 impl runnable::Runnable for DefaultRunnable {
-    fn run(&self, _input: Vec<u8>) -> Option<Vec<u8>> {
-        return None;
+    fn run(&self, _input: Vec<u8>) -> Result<Vec<u8>, runnable::RunErr> {
+        Err(runnable::err(500, ""))
     }
 }
 
@@ -28,13 +28,27 @@ static mut STATE: State = State {
 pub mod runnable {
     use std::mem;
     use std::slice;
+    use super::util;
 
     extern {
         fn return_result(result_pointer: *const u8, result_size: i32, ident: i32);
+        fn return_error(code: i32, result_pointer: *const u8, result_size: i32, ident: i32);
+    }
+
+    pub struct RunErr {
+        code: i32,
+        message: String,
+    }
+
+    pub fn err(code: i32, msg: &str) -> RunErr {
+        RunErr {
+            code: code,
+            message: String::from(msg),
+        }
     }
 
     pub trait Runnable {
-        fn run(&self, input: Vec<u8>) -> Option<Vec<u8>>;
+        fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr>;
     }
 
     pub fn set(runnable: &'static dyn Runnable) {
@@ -70,20 +84,28 @@ pub mod runnable {
         };
     
         let in_bytes = Vec::from(in_slice);
+
+        let mut code = 0;
     
         // call the runnable and check its result
         let result: Vec<u8> = unsafe { match super::STATE.runnable.run(in_bytes) {
-            Some(val) => val,
-            None => Vec::from("run returned no data"), 
+            Ok(val) => val,
+            Err(e) => {
+                code = e.code;
+                util::to_vec(e.message)
+            }
         } };
     
         let result_slice = result.as_slice();
         let result_size = result_slice.len();
     
-    
-        // call back to reactr to return the result
+        // call back to reactr to return the result or error
         unsafe { 
-            return_result(result_slice.as_ptr() as *const u8, result_size as i32, ident); 
+            if code != 0 {
+                return_error(code, result_slice.as_ptr() as *const u8, result_size as i32, ident);
+            } else {
+                return_result(result_slice.as_ptr() as *const u8, result_size as i32, ident);
+            }
         }
     }
 }

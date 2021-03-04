@@ -1,12 +1,12 @@
-use suborbital::runnable;
+use suborbital::runnable::*;
 use suborbital::log;
 use suborbital::req;
 use suborbital::util;
 
 struct Log{}
 
-impl runnable::Runnable for Log {
-    fn run(&self, input: Vec<u8>) -> Option<Vec<u8>> {
+impl Runnable for Log {
+    fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr> {
         let in_string = String::from_utf8(input).unwrap();
         log::info(in_string.as_str());
 
@@ -18,7 +18,7 @@ impl runnable::Runnable for Log {
         log::info(req::id().as_str());
         log::info(req::state("hello").as_str());
     
-        Some(String::from(format!("hello {}", req::state("hello"))).as_bytes().to_vec())
+        Ok(String::from(format!("hello {}", req::state("hello"))).as_bytes().to_vec())
     }
 }
 
@@ -28,5 +28,5 @@ static RUNNABLE: &Log = &Log{};
 
 #[no_mangle]
 pub extern fn init() {
-    runnable::set(RUNNABLE);
+    set(RUNNABLE);
 }
