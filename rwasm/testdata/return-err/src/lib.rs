@@ -4,7 +4,7 @@ struct ReturnErr{}
 
 impl Runnable for ReturnErr {
     fn run(&self, _: Vec<u8>) -> Result<Vec<u8>, RunErr> {
-        Err(err(400, "job failed"))
+        Err(RunErr::new(400, "job failed"))
     }
 }
 
@@ -14,5 +14,5 @@ static RUNNABLE: &ReturnErr = &ReturnErr{};
 
 #[no_mangle]
 pub extern fn init() {
-    set(RUNNABLE);
+    use_runnable(RUNNABLE);
 }

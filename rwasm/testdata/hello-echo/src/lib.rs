@@ -7,7 +7,7 @@ impl Runnable for HelloEcho {
         let in_string = String::from_utf8(input).unwrap();
 
     
-        Ok(String::from(format!("hello {}", in_string)).as_bytes().to_vec())
+        Ok(format!("hello {}", in_string).as_bytes().to_vec())
     }
 }
 
@@ -17,5 +17,5 @@ static RUNNABLE: &HelloEcho = &HelloEcho{};
 
 #[no_mangle]
 pub extern fn init() {
-    set(RUNNABLE);
+    use_runnable(RUNNABLE);
 }

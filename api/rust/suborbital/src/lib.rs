@@ -15,7 +15,7 @@ struct State <'a> {
 struct DefaultRunnable {}
 impl runnable::Runnable for DefaultRunnable {
     fn run(&self, _input: Vec<u8>) -> Result<Vec<u8>, runnable::RunErr> {
-        Err(runnable::err(500, ""))
+        Err(runnable::RunErr::new(500, ""))
     }
 }
 
@@ -40,10 +40,12 @@ pub mod runnable {
         message: String,
     }
 
-    pub fn err(code: i32, msg: &str) -> RunErr {
-        RunErr {
-            code: code,
-            message: String::from(msg),
+    impl RunErr {
+        pub fn new(code: i32, msg: &str) -> Self {
+            RunErr {
+                code: code,
+                message: String::from(msg)
+            }
         }
     }
 
@@ -51,7 +53,7 @@ pub mod runnable {
         fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr>;
     }
 
-    pub fn set(runnable: &'static dyn Runnable) {
+    pub fn use_runnable(runnable: &'static dyn Runnable) {
         unsafe {
             super::STATE.runnable = runnable;
         }

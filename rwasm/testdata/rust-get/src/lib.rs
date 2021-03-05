@@ -17,5 +17,5 @@ static RUNNABLE: &RustGet = &RustGet{};
 
 #[no_mangle]
 pub extern fn init() {
-    set(RUNNABLE);
+    use_runnable(RUNNABLE);
 }

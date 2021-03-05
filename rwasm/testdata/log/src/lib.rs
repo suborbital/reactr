@@ -28,5 +28,5 @@ static RUNNABLE: &Log = &Log{};
 
 #[no_mangle]
 pub extern fn init() {
-    set(RUNNABLE);
+    use_runnable(RUNNABLE);
 }
