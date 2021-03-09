@@ -69,7 +69,7 @@ func main() {
 							},
 							{
 								Fn: "log",
-								OnErr: directive.FnOnErr{
+								OnErr: &directive.FnOnErr{
 									Code: map[int]string{
 										404: "continue",
 									},
@@ -84,7 +84,7 @@ func main() {
 							With: []string{
 								"data: ghData",
 							},
-							OnErr: directive.FnOnErr{
+							OnErr: &directive.FnOnErr{
 								Any: "return",
 							},
 						},
