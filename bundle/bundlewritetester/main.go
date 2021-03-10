@@ -69,6 +69,12 @@ func main() {
 							},
 							{
 								Fn: "log",
+								OnErr: &directive.FnOnErr{
+									Code: map[int]string{
+										404: "continue",
+									},
+									Other: "return",
+								},
 							},
 						},
 					},
@@ -77,6 +83,9 @@ func main() {
 							Fn: "hello-echo",
 							With: []string{
 								"data: ghData",
+							},
+							OnErr: &directive.FnOnErr{
+								Any: "return",
 							},
 						},
 					},

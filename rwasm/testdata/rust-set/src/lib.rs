@@ -1,13 +1,13 @@
-use suborbital::runnable;
+use suborbital::runnable::*;
 use suborbital::cache;
 
 struct RustSet{}
 
-impl runnable::Runnable for RustSet {
-    fn run(&self, input: Vec<u8>) -> Option<Vec<u8>> {
+impl Runnable for RustSet {
+    fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr> {
         cache::set("important", input, 0);
     
-        Some(String::from("hello").as_bytes().to_vec())
+        Ok(String::from("hello").as_bytes().to_vec())
     }
 }
 
@@ -17,5 +17,5 @@ static RUNNABLE: &RustSet = &RustSet{};
 
 #[no_mangle]
 pub extern fn init() {
-    runnable::set(RUNNABLE);
+    use_runnable(RUNNABLE);
 }

@@ -68,6 +68,21 @@ func TestWasmRunnerWithFetchSwift(t *testing.T) {
 	}
 }
 
+func TestWasmRunnerReturnError(t *testing.T) {
+	job := rt.NewJob("return-err", "")
+
+	_, err := sharedRT.Do(job).Then()
+	if err == nil {
+		t.Error("expected error, got none")
+		return
+	}
+
+	runErr := &rt.RunErr{}
+	if !errors.As(err, runErr) || runErr.Error() != `{"code":400,"message":"job failed"}` {
+		t.Error("expected RunErr JSON, got", err.Error())
+	}
+}
+
 func TestWasmRunnerEchoSwift(t *testing.T) {
 	job := rt.NewJob("hello-swift", "Connor")
 

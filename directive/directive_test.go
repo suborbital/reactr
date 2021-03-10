@@ -133,6 +133,64 @@ func TestDirectiveValidatorGroupLast(t *testing.T) {
 	}
 }
 
+func TestDirectiveValidatorInvalidOnErr(t *testing.T) {
+	dir := Directive{
+		Identifier:  "dev.suborbital.appname",
+		AppVersion:  "v0.1.1",
+		AtmoVersion: "v0.0.6",
+		Runnables: []Runnable{
+			{
+				Name:      "getUser",
+				Namespace: "db",
+			},
+			{
+				Name:      "getUserDetails",
+				Namespace: "db",
+			},
+			{
+				Name:      "returnUser",
+				Namespace: "api",
+			},
+		},
+		Handlers: []Handler{
+			{
+				Input: Input{
+					Type:     "request",
+					Method:   "GET",
+					Resource: "/api/v1/user",
+				},
+				Steps: []Executable{
+					{
+						CallableFn: CallableFn{
+							Fn: "api#returnUser",
+							OnErr: &FnOnErr{
+								Code: map[int]string{
+									400: "continue",
+								},
+								Any: "return",
+							},
+						},
+					},
+					{
+						CallableFn: CallableFn{
+							Fn: "api#returnUser",
+							OnErr: &FnOnErr{
+								Other: "continue",
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	if err := dir.Validate(); err == nil {
+		t.Error("directive validation should have failed")
+	} else {
+		fmt.Println("directive validation properly failed:", err)
+	}
+}
+
 func TestDirectiveValidatorMissingFns(t *testing.T) {
 	dir := Directive{
 		Identifier:  "dev.suborbital.appname",

@@ -1,16 +1,16 @@
-use suborbital::runnable;
+use suborbital::runnable::*;
 use suborbital::file;
 
 struct GetStatic{}
 
-impl runnable::Runnable for GetStatic {
-    fn run(&self, input: Vec<u8>) -> Option<Vec<u8>> {
+impl Runnable for GetStatic {
+    fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr> {
         let in_string = String::from_utf8(input).unwrap();
     
         let file = file::get_static(in_string.as_str())
             .unwrap_or("".as_bytes().to_vec());
 
-        Some(file)
+        Ok(file)
     }
 }
 
@@ -20,5 +20,5 @@ static RUNNABLE: &GetStatic = &GetStatic{};
 
 #[no_mangle]
 pub extern fn init() {
-    runnable::set(RUNNABLE);
+    use_runnable(RUNNABLE);
 }
