@@ -4,11 +4,13 @@ test:
 testdata:
 	subo build ./rwasm/testdata/ --bundle --native
 
-wasm:
-	wasm-pack build
-	cp ./pkg/wasm_runner_bg.wasm ./wasm/
+crate/check:
+	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi --dry-run
+
+crate/publish:
+	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi
 
 deps:
 	go get -u -d ./...
 
-.PHONY: wasm deps
+.PHONY: test testdata crate/check crate/publish deps

@@ -1,0 +1,9 @@
+dotVersionFiles:
+  - api/rust/suborbital/Cargo.toml
+
+preMakeTargets:
+  - test
+  - crate/check
+
+postMakeTargets:
+  - crate/publish
