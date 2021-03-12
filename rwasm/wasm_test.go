@@ -130,7 +130,12 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 		return
 	}
 
-	if string(res.([]byte)) != "hello what is up" {
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if string(resp.Output) != "hello what is up" {
 		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
 	}
 }
@@ -165,8 +170,53 @@ func TestWasmRunnerSwift(t *testing.T) {
 		return
 	}
 
-	if string(res.([]byte)) != "hello what is up" {
-		t.Error(fmt.Errorf("expected 'hello what is up', got %q", string(res.([]byte))))
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if string(resp.Output) != "hello what is up" {
+		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
+	}
+}
+
+func TestContentType(t *testing.T) {
+	body := testBody{
+		Username: "cohix",
+	}
+
+	bodyJSON, _ := json.Marshal(body)
+
+	req := &request.CoordinatedRequest{
+		Method: "GET",
+		URL:    "/hello/world",
+		ID:     uuid.New().String(),
+		Body:   bodyJSON,
+		State: map[string][]byte{
+			"hello": []byte("what is up"),
+		},
+	}
+
+	reqJSON, err := req.ToJSON()
+	if err != nil {
+		t.Error("failed to ToJSON", err)
+	}
+
+	job := rt.NewJob("content-type", reqJSON)
+
+	res, err := sharedRT.Do(job).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if resp.RespHeaders["Content-Type"] != "application/json" {
+		t.Error("unexpected ctype, actually is", resp.RespHeaders["Content-Type"])
 	}
 }
 
