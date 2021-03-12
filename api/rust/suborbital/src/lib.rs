@@ -374,6 +374,20 @@ pub mod req {
     }
 }
 
+pub mod resp {
+    extern {
+        fn resp_set_header(key_pointer: *const u8, key_size: i32, val_pointer: *const u8, val_size: i32, ident: i32);
+    }
+
+    pub fn set_header(key: &str, val: &str) {
+        unsafe { resp_set_header(key.as_ptr(), key.len() as i32, val.as_ptr(), val.len() as i32, super::STATE.ident) };
+    }
+
+    pub fn content_type(ctype: &str) {
+        set_header("Content-Type", ctype);
+    }
+}
+
 pub mod log {
     extern {
         fn log_msg(pointer: *const u8, result_size: i32, level: i32, ident: i32);
@@ -392,11 +406,7 @@ pub mod log {
     }
 
     fn log_at_level(msg: &str, level: i32) {
-        let msg_vec = Vec::from(msg);
-        let msg_slice = msg_vec.as_slice();
-        let pointer = msg_slice.as_ptr();
-
-        unsafe { log_msg(pointer, msg_slice.len() as i32, level, super::STATE.ident) };
+        unsafe { log_msg(msg.as_ptr(), msg.len() as i32, level, super::STATE.ident) };
     }
 }
 
