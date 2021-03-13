@@ -333,10 +333,14 @@ pub mod req {
         }
     }
     
-    pub fn state(key: &str) -> String {
+    pub fn state(key: &str) -> Option<Vec<u8>> {
+        get_field(FIELD_TYPE_STATE, key)
+    }
+    
+    pub fn state_string(key: &str) -> Option<String> {
         match get_field(FIELD_TYPE_STATE, key) {
-            Some(bytes) => return util::to_string(bytes),
-            None => return String::from("")
+            Some(bytes) => Some(util::to_string(bytes)),
+            None => None
         }
     }
     
@@ -453,7 +457,7 @@ pub mod file {
 
 pub mod util {
     pub fn to_string(input: Vec<u8>) -> String {
-        String::from_utf8(input).unwrap()
+        String::from_utf8(input).unwrap_or_default()
     }
 
     pub fn to_vec(input: String) -> Vec<u8> {
