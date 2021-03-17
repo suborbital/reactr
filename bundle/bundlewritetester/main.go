@@ -114,7 +114,12 @@ func main() {
 		log.Fatal("failed to validate directive: ", err)
 	}
 
-	if err := bundle.Write(directive, files, staticFiles, "./runnables.wasm.zip"); err != nil {
+	directiveBytes, err := directive.Marshal()
+	if err != nil {
+		log.Fatal("failed to Marshal directive")
+	}
+
+	if err := bundle.Write(directiveBytes, files, staticFiles, "./runnables.wasm.zip"); err != nil {
 		log.Fatal("failed to WriteBundle", err)
 	}
 

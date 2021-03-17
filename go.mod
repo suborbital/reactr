@@ -10,7 +10,6 @@ require (
 	github.com/suborbital/vektor v0.2.4
 	github.com/wasmerio/wasmer-go v1.0.3
 	golang.org/x/crypto v0.0.0-20210314154223-e6e6c4f2bb5b // indirect
-	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
