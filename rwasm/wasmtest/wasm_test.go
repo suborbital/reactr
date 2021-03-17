@@ -1,4 +1,4 @@
-package rwasm
+package wasmtest
 
 import (
 	"encoding/json"
@@ -7,8 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/bundle"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
+	"github.com/suborbital/reactr/rwasm"
 	"github.com/suborbital/vektor/vlog"
 )
 
@@ -20,14 +22,14 @@ var sharedRT *rt.Reactr
 
 func init() {
 	// set a logger for rwasm to use
-	UseLogger(vlog.Default(
+	rwasm.UseLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
 
 	// create a shared instance for some tests to use
 	sharedRT = rt.New()
 
-	if err := HandleBundleAtPath(sharedRT, "./testdata/runnables.wasm.zip"); err != nil {
+	if err := bundle.LoadFromPath(sharedRT, "../testdata/runnables.wasm.zip"); err != nil {
 		fmt.Println(errors.Wrap(err, "failed to AtHandleBundleAtPath"))
 		return
 	}
@@ -37,7 +39,7 @@ func TestWasmRunnerWithFetch(t *testing.T) {
 	r := rt.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Handle("wasm", NewRunner("./testdata/fetch/fetch.wasm"))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/fetch/fetch.wasm"))
 
 	res, err := doWasm("https://1password.com").Then()
 	if err != nil {
@@ -101,7 +103,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	r := rt.New()
 
 	// using a Rust module
-	doWasm := r.Handle("wasm", NewRunner("./testdata/log/log.wasm"))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/log/log.wasm"))
 
 	body := testBody{
 		Username: "cohix",
@@ -223,7 +225,7 @@ func TestContentType(t *testing.T) {
 func TestWasmRunnerDataConversion(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", NewRunner("./testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	res, err := doWasm("my name is joe").Then()
 	if err != nil {
@@ -238,7 +240,7 @@ func TestWasmRunnerDataConversion(t *testing.T) {
 func TestWasmRunnerGroup(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", NewRunner("./testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	grp := rt.NewGroup()
 	for i := 0; i < 50000; i++ {
@@ -467,7 +469,7 @@ help@lipsum.com
 func TestWasmLargeData(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", NewRunner("./testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	res := doWasm([]byte(largeInput))
 
@@ -488,7 +490,7 @@ func TestWasmLargeData(t *testing.T) {
 func TestWasmLargeDataGroup(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", NewRunner("./testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	grp := rt.NewGroup()
 	for i := 0; i < 5000; i++ {
@@ -503,7 +505,7 @@ func TestWasmLargeDataGroup(t *testing.T) {
 func TestWasmLargeDataGroupWithPool(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", NewRunner("./testdata/hello-echo/hello-echo.wasm"), rt.PoolSize(5))
+	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"), rt.PoolSize(5))
 
 	grp := rt.NewGroup()
 	for i := 0; i < 5000; i++ {
