@@ -6,8 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/suborbital/atmo/directive"
 	"github.com/suborbital/reactr/bundle"
-	"github.com/suborbital/reactr/directive"
 )
 
 func main() {
