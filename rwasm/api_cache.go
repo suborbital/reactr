@@ -46,7 +46,7 @@ func cacheGet() *HostFn {
 	fn := func(args ...wasmer.Value) (interface{}, error) {
 		keyPointer := args[0].I32()
 		keySize := args[1].I32()
-		ident := args[4].I32()
+		ident := args[2].I32()
 
 		ret := cache_get(keyPointer, keySize, ident)
 
