@@ -51,8 +51,8 @@ func TestWasmRunnerWithFetch(t *testing.T) {
 		t.Errorf("expected 1password.com HTML, got %q", string(res.([]byte)))
 	}
 
-	if string(res.([]byte))[:100] != "<!doctype html><html lang=en data-language-url=/><head><meta charset=utf-8><meta name=viewport conte" {
-		t.Errorf("expected 1password.com HTML, got %q", string(res.([]byte))[:100])
+	if string(res.([]byte))[:100] != "{\"args\":{},\"data\":{\"message\":\"testing the echo!\"},\"files\":{},\"form\":{},\"headers\":{\"x-forwarded-proto" {
+		t.Errorf("expected echo response, got %q", string(res.([]byte))[:100])
 	}
 }
 
