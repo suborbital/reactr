@@ -171,22 +171,19 @@ pub mod http {
 	fn render_header_string(headers: Option<BTreeMap<&str, &str>>) -> Option<String> {
         let mut rendered: String = String::from("");
         
-        match headers {
-            Some(h) => {
-                for key in h.keys() {
-                    rendered.push_str(key);
-                    rendered.push_str(":");
-        
-                    let val: &str = match h.get(key) {
-                        Some(v) => v,
-                        None => "",
-                    };
-        
-                    rendered.push_str(val);
-                    rendered.push_str("::")
-                }
-            },
-            None => return None,
+        let header_map = headers?;
+
+        for key in header_map.keys() {
+            rendered.push_str(key);
+            rendered.push_str(":");
+
+            let val: &str = match header_map.get(key) {
+                Some(v) => v,
+                None => "",
+            };
+
+            rendered.push_str(val);
+            rendered.push_str("::")
         }
 
 		return Some(String::from(rendered.trim_end_matches("::")));
