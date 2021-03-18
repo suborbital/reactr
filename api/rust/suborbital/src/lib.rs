@@ -11,14 +11,6 @@ struct State <'a> {
     runnable: &'a dyn runnable::Runnable
 }
 
-// something to hold down the fort until a real Runnable is set
-struct DefaultRunnable {}
-impl runnable::Runnable for DefaultRunnable {
-    fn run(&self, _input: Vec<u8>) -> Result<Vec<u8>, runnable::RunErr> {
-        Err(runnable::RunErr::new(500, ""))
-    }
-}
-
 // the state that holds the user-provided Runnable and the current ident
 static mut STATE: State = State {
     ident: 0,
@@ -36,8 +28,8 @@ pub mod runnable {
     }
 
     pub struct RunErr {
-        code: i32,
-        message: String,
+        pub code: i32,
+        pub message: String,
     }
 
     impl RunErr {
@@ -62,8 +54,10 @@ pub mod runnable {
     #[no_mangle]
     pub extern fn allocate(size: i32) -> *const u8 {
         let mut buffer = Vec::with_capacity(size as usize);
+
         let buffer_slice = buffer.as_mut_slice();
         let pointer = buffer_slice.as_mut_ptr();
+
         mem::forget(buffer_slice);
     
         pointer as *const u8
@@ -114,7 +108,6 @@ pub mod runnable {
 
 pub mod http {
     use std::collections::BTreeMap;
-	use std::slice;
 
     static METHOD_GET: i32 = 1;
     static METHOD_POST: i32 = 2;
@@ -122,26 +115,26 @@ pub mod http {
     static METHOD_DELETE: i32 = 4;
 
     extern {
-        fn fetch_url(method: i32, url_pointer: *const u8, url_size: i32, body_pointer: *const u8, body_size: i32, dest_pointer: *const u8, dest_max_size: i32, ident: i32) -> i32;
+        fn fetch_url(method: i32, url_pointer: *const u8, url_size: i32, body_pointer: *const u8, body_size: i32, ident: i32) -> i32;
     }
 
-    pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Vec<u8> {
+    pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
 		return do_request(METHOD_GET, url, None, headers);
 	}
     
-    pub fn post(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Vec<u8> {
+    pub fn post(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
 		return do_request(METHOD_POST, url, body, headers);
 	}
     
-    pub fn patch(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Vec<u8> {
+    pub fn patch(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
 		return do_request(METHOD_PATCH, url, body, headers);
 	}
     
-    pub fn delete(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Vec<u8> {
+    pub fn delete(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
 		return do_request(METHOD_DELETE, url, None, headers);
 	}
 
-	fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Vec<u8> {
+	fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
         // the URL gets encoded with headers added on the end, seperated by ::
 	    // eg. https://google.com/somepage::authorization:bearer qdouwrnvgoquwnrg::anotherheader:nicetomeetyou
         let header_string = render_header_string(headers);
@@ -150,10 +143,6 @@ pub mod http {
             Some(h) => format!("{}::{}", url, h),
             None => String::from(url)
         };
-        
-        let mut dest_pointer: *const u8;
-        let mut dest_size: i32;
-        let mut capacity: i32 = 256000;
 
         let body_pointer: *const u8;
         let mut body_size: i32 = 0;
@@ -167,31 +156,16 @@ pub mod http {
             None => body_pointer = 0 as *const u8
         }
         
-        // make the request, and if the response size is greater than that of capacity, increase the capacity and try again
-        loop {
-            let cap = &mut capacity;
-            
-            let mut dest_bytes = Vec::with_capacity(*cap as usize);
-            let dest_slice = dest_bytes.as_mut_slice();
-            dest_pointer = dest_slice.as_mut_ptr() as *const u8;
-            
-            // do the request over FFI
-            dest_size = unsafe { fetch_url(method, url_string.as_str().as_ptr(), url_string.len() as i32, body_pointer, body_size, dest_pointer, *cap, super::STATE.ident) };
+        // do the request over FFI
+        let result_size = unsafe { fetch_url(method, url_string.as_str().as_ptr(), url_string.len() as i32, body_pointer, body_size, super::STATE.ident) };
 
-            if dest_size < 0 {
-                return Vec::from(format!("request_failed:{}", dest_size))
-            } else if dest_size > *cap {
-                *cap = dest_size;
-            } else {
-                break;
+        // retreive the result from the host and return it
+        match super::ffi::result(result_size) {
+            Ok(res) => Ok(res),
+            Err(e) => {
+                Err(super::runnable::RunErr::new(e.code, "failed to fetch_url"))
             }
         }
-
-        let result: &[u8] = unsafe {
-            slice::from_raw_parts(dest_pointer, dest_size as usize)
-        };
-
-        return Vec::from(result)
 	}
 	
 	fn render_header_string(headers: Option<BTreeMap<&str, &str>>) -> Option<String> {
@@ -220,11 +194,9 @@ pub mod http {
 }
 
 pub mod cache {
-    use std::slice;
-
     extern {
         fn cache_set(key_pointer: *const u8, key_size: i32, value_pointer: *const u8, value_size: i32, ttl: i32, ident: i32) -> i32;
-        fn cache_get(key_pointer: *const u8, key_size: i32, dest_pointer: *const u8, dest_max_size: i32, ident: i32) -> i32;
+        fn cache_get(key_pointer: *const u8, key_size: i32, ident: i32) -> i32;
     }
 
     pub fn set(key: &str, val: Vec<u8>, ttl: i32) {
@@ -236,46 +208,25 @@ pub mod cache {
         }
     }
 
-    pub fn get(key: &str) -> Option<Vec<u8>> {
-        let mut dest_pointer: *const u8;
-        let mut result_size: i32;
-        let mut capacity: i32 = 1024;
-
-        // make the request, and if the response size is greater than that of capacity, increase the capacity and try again
-        loop {
-            let cap = &mut capacity;
-
-            let mut dest_bytes = Vec::with_capacity(*cap as usize);
-            let dest_slice = dest_bytes.as_mut_slice();
-            dest_pointer = dest_slice.as_mut_ptr() as *const u8;
-    
-            // do the request over FFI
-            result_size = unsafe { cache_get(key.as_ptr(), key.len() as i32, dest_pointer, *cap, super::STATE.ident) };
-
-            if result_size < 0 {
-                return None;
-            } else if result_size > *cap {
-                super::log::info(format!("increasing capacity, need {}", result_size).as_str());
-                *cap = result_size;
-            } else {
-                break;
+    pub fn get(key: &str) -> Result<Vec<u8>, super::runnable::RunErr> {
+        // do the request over FFI
+        let result_size = unsafe { cache_get(key.as_ptr(), key.len() as i32, super::STATE.ident) };
+        
+        // retreive the result from the host and return it
+        match super::ffi::result(result_size) {
+            Ok(res) => Ok(res),
+            Err(e) => {
+                Err(super::runnable::RunErr::new(e.code, "failed to cache_get"))
             }
         }
-
-        let result: &[u8] = unsafe {
-            slice::from_raw_parts(dest_pointer, result_size as usize)
-        };
-
-        Some(Vec::from(result))
     }
 }
 
 pub mod req {
-    use std::slice;
     use super::util;
 
     extern {
-        fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, dest_pointer: *const u8, dest_max_size: i32, ident: i32) -> i32;
+        fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, ident: i32) -> i32;
     }
 
     static FIELD_TYPE_META: i32 = 0 as i32;
@@ -308,7 +259,7 @@ pub mod req {
     pub fn body_raw() -> Vec<u8> {
         match get_field(FIELD_TYPE_META, "body") {
             Some(bytes) => return bytes,
-            None => return util::to_vec(String::from(""))
+            None => return Vec::default()
         }
     }
 
@@ -345,36 +296,17 @@ pub mod req {
     }
     
     fn get_field(field_type: i32, key: &str) -> Option<Vec<u8>> {
-        let mut dest_pointer: *const u8;
-        let mut result_size: i32;
-        let mut capacity: i32 = 1024;
+        // make the request over FFI
+        let result_size = unsafe { request_get_field(field_type, key.as_ptr(), key.len() as i32, super::STATE.ident) };
 
-        // make the request, and if the response size is greater than that of capacity, increase the capacity and try again
-        loop {
-            let cap = &mut capacity;
-
-            let mut dest_bytes = Vec::with_capacity(*cap as usize);
-            let dest_slice = dest_bytes.as_mut_slice();
-            dest_pointer = dest_slice.as_mut_ptr() as *const u8;
-    
-            // do the request over FFI
-            result_size = unsafe { request_get_field(field_type, key.as_ptr(), key.len() as i32, dest_pointer, *cap, super::STATE.ident) };
-
-            if result_size < 0 {
-                return None;
-            } else if result_size > *cap {
-                super::log::info(format!("increasing capacity, need {}", result_size).as_str());
-                *cap = result_size;
-            } else {
-                break;
+        // retreive the result from the host and return it
+        match super::ffi::result(result_size) {
+            Ok(res) => Some(res),
+            Err(e) => {
+                super::log::error(format!("failed to request_get_field: {}", e.code).as_str());
+                None
             }
         }
-
-        let result: &[u8] = unsafe {
-            slice::from_raw_parts(dest_pointer, result_size as usize)
-        };
-
-        Some(Vec::from(result))
     }
 }
 
@@ -415,43 +347,22 @@ pub mod log {
 }
 
 pub mod file {
-    use std::slice;
-
     extern {
-        fn get_static_file(name_ptr: *const u8, name_size: i32, dest_ptr: *const u8, dest_max_size: i32, ident: i32) -> i32;
+        fn get_static_file(name_ptr: *const u8, name_size: i32, ident: i32) -> i32;
     }
 
     pub fn get_static(name: &str) -> Option<Vec<u8>> {
-        let mut dest_pointer: *const u8;
-        let mut result_size: i32;
-        let mut capacity: i32 = 1024;
+        // do the result over FFI
+        let result_size = unsafe { get_static_file(name.as_ptr(), name.len() as i32, super::STATE.ident) };
 
-        // make the request, and if the response size is greater than that of capacity, increase the capacity and try again
-        loop {
-            let cap = &mut capacity;
-
-            let mut dest_bytes = Vec::with_capacity(*cap as usize);
-            let dest_slice = dest_bytes.as_mut_slice();
-            dest_pointer = dest_slice.as_mut_ptr() as *const u8;
-    
-            // do the request over FFI
-            result_size = unsafe { get_static_file(name.as_ptr(), name.len() as i32, dest_pointer, *cap, super::STATE.ident) };
-
-            if result_size < 0 {
-                return None;
-            } else if result_size > *cap {
-                super::log::info(format!("increasing capacity, need {}", result_size).as_str());
-                *cap = result_size;
-            } else {
-                break;
+        // retreive the result from the host and return it
+        match super::ffi::result(result_size) {
+            Ok(res) => Some(res),
+            Err(e) => {
+                super::log::error(format!("failed to get_static_file: {}", e.code).as_str());
+                None
             }
         }
-
-        let result: &[u8] = unsafe {
-            slice::from_raw_parts(dest_pointer, result_size as usize)
-        };
-
-        Some(Vec::from(result))
     }
 }
 
@@ -466,5 +377,54 @@ pub mod util {
 
     pub fn str_to_vec(input: &str) -> Vec<u8> {
         String::from(input).as_bytes().to_vec()
+    }
+}
+
+
+///////////////////////////////////////
+// some defaults and glue code below //
+///////////////////////////////////////
+
+
+// a dummy type to hold down the fort until a real Runnable is set
+struct DefaultRunnable {}
+impl runnable::Runnable for DefaultRunnable {
+    fn run(&self, _input: Vec<u8>) -> Result<Vec<u8>, runnable::RunErr> {
+        Err(runnable::RunErr::new(500, ""))
+    }
+}
+
+// glue code for retreiving results of host function calls
+mod ffi {
+    use std::slice;
+    
+    extern {
+        fn get_ffi_result(pointer: *const u8, ident: i32) -> i32;
+    }
+    
+    pub fn result(size: i32) -> Result<Vec<u8>, super::runnable::RunErr> {
+        // FFI functions return negative values when an error occurs
+        if size < 0 {
+            return Err(super::runnable::RunErr::new(size*-1, "an error was returned"));
+        }
+
+        // create some memory for the host to write into
+        let mut result_mem = Vec::with_capacity(size as usize);
+        let result_ptr = result_mem.as_mut_slice().as_mut_ptr() as *const u8;
+
+        let code = unsafe {
+             get_ffi_result(result_ptr, super::STATE.ident)
+        };
+
+        // check if it was successful, and then re-build the memory
+        if code != 0 {
+            return Err(super::runnable::RunErr::new(size*-1, "an error was returned"));
+        }
+
+        let result: &[u8] = unsafe {
+            slice::from_raw_parts(result_ptr, size as usize)
+        };
+
+        Ok(Vec::from(result))
     }
 }

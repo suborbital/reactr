@@ -16,9 +16,11 @@ impl Runnable for Log {
         log::info(req::body_field("baz").as_str()); // testing for a field that doesn't exist
         log::info(req::url().as_str());
         log::info(req::id().as_str());
-        log::info(req::state("hello").as_str());
+
+        let hello = req::state("hello").unwrap_or_default();
+        log::info(hello.as_str());
     
-        Ok(String::from(format!("hello {}", req::state("hello"))).as_bytes().to_vec())
+        Ok(String::from(format!("hello {}", hello.as_str())).as_bytes().to_vec())
     }
 }
 
