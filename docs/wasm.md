@@ -31,9 +31,9 @@ fmt.Println(string(res.([]byte)))
 ```
 
 ## Bundles
-If you use `subo` to create a [bundle](https://github.com/suborbital/subo/blob/main/docs/wasm.md#bundles), you can load the entire bundle with all of its runnables into your Reactr instance:
+If you use `subo` to create a [bundle](https://github.com/suborbital/subo/blob/main/docs/get-started.md#bundles), you can load the entire bundle with all of its runnables into your Reactr instance:
 ```golang
-if err := rwasm.HandleBundle(r, "path/to/runnables.wasm.zip"); err != nil {
+if err := bundle.Load(r, "path/to/runnables.wasm.zip"); err != nil {
 	//handle failure
 }
 
