@@ -7,7 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
-	"github.com/suborbital/reactr/bundle"
+	"github.com/suborbital/reactr/bundle/load"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
@@ -29,7 +29,7 @@ func init() {
 	// create a shared instance for some tests to use
 	sharedRT = rt.New()
 
-	if err := bundle.LoadFromPath(sharedRT, "../testdata/runnables.wasm.zip"); err != nil {
+	if err := load.IntoInstanceFromPath(sharedRT, "../testdata/runnables.wasm.zip"); err != nil {
 		fmt.Println(errors.Wrap(err, "failed to AtHandleBundleAtPath"))
 		return
 	}
