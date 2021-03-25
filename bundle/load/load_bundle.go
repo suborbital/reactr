@@ -1,4 +1,4 @@
-package bundle
+package load
 
 import (
 	"fmt"
@@ -6,26 +6,27 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/bundle"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
 )
 
-// LoadFromPath loads a .wasm.zip file into the rt instance
-func LoadFromPath(h *rt.Reactr, path string) error {
+// IntoInstanceFromPath loads a .wasm.zip file into the rt instance
+func IntoInstanceFromPath(h *rt.Reactr, path string) error {
 	if !strings.HasSuffix(path, ".wasm.zip") {
 		return fmt.Errorf("cannot load bundle %s, does not have .wasm.zip extension", filepath.Base(path))
 	}
 
-	bundle, err := Read(path)
+	bundle, err := bundle.Read(path)
 	if err != nil {
 		return errors.Wrap(err, "failed to ReadBundle")
 	}
 
-	return Load(h, bundle)
+	return IntoInstance(h, bundle)
 }
 
-// Load loads a .wasm.zip file into the rt instance
-func Load(h *rt.Reactr, bundle *Bundle) error {
+// IntoInstance loads a .wasm.zip file into the rt instance
+func IntoInstance(h *rt.Reactr, bundle *bundle.Bundle) error {
 	if err := bundle.Directive.Validate(); err != nil {
 		return errors.Wrap(err, "failed to Validate bundle directive")
 	}
