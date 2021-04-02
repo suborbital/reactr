@@ -100,6 +100,10 @@ public func CacheGet(key: String) -> String {
     return retVal
 }
 
+public func LogDebug(msg: String) {
+    log(msg: msg, level: 4)
+}
+
 public func LogInfo(msg: String) {
     log(msg: msg, level: 3)
 }
