@@ -1,8 +1,9 @@
 {
   "name": "suborbital",
   "version": "0.10.0",
+  "types": "assembly/index.ts",
   "description": "Suborbital's Runnable API for AssemblyScript",
-  "main": "index.js",
+  "main": "assembly/index.ts",
   "scripts": {
     "test": "make test",
     "asbuild:untouched": "asc assembly/index.ts --target debug",

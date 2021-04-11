@@ -1,13 +1,7 @@
 {
   "targets": {
-    "debug": {
-      "binaryFile": "../../rwasm/testdata/as-test/as-test.wasm",
-      "textFile": "build/untouched.wat",
-      "sourceMap": true,
-      "debug": true
-    },
     "release": {
-      "binaryFile": "build/optimized.wasm",
+      "binaryFile": "as-test.wasm",
       "textFile": "build/optimized.wat",
       "sourceMap": true,
       "optimizeLevel": 3,

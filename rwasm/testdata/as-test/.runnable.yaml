@@ -1,0 +1,4 @@
+name: as-test
+namespace: default
+lang: assemblyscript
+apiVersion: 0.2.5
