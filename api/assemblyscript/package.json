@@ -1,0 +1,36 @@
+{
+  "name": "suborbital",
+  "version": "0.10.0",
+  "description": "Suborbital's Runnable API for AssemblyScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test",
+    "asbuild:untouched": "asc assembly/index.ts --target debug",
+    "asbuild:optimized": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/suborbital/reactr.git"
+  },
+  "keywords": [
+    "webassembly",
+    "suborbital",
+    "reactr",
+    "cloud",
+    "native",
+    "assemblyscript"
+  ],
+  "author": "@suborbital",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/suborbital/reactr/issues"
+  },
+  "homepage": "https://github.com/suborbital/reactr#readme",
+  "dependencies": {
+    "@assemblyscript/loader": "^0.18.24"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.18.24"
+  }
+}
