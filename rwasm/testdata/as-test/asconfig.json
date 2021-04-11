@@ -2,7 +2,6 @@
   "targets": {
     "release": {
       "binaryFile": "as-test.wasm",
-      "sourceMap": true,
       "optimizeLevel": 3,
       "shrinkLevel": 1,
       "converge": false,
