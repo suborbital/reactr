@@ -300,7 +300,7 @@ pub mod req {
         match super::ffi::result(result_size) {
             Ok(res) => Some(res),
             Err(e) => {
-                super::log::error(format!("failed to request_get_field: {}", e.code).as_str());
+                super::log::debug(format!("failed to request_get_field: {}", e.code).as_str());
                 None
             }
         }
@@ -324,6 +324,10 @@ pub mod resp {
 pub mod log {
     extern {
         fn log_msg(pointer: *const u8, result_size: i32, level: i32, ident: i32);
+    }
+    
+    pub fn debug(msg: &str) {
+        log_at_level(msg, 4)
     }
 
     pub fn info(msg: &str) {
@@ -356,7 +360,7 @@ pub mod file {
         match super::ffi::result(result_size) {
             Ok(res) => Some(res),
             Err(e) => {
-                super::log::error(format!("failed to get_static_file: {}", e.code).as_str());
+                super::log::debug(format!("failed to get_static_file: {}", e.code).as_str());
                 None
             }
         }
