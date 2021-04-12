@@ -1,0 +1,20 @@
+{
+  "name": "as-fetch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "assembly/index.ts",
+  "scripts": {
+    "test": "node tests",
+    "asbuild:optimized": "asc assembly/index.ts --target release",
+    "asbuild": "npm run asbuild:optimized"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "assemblyscript": "^0.18.24"
+  },
+  "dependencies": {
+    "@assemblyscript/loader": "^0.18.24",
+    "@suborbital/suborbital": "^0.9.9"
+  }
+}

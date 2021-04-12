@@ -614,6 +614,23 @@ func TestASPrototype(t *testing.T) {
 	}
 }
 
+func TestASFetch(t *testing.T) {
+	r := rt.New()
+
+	// test a WASM module that is loaded directly instead of through the bundle
+	doWasm := r.Handle("as-fetch", rwasm.NewRunner("../testdata/as-fetch/as-fetch.wasm"))
+
+	res, err := doWasm("https://1password.com").Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	if string(res.([]byte)[:100]) != "<!doctype html><html lang=en data-language-url=/><head><meta charset=utf-8><meta name=viewport conte" {
+		t.Error("as-fetch failed, got:", string(res.([]byte)[:100]))
+	}
+}
+
 func TestASLargeData(t *testing.T) {
 	r := rt.New()
 

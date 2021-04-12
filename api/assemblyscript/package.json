@@ -1,6 +1,6 @@
 {
-  "name": "suborbital",
-  "version": "0.10.0",
+  "name": "@suborbital/suborbital",
+  "version": "0.9.9",
   "types": "assembly/index.ts",
   "description": "Suborbital's Runnable API for AssemblyScript",
   "main": "assembly/index.ts",
@@ -22,7 +22,7 @@
     "native",
     "assemblyscript"
   ],
-  "author": "@suborbital",
+  "author": "suborbital",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/suborbital/reactr/issues"
