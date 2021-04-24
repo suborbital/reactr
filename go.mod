@@ -3,6 +3,7 @@ module github.com/suborbital/reactr
 go 1.15
 
 require (
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/google/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/suborbital/atmo v0.1.1-0.20210315231600-21e248dacd0f

@@ -27,11 +27,14 @@ type Reactr struct {
 
 // New returns a Reactr ready to accept Jobs
 func New() *Reactr {
+	return NewWithCache(newMemoryCache())
+}
+
+func NewWithCache(c Cache) *Reactr {
 	logger := vlog.Default()
-	cache := newMemoryCache()
 
 	h := &Reactr{
-		scheduler: newScheduler(logger, cache),
+		scheduler: newScheduler(logger, c),
 		log:       logger,
 	}
 
