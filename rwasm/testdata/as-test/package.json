@@ -5,7 +5,7 @@
   "main": "assembly/index.ts",
   "scripts": {
     "test": "node tests",
-    "asbuild:optimized": "asc assembly/index.ts --target release",
+    "asbuild:optimized": "asc src/index.ts --target release",
     "asbuild": "npm run asbuild:optimized"
   },
   "author": "",
