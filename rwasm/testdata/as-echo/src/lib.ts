@@ -1,4 +1,4 @@
-import { logInfo } from "suborbital"
+import { logInfo } from "@suborbital/suborbital"
 
 export function run(input: ArrayBuffer): ArrayBuffer {
 	let inStr = String.UTF8.decode(input)

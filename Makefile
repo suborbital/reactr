@@ -10,6 +10,9 @@ crate/check:
 crate/publish:
 	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi
 
+npm/publish:
+	npm publish ./api/assemblyscript
+
 deps:
 	go get -u -d ./...
 

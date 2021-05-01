@@ -1,3 +1,4 @@
-name: as-test
+name: as-echo
 namespace: default
 lang: assemblyscript
+apiVersion: 0.9.1

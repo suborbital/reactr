@@ -1,6 +1,6 @@
 // DO NOT EDIT; generated file
 
-import { return_result, fromFFI, getIdent, setIdent } from "suborbital";
+import { return_result, fromFFI, getIdent, setIdent } from "@suborbital/suborbital";
 import { run } from "./lib"
 
 export function run_e(ptr: usize, size: i32, ident: i32): void {

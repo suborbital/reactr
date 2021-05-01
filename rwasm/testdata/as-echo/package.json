@@ -1,12 +1,11 @@
 {
-  "name": "as-test",
+  "name": "as-echo",
   "version": "1.0.0",
   "description": "",
-  "main": "assembly/index.ts",
+  "main": "src/index.ts",
   "scripts": {
     "test": "node tests",
-    "asbuild:optimized": "asc src/index.ts --target release",
-    "asbuild": "npm run asbuild:optimized"
+    "asbuild": "asc src/index.ts --target release"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +14,6 @@
   },
   "dependencies": {
     "@assemblyscript/loader": "^0.18.24",
-    "suborbital": "file:../../../api/assemblyscript"
+    "@suborbital/suborbital": "file:../../../api/assemblyscript"
   }
 }

@@ -9,11 +9,11 @@ import (
 	"github.com/suborbital/reactr/rwasm"
 )
 
-func TestASPrototype(t *testing.T) {
+func TestASEcho(t *testing.T) {
 	r := rt.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Handle("as-test", rwasm.NewRunner("../testdata/as-test/as-test.wasm"))
+	doWasm := r.Handle("as-echo", rwasm.NewRunner("../testdata/as-echo/as-echo.wasm"))
 
 	res, err := doWasm("from AssemblyScript!").Then()
 	if err != nil {
@@ -24,7 +24,7 @@ func TestASPrototype(t *testing.T) {
 	fmt.Println(string(res.([]byte)))
 
 	if string(res.([]byte)) != "hello, from AssemblyScript!" {
-		t.Error("as-test failed, got:", string(res.([]byte)))
+		t.Error("as-echo failed, got:", string(res.([]byte)))
 	}
 }
 
@@ -49,7 +49,7 @@ func TestASLargeData(t *testing.T) {
 	r := rt.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Handle("as-test", rwasm.NewRunner("../testdata/as-test/as-test.wasm"))
+	doWasm := r.Handle("as-echo", rwasm.NewRunner("../testdata/as-echo/as-echo.wasm"))
 
 	res, err := doWasm(largeInput).Then()
 	if err != nil {
