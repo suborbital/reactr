@@ -1,6 +1,5 @@
 import { log_msg } from "./env"
-import { getIdent } from "./ffi"
-import { toFFI } from "./util"
+import { getIdent, toFFI } from "./ffi"
 
 export function logDebug(msg: string): void {
 	log_raw(msg, 4)

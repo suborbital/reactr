@@ -5,10 +5,7 @@
   "description": "Suborbital's Runnable API for AssemblyScript",
   "main": "assembly/index.ts",
   "scripts": {
-    "test": "make test",
-    "asbuild:untouched": "asc assembly/index.ts --target debug",
-    "asbuild:optimized": "asc assembly/index.ts --target release",
-    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized"
+    "asbuild": "asc assembly/index.ts --target release"
   },
   "repository": {
     "type": "git",
@@ -16,11 +13,14 @@
   },
   "keywords": [
     "webassembly",
+    "wasm",
     "suborbital",
     "reactr",
+    "atmo",
     "cloud",
     "native",
-    "assemblyscript"
+    "assemblyscript",
+    "typescript"
   ],
   "author": "suborbital",
   "license": "Apache-2.0",

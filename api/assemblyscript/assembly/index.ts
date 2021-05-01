@@ -1,5 +1,4 @@
 export * from "./ffi"
-export * from "./util"
 export * from "./env"
 export * from "./log"
 export * from "./http"

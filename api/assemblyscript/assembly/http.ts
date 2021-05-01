@@ -1,6 +1,5 @@
 import { fetch_url } from "./env"
-import { ffi_result, getIdent } from "./ffi"
-import { toFFI } from "./util"
+import { ffi_result, getIdent, toFFI } from "./ffi"
 
 export function httpGet(url: string): ArrayBuffer {
 	return do_request(method_get, url, new ArrayBuffer(0))
