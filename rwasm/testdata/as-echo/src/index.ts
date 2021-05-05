@@ -1,6 +1,6 @@
 // DO NOT EDIT; generated file
 
-import { return_result, fromFFI, getIdent, setIdent } from "@suborbital/suborbital";
+import { return_result, fromFFI, toFFI, getIdent, setIdent, return_abort } from "@suborbital/suborbital";
 import { run } from "./lib"
 
 export function run_e(ptr: usize, size: i32, ident: i32): void {
@@ -23,4 +23,11 @@ export function allocate(size: i32): usize {
 
 export function deallocate(ptr: i32, _: i32): void {
   heap.free(ptr)
+}
+
+function abort(message: string | null, fileName: string | null, lineNumber: u32, columnNumber: u32): void {
+  let msgFFI = toFFI(String.UTF8.encode(message ? message : ""))
+  let fileFFI = toFFI(String.UTF8.encode(fileName ? fileName : ""))
+
+  return_abort(msgFFI.ptr, msgFFI.size, fileFFI.ptr, fileFFI.size, lineNumber, columnNumber, getIdent())
 }

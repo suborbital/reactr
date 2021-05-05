@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "node tests",
-    "asbuild": "asc src/index.ts --target release"
+    "asbuild": "asc src/index.ts --target release --use abort=src/index/abort"
   },
   "author": "",
   "license": "ISC",
