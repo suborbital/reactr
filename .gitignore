@@ -30,3 +30,7 @@ Suborbital.wasm
 bundlewritetester
 runnable.wasm
 runnables.wasm.zip
+
+node_modules
+api/assemblyscript/build
+*.wasm.map
