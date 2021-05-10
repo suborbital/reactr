@@ -11,7 +11,6 @@ import (
 type scheduler struct {
 	workers map[string]*worker
 	watcher *watcher
-	store   Storage
 	cache   Cache
 	logger  *vlog.Logger
 	lock    sync.Mutex
@@ -20,7 +19,6 @@ type scheduler struct {
 func newScheduler(logger *vlog.Logger, cache Cache) *scheduler {
 	s := &scheduler{
 		workers: map[string]*worker{},
-		store:   newMemoryStorage(),
 		cache:   cache,
 		logger:  logger,
 		lock:    sync.Mutex{},
@@ -32,11 +30,7 @@ func newScheduler(logger *vlog.Logger, cache Cache) *scheduler {
 }
 
 func (s *scheduler) schedule(job Job) *Result {
-	result := newResult(job.UUID(), func(uuid string) {
-		if err := s.store.Remove(uuid); err != nil {
-			s.logger.Error(errors.Wrapf(err, "scheduler failed to Remove Job %s from storage", uuid))
-		}
-	})
+	result := newResult(job.UUID())
 
 	worker := s.getWorker(job.jobType)
 	if worker == nil {
@@ -54,9 +48,8 @@ func (s *scheduler) schedule(job Job) *Result {
 		}
 
 		job.result = result
-		s.store.Add(job)
 
-		worker.schedule(job.Reference())
+		worker.schedule(job)
 	}()
 
 	return result
@@ -73,7 +66,7 @@ func (s *scheduler) handle(jobType string, runnable Runnable, options ...Option)
 		opts = o(opts)
 	}
 
-	w := newWorker(runnable, s.store, s.cache, opts)
+	w := newWorker(runnable, s.cache, opts)
 
 	s.workers[jobType] = w
 

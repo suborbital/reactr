@@ -22,7 +22,7 @@ func newCtx(cache Cache, doFunc DoFunc) *Ctx {
 // Do runs a new job
 func (c *Ctx) Do(job Job) *Result {
 	if c.doFunc == nil {
-		r := newResult(job.uuid, func(_ string) {})
+		r := newResult(job.UUID())
 		r.sendErr(errDoFuncNotSet)
 		return r
 	}
