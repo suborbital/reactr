@@ -34,8 +34,14 @@ func (s *scheduler) schedule(job Job) *Result {
 
 	worker := s.getWorker(job.jobType)
 	if worker == nil {
-		result.sendErr(fmt.Errorf("failed to getWorker for jobType %q", job.jobType))
-		return result
+		// if the job is a superfunc, let's auto-handle it
+		if job.sf != nil {
+			s.handle(job.jobType, &superfuncRunner{})
+			worker = s.getWorker(job.jobType)
+		} else {
+			result.sendErr(fmt.Errorf("failed to getWorker for jobType %q", job.jobType))
+			return result
+		}
 	}
 
 	go func() {

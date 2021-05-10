@@ -12,6 +12,7 @@ type Job struct {
 	uuid    string
 	jobType string
 	result  *Result
+	sf      Superfunc
 	data    interface{}
 }
 
@@ -21,6 +22,17 @@ func NewJob(jobType string, data interface{}) Job {
 		uuid:    uuid.New().String(),
 		jobType: jobType,
 		data:    data,
+	}
+
+	return j
+}
+
+// newSuperfuncJob creates a new job that uses a superfunc
+func newSuperfuncJob(jobType string, sf Superfunc) Job {
+	j := Job{
+		uuid:    uuid.New().String(),
+		jobType: jobType,
+		sf:      sf,
 	}
 
 	return j
