@@ -9,12 +9,10 @@ import (
 
 // Job describes a job to be done
 type Job struct {
-	uuid       string
-	jobType    string
-	result     *Result
-	data       interface{}
-	resultData interface{}
-	resultErr  error
+	uuid    string
+	jobType string
+	result  *Result
+	data    interface{}
 }
 
 // NewJob creates a new job
@@ -75,10 +73,4 @@ func (j Job) Int() int {
 // Data returns the "raw" data for the job
 func (j Job) Data() interface{} {
 	return j.data
-}
-
-// loadResult has a pointer reciever such that it actually modifies the object it's being called on
-func (j *Job) loadResult(resultData interface{}, errString string) {
-	j.resultData = resultData
-	j.resultErr = errors.New(errString)
 }
