@@ -43,9 +43,9 @@ func (r *Reactr) Do(job Job) *Result {
 	return r.scheduler.schedule(job)
 }
 
-// Sf runs a superfunc
-func (r *Reactr) Sf(jobType string, sf Superfunc) *Result {
-	job := newSuperfuncJob(jobType, sf)
+// Run runs a superfunc
+func (r *Reactr) Run(jobType string, t Task) *Result {
+	job := newTaskJob(jobType, t)
 
 	return r.Do(job)
 }

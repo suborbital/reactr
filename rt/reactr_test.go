@@ -29,23 +29,23 @@ func (g generic) OnChange(change ChangeEvent) error {
 }
 
 func TestReactrJob(t *testing.T) {
-	h := New()
+	r := New()
 
-	h.Handle("generic", generic{})
+	r.Handle("generic", generic{})
 
-	r := h.Do(h.Job("generic", "first"))
+	res := r.Do(r.Job("generic", "first"))
 
-	if r.UUID() == "" {
+	if res.UUID() == "" {
 		t.Error("result ID is empty")
 	}
 
-	res, err := r.Then()
+	result, err := res.Then()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	if res.(string) != "last" {
-		t.Error("generic job failed, expected 'last', got", res.(string))
+	if result.(string) != "last" {
+		t.Error("generic job failed, expected 'last', got", result.(string))
 	}
 }
 
@@ -67,9 +67,9 @@ func (g math) OnChange(change ChangeEvent) error {
 }
 
 func TestReactrJobHelperFunc(t *testing.T) {
-	h := New()
+	r := New()
 
-	doMath := h.Handle("math", math{})
+	doMath := r.Handle("math", math{})
 
 	for i := 1; i < 10; i++ {
 		answer := i + i*3
@@ -82,24 +82,24 @@ func TestReactrJobHelperFunc(t *testing.T) {
 }
 
 func TestReactrResultDiscard(t *testing.T) {
-	h := New()
+	r := New()
 
-	h.Handle("generic", generic{})
+	r.Handle("generic", generic{})
 
-	r := h.Do(h.Job("generic", "first"))
+	res := r.Do(r.Job("generic", "first"))
 
 	// basically just making sure that it doesn't hold up the line
-	r.Discard()
+	res.Discard()
 }
 
 func TestReactrResultThenDo(t *testing.T) {
-	h := New()
+	r := New()
 
-	h.Handle("generic", generic{})
+	r.Handle("generic", generic{})
 
 	wait := make(chan bool)
 
-	h.Do(h.Job("generic", "first")).ThenDo(func(res interface{}, err error) {
+	r.Do(r.Job("generic", "first")).ThenDo(func(res interface{}, err error) {
 		if err != nil {
 			t.Error(errors.Wrap(err, "did not expect error"))
 			wait <- false
@@ -112,7 +112,7 @@ func TestReactrResultThenDo(t *testing.T) {
 		wait <- true
 	})
 
-	h.Do(h.Job("generic", "fail")).ThenDo(func(res interface{}, err error) {
+	r.Do(r.Job("generic", "fail")).ThenDo(func(res interface{}, err error) {
 		if err == nil {
 			t.Error(errors.New("expected error, did not get one"))
 			wait <- false
@@ -149,8 +149,8 @@ func TestPreWarmWorker(t *testing.T) {
 		counter: counter,
 	}
 
-	h := New()
-	h.Handle("prewarm", runnable, PoolSize(3), PreWarm())
+	r := New()
+	r.Handle("prewarm", runnable, PoolSize(3), PreWarm())
 
 	// checking to see if the prewarmRunnable's OnChange function is called
 	// without ever sending it a job (see Runnable above)

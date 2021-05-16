@@ -10,7 +10,7 @@ import (
 func main() {
 	r := rt.New()
 
-	val, err := r.Sf(
+	val, err := r.Run(
 		SomethingExpensive(1, "hello", false)).Then()
 	if err != nil {
 		fmt.Println(err)
@@ -42,7 +42,7 @@ func (p *printJob) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 
 func (p *printJob) OnChange(c rt.ChangeEvent) error { return nil }
 
-func SomethingExpensive(first int, second string, third bool) (string, rt.Superfunc) {
+func SomethingExpensive(first int, second string, third bool) (string, rt.Task) {
 	return "something.expensive", func(ctx *rt.Ctx) (interface{}, error) {
 		return fmt.Sprintf("%d %s", first, second), nil
 	}

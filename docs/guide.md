@@ -1,8 +1,64 @@
 # Get started with Reactr 🚀
 
-Once you've gotten the basics of Reactr, follow along here to learn what makes it so powerful.
+### The Basics
 
-## Runnables pt. 2
+First, install Reactr's core package `rt`:
+```bash
+go get github.com/suborbital/reactr/rt
+```
+
+And then get started by defining something `Runnable`:
+```golang
+type generic struct{}
+
+// Run runs a generic job
+func (g generic) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
+	fmt.Println("doing job:", job.String()) // get the string value of the job's data
+
+	// do your work here
+
+	return fmt.Sprintf("finished %s", job.String()), nil
+}
+
+// OnChange is called when Reactr starts or stops a worker to handle jobs,
+// and allows the Runnable to set up before receiving jobs or tear down if needed.
+func (g generic) OnChange(change rt.ChangeEvent) error {
+	return nil
+}
+```
+A `Runnable` is something that can take care of a job, all it needs to do is conform to the `Runnable` interface as you see above.
+
+Once you have a Runnable, create a Reactr instance, register it, and `Do` some work:
+```golang
+package main
+
+import (
+	"fmt"
+	"log"
+
+	"github.com/suborbital/reactr/rt"
+)
+
+func main() {
+	r := rt.New()
+
+	r.Handle("generic", generic{})
+
+	res := r.Do(r.Job("generic", "hard work"))
+
+	res, err := res.Then()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("done!", res.(string))
+}
+```
+When you `Do` some work, you get a `Result`. A result is like a Rust future or a JavaScript promise, it is something you can get the job's result from once it is finished.
+
+Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Cool, right?
+
+## Runnables
 
 There are some more complicated things you can do with Runnables:
 ```golang
