@@ -10,7 +10,7 @@ import (
 func main() {
 	r := rt.New()
 
-	r.Handle("print", &printJob{})
+	r.Register("print", &printJob{})
 
 	r.Do(rt.NewJob("print", "start")).Discard()
 

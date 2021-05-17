@@ -21,7 +21,7 @@ var (
 
 type worker struct {
 	runner   Runnable
-	workChan chan Job
+	workChan chan *Job
 	cache    Cache
 	options  workerOpts
 
@@ -35,7 +35,7 @@ type worker struct {
 func newWorker(runner Runnable, cache Cache, opts workerOpts) *worker {
 	w := &worker{
 		runner:     runner,
-		workChan:   make(chan Job, defaultChanSize),
+		workChan:   make(chan *Job, defaultChanSize),
 		cache:      cache,
 		options:    opts,
 		threads:    make([]*workThread, opts.poolSize),
@@ -48,13 +48,13 @@ func newWorker(runner Runnable, cache Cache, opts workerOpts) *worker {
 	return w
 }
 
-func (w *worker) schedule(job Job) {
+func (w *worker) schedule(job *Job) {
 	go func() {
 		w.workChan <- job
 	}()
 }
 
-func (w *worker) start(doFunc DoFunc) error {
+func (w *worker) start(doFunc coreDoFunc) error {
 	// this should only be run once per worker, unless startup fails the first time
 	if isStarted := w.started.Load().(bool); isStarted {
 		return nil
@@ -110,14 +110,14 @@ func (w *worker) isStarted() bool {
 
 type workThread struct {
 	runner         Runnable
-	workChan       chan Job
+	workChan       chan *Job
 	cache          Cache
 	timeoutSeconds int
 	context        context.Context
 	cancelFunc     context.CancelFunc
 }
 
-func newWorkThread(runner Runnable, workChan chan Job, cache Cache, timeoutSeconds int) *workThread {
+func newWorkThread(runner Runnable, workChan chan *Job, cache Cache, timeoutSeconds int) *workThread {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
 	wt := &workThread{
@@ -132,7 +132,7 @@ func newWorkThread(runner Runnable, workChan chan Job, cache Cache, timeoutSecon
 	return wt
 }
 
-func (wt *workThread) run(doFunc DoFunc) {
+func (wt *workThread) run(doFunc coreDoFunc) {
 	go func() {
 		for {
 			// die if the context has been cancelled
@@ -151,7 +151,8 @@ func (wt *workThread) run(doFunc DoFunc) {
 			var result interface{}
 
 			if wt.timeoutSeconds == 0 {
-				result, err = wt.runner.Run(job, ctx)
+				// we pass in a dereferenced job so that the Runner cannot modify it
+				result, err = wt.runner.Run(*job, ctx)
 			} else {
 				result, err = wt.runWithTimeout(job, ctx)
 			}
@@ -166,12 +167,13 @@ func (wt *workThread) run(doFunc DoFunc) {
 	}()
 }
 
-func (wt *workThread) runWithTimeout(job Job, ctx *Ctx) (interface{}, error) {
+func (wt *workThread) runWithTimeout(job *Job, ctx *Ctx) (interface{}, error) {
 	resultChan := make(chan interface{})
 	errChan := make(chan error)
 
 	go func() {
-		result, err := wt.runner.Run(job, ctx)
+		// we pass in a dereferenced job so that the Runner cannot modify it
+		result, err := wt.runner.Run(*job, ctx)
 		if err != nil {
 			errChan <- err
 		} else {

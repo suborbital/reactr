@@ -12,7 +12,7 @@ import (
 func main() {
 	server := rfaas.New(vk.UseInsecureHTTP(8080), vk.UseAppName("rfaas test"))
 
-	server.Handle("generic", generic{})
+	server.Register("generic", generic{})
 
 	if err := server.Start(); err != nil {
 		log.Fatal(err)

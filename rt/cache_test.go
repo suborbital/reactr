@@ -43,17 +43,17 @@ func (c *getTester) OnChange(_ ChangeEvent) error {
 }
 
 func TestCacheGetSet(t *testing.T) {
-	h := New()
-	h.Handle("set", &setTester{})
-	h.Handle("get", &getTester{})
+	r := New()
+	r.Register("set", &setTester{})
+	r.Register("get", &getTester{})
 
-	_, err := h.Do(NewJob("set", "very important information")).Then()
+	_, err := r.Do(NewJob("set", "very important information")).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to set"))
 		return
 	}
 
-	val, err := h.Do(NewJob("get", "important")).Then()
+	val, err := r.Do(NewJob("get", "important")).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "get job failed"))
 		return
@@ -65,11 +65,11 @@ func TestCacheGetSet(t *testing.T) {
 }
 
 func TestCacheGetSetWithTTL(t *testing.T) {
-	h := New()
-	h.Handle("set", &setTester{})
-	h.Handle("get", &getTester{})
+	r := New()
+	r.Register("set", &setTester{})
+	r.Register("get", &getTester{})
 
-	_, err := h.Do(NewJob("set", "very important information")).Then()
+	_, err := r.Do(NewJob("set", "very important information")).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to set"))
 		return
@@ -77,7 +77,7 @@ func TestCacheGetSetWithTTL(t *testing.T) {
 
 	<-time.After(time.Second * 2)
 
-	_, err = h.Do(NewJob("get", "important")).Then()
+	_, err = r.Do(NewJob("get", "important")).Then()
 	if err == nil {
 		t.Error("should have errored, did not")
 		return

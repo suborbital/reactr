@@ -9,9 +9,9 @@ import (
 )
 
 func TestReactrJobWithPool(t *testing.T) {
-	h := New()
+	r := New()
 
-	doGeneric := h.Handle("generic", generic{}, PoolSize(3))
+	doGeneric := r.Register("generic", generic{}, PoolSize(3))
 
 	grp := NewGroup()
 	grp.Add(doGeneric("first"))
@@ -35,9 +35,9 @@ func (g badRunner) OnChange(change ChangeEvent) error {
 }
 
 func TestRunnerWithError(t *testing.T) {
-	h := New()
+	r := New()
 
-	doBad := h.Handle("badRunner", badRunner{})
+	doBad := r.Register("badRunner", badRunner{})
 
 	_, err := doBad(nil).Then()
 	if err == nil {
@@ -46,9 +46,9 @@ func TestRunnerWithError(t *testing.T) {
 }
 
 func TestRunnerWithOptionsAndError(t *testing.T) {
-	h := New()
+	r := New()
 
-	doBad := h.Handle("badRunner", badRunner{}, RetrySeconds(1), MaxRetries(1))
+	doBad := r.Register("badRunner", badRunner{}, RetrySeconds(1), MaxRetries(1))
 
 	_, err := doBad(nil).Then()
 	if err == nil {
@@ -70,9 +70,9 @@ func (g timeoutRunner) OnChange(change ChangeEvent) error {
 }
 
 func TestRunnerWithJobTimeout(t *testing.T) {
-	h := New()
+	r := New()
 
-	doTimeout := h.Handle("timeout", timeoutRunner{}, TimeoutSeconds(1))
+	doTimeout := r.Register("timeout", timeoutRunner{}, TimeoutSeconds(1))
 
 	if _, err := doTimeout("hello").Then(); err != ErrJobTimeout {
 		t.Error("job should have timed out, but did not")
