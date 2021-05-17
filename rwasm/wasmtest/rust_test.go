@@ -16,7 +16,7 @@ func TestWasmRunnerWithFetch(t *testing.T) {
 	r := rt.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/fetch/fetch.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/fetch/fetch.wasm"))
 
 	res, err := doWasm("https://1password.com").Then()
 	if err != nil {
@@ -52,7 +52,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	r := rt.New()
 
 	// using a Rust module
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/log/log.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/log/log.wasm"))
 
 	body := testBody{
 		Username: "cohix",
@@ -134,7 +134,7 @@ func TestContentType(t *testing.T) {
 func TestWasmRunnerDataConversion(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	res, err := doWasm("my name is joe").Then()
 	if err != nil {
@@ -149,7 +149,7 @@ func TestWasmRunnerDataConversion(t *testing.T) {
 func TestWasmRunnerGroup(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	grp := rt.NewGroup()
 	for i := 0; i < 50000; i++ {
@@ -176,7 +176,7 @@ func TestWasmBundle(t *testing.T) {
 func TestWasmLargeData(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	res := doWasm([]byte(largeInput))
 
@@ -197,7 +197,7 @@ func TestWasmLargeData(t *testing.T) {
 func TestWasmLargeDataGroup(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	grp := rt.NewGroup()
 	for i := 0; i < 5000; i++ {
@@ -212,7 +212,7 @@ func TestWasmLargeDataGroup(t *testing.T) {
 func TestWasmLargeDataGroupWithPool(t *testing.T) {
 	r := rt.New()
 
-	doWasm := r.Handle("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"), rt.PoolSize(5))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"), rt.PoolSize(5))
 
 	grp := rt.NewGroup()
 	for i := 0; i < 5000; i++ {

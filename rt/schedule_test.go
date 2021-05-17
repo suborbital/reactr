@@ -23,7 +23,7 @@ func TestScheduleAfter(t *testing.T) {
 
 	counter := testutil.NewAsyncCounter(10)
 
-	r.Handle("counter", &counterRunner{counter})
+	r.Register("counter", &counterRunner{counter})
 
 	r.Schedule(After(2, func() Job {
 		return NewJob("counter", nil)

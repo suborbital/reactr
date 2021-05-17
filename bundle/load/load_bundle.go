@@ -45,8 +45,8 @@ func IntoInstance(h *rt.Reactr, bundle *bundle.Bundle) error {
 
 		// pre-warm so that Runnables have at least one instance active
 		// when the first request is received.
-		h.Handle(jobName, runner, rt.PreWarm())
-		h.Handle(fqfn, runner, rt.PreWarm())
+		h.Register(jobName, runner, rt.PreWarm())
+		h.Register(fqfn, runner, rt.PreWarm())
 
 	}
 
