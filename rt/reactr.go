@@ -21,8 +21,8 @@ type JobFunc func(interface{}) *Result
 
 // Reactr represents the main control object
 type Reactr struct {
-	scheduler *scheduler
-	log       *vlog.Logger
+	core *core
+	log  *vlog.Logger
 }
 
 // New returns a Reactr ready to accept Jobs
@@ -31,8 +31,8 @@ func New() *Reactr {
 	cache := newMemoryCache()
 
 	r := &Reactr{
-		scheduler: newScheduler(logger, cache),
-		log:       logger,
+		core: newCore(logger, cache),
+		log:  logger,
 	}
 
 	return r
@@ -40,7 +40,7 @@ func New() *Reactr {
 
 // Do schedules a job to be worked on and returns a result object
 func (r *Reactr) Do(job Job) *Result {
-	return r.scheduler.schedule(job)
+	return r.core.do(&job)
 }
 
 // Run runs a superfunc
@@ -53,12 +53,12 @@ func (r *Reactr) Run(jobType string, t Task) *Result {
 // Schedule adds a new Schedule to the instance, Reactr will 'watch' the Schedule
 // and Do any jobs when the Schedule indicates it's needed
 func (r *Reactr) Schedule(s Schedule) {
-	r.scheduler.watch(s)
+	r.core.watch(s)
 }
 
-// Handle registers a Runnable with the Reactr and returns a shortcut function to run those jobs
-func (r *Reactr) Handle(jobType string, runner Runnable, options ...Option) JobFunc {
-	r.scheduler.handle(jobType, runner, options...)
+// Register registers a Runnable with the Reactr and returns a shortcut function to run those jobs
+func (r *Reactr) Register(jobType string, runner Runnable, options ...Option) JobFunc {
+	r.core.register(jobType, runner, options...)
 
 	helper := func(data interface{}) *Result {
 		job := NewJob(jobType, data)
@@ -72,7 +72,7 @@ func (r *Reactr) Handle(jobType string, runner Runnable, options ...Option) JobF
 // HandleMsg registers a Runnable with the Reactr and triggers that job whenever the provided Grav pod
 // receives a message of a particular type.
 func (r *Reactr) HandleMsg(pod *grav.Pod, msgType string, runner Runnable, options ...Option) {
-	r.scheduler.handle(msgType, runner, options...)
+	r.core.register(msgType, runner, options...)
 
 	r.Listen(pod, msgType)
 }

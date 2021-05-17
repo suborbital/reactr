@@ -7,9 +7,9 @@ import (
 )
 
 func TestReactrJobGroup(t *testing.T) {
-	h := New()
+	r := New()
 
-	doMath := h.Handle("math", math{})
+	doMath := r.Register("math", math{})
 
 	grp := NewGroup()
 	grp.Add(doMath(input{5, 6}))
@@ -22,9 +22,9 @@ func TestReactrJobGroup(t *testing.T) {
 }
 
 func TestLargeGroup(t *testing.T) {
-	h := New()
+	r := New()
 
-	doMath := h.Handle("math", math{})
+	doMath := r.Register("math", math{})
 
 	grp := NewGroup()
 	for i := 0; i < 50000; i++ {
@@ -37,9 +37,9 @@ func TestLargeGroup(t *testing.T) {
 }
 
 func TestLargeGroupWithPool(t *testing.T) {
-	h := New()
+	r := New()
 
-	doMath := h.Handle("math", math{}, PoolSize(3))
+	doMath := r.Register("math", math{}, PoolSize(3))
 
 	grp := NewGroup()
 	for i := 0; i < 50000; i++ {
@@ -71,10 +71,10 @@ func (g groupWork) OnChange(change ChangeEvent) error {
 }
 
 func TestReactrChainedGroup(t *testing.T) {
-	h := New()
+	r := New()
 
-	h.Handle("generic", generic{})
-	doGrp := h.Handle("group", groupWork{})
+	r.Register("generic", generic{})
+	doGrp := r.Register("group", groupWork{})
 
 	if _, err := doGrp(nil).Then(); err != nil {
 		t.Error(errors.Wrap(err, "failed to doGrp"))

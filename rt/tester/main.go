@@ -18,7 +18,7 @@ func main() {
 
 	fmt.Println(val)
 
-	r.Handle("print", &printJob{})
+	r.Register("print", &printJob{})
 
 	r.Do(rt.NewJob("print", "start")).Discard()
 

@@ -31,7 +31,7 @@ func (g generic) OnChange(change ChangeEvent) error {
 func TestReactrJob(t *testing.T) {
 	r := New()
 
-	r.Handle("generic", generic{})
+	r.Register("generic", generic{})
 
 	res := r.Do(r.Job("generic", "first"))
 
@@ -69,7 +69,7 @@ func (g math) OnChange(change ChangeEvent) error {
 func TestReactrJobHelperFunc(t *testing.T) {
 	r := New()
 
-	doMath := r.Handle("math", math{})
+	doMath := r.Register("math", math{})
 
 	for i := 1; i < 10; i++ {
 		answer := i + i*3
@@ -84,7 +84,7 @@ func TestReactrJobHelperFunc(t *testing.T) {
 func TestReactrResultDiscard(t *testing.T) {
 	r := New()
 
-	r.Handle("generic", generic{})
+	r.Register("generic", generic{})
 
 	res := r.Do(r.Job("generic", "first"))
 
@@ -95,7 +95,7 @@ func TestReactrResultDiscard(t *testing.T) {
 func TestReactrResultThenDo(t *testing.T) {
 	r := New()
 
-	r.Handle("generic", generic{})
+	r.Register("generic", generic{})
 
 	wait := make(chan bool)
 
@@ -150,7 +150,7 @@ func TestPreWarmWorker(t *testing.T) {
 	}
 
 	r := New()
-	r.Handle("prewarm", runnable, PoolSize(3), PreWarm())
+	r.Register("prewarm", runnable, PoolSize(3), PreWarm())
 
 	// checking to see if the prewarmRunnable's OnChange function is called
 	// without ever sending it a job (see Runnable above)
