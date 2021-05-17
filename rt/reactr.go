@@ -43,7 +43,7 @@ func (r *Reactr) Do(job Job) *Result {
 	return r.core.do(&job)
 }
 
-// Run runs a superfunc
+// Run runs a task
 func (r *Reactr) Run(jobType string, t Task) *Result {
 	job := newTaskJob(jobType, t)
 
