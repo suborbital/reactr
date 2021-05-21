@@ -115,9 +115,9 @@ func (h *Reactr) Listen(pod *grav.Pod, msgType string) {
 				if err != nil {
 					h.log.Error(errors.Wrapf(err, "job from message %s returned result that could not be JSON marshalled", msg.UUID()))
 					replyMsg = grav.NewMsg(MsgTypeReactrJobErr, []byte(errors.Wrap(err, "failed to Marshal job result").Error()))
+				} else {
+					replyMsg = grav.NewMsg(MsgTypeReactrResult, resultJSON)
 				}
-
-				replyMsg = grav.NewMsg(MsgTypeReactrResult, resultJSON)
 			}
 		}
 
@@ -125,6 +125,12 @@ func (h *Reactr) Listen(pod *grav.Pod, msgType string) {
 
 		return nil
 	})
+}
+
+// IsRegistered returns true if the instance
+// has a worker registered for the given jobType
+func (r *Reactr) IsRegistered(jobType string) bool {
+	return r.core.hasWorker(jobType)
 }
 
 // Job is a shorter alias for NewJob

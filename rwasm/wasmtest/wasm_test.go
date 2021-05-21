@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/reactr/bundle/load"
+	"github.com/suborbital/atmo/bundle/load"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
 	"github.com/suborbital/vektor/vlog"
