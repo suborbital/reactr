@@ -103,3 +103,9 @@ func (c *core) findWorker(jobType string) *worker {
 
 	return nil
 }
+
+func (c *core) hasWorker(jobType string) bool {
+	w := c.findWorker(jobType)
+
+	return w != nil
+}
