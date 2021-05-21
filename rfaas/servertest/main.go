@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	server := rfaas.New(vk.UseInsecureHTTP(8080), vk.UseAppName("rfaas test"))
+	server := rfaas.New(vk.UseHTTPPort(8080), vk.UseAppName("rfaas test"))
 
 	server.Register("generic", generic{})
 
