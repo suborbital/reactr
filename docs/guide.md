@@ -1,5 +1,7 @@
 # Get started with Reactr 🚀
 
+Reactr is a function scheduler that allows you to spawn a huge amount of 'work' and ensure it gets executed in an efficient manner without overwhelming your CPU. There are two types of 'work' that Reactr can handle; `Tasks` and `Jobs`. Tasks are lightweight functions that Reactr executes asynchronously, and Jobs contain a payload describing work to be done, and are given to Reactr to be handled by a pre-registered worker.
+
 ### The Basics
 
 First, install Reactr's core package `rt`:
