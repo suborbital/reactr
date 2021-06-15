@@ -8,6 +8,8 @@ export declare function fetch_url(method: i32, url_ptr: usize, url_size: i32, bo
 export declare function cache_set(key_ptr: usize, key_size: i32, value_ptr: usize, value_size: i32, ttl: i32, ident: i32): i32
 // gets a value from the cache
 export declare function cache_get(key_ptr: usize, key_size: i32, ident: i32): i32
+//gets a field from the 'mounted' request
+export declare function request_get_field(field_type: i32, key_pointer: usize, key_size: i32, ident: i32): i32
 // gets the result of a guest->host FFI call
 export declare function get_ffi_result(ptr: usize, ident: i32): i32
 // handles the custom abort implementation

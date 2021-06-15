@@ -1,10 +1,13 @@
 package wasmtest
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
 )
@@ -59,5 +62,47 @@ func TestASLargeData(t *testing.T) {
 
 	if string(res.([]byte)) != "hello, "+largeInput {
 		t.Error("as-test failed, got:", string(res.([]byte)))
+	}
+}
+
+func TestASRunnerWithRequest(t *testing.T) {
+	r := rt.New()
+
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/as-req/as-req.wasm"))
+
+	body := testBody{
+		Username: "cohix",
+	}
+
+	bodyJSON, _ := json.Marshal(body)
+
+	req := &request.CoordinatedRequest{
+		Method: "GET",
+		URL:    "/hello/world",
+		ID:     uuid.New().String(),
+		Body:   bodyJSON,
+		State: map[string][]byte{
+			"hello": []byte("what is up"),
+		},
+	}
+
+	reqJSON, err := req.ToJSON()
+	if err != nil {
+		t.Error("failed to ToJSON", err)
+	}
+
+	res, err := doWasm(reqJSON).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if string(resp.Output) != "hello what is up" {
+		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
 	}
 }
