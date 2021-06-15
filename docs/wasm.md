@@ -4,7 +4,7 @@ Reactr has first-class support for WebAssembly-packaged Runnables. Wasm is an in
 
 Wasm support in Reactr is powered by [Wasmer](https://github.com/wasmerio/wasmer-go), the hard work they've done to create a powerful and extensible Wasm runtime has been very much appreciated, and it's been very cool seeing that project grow.
 
-The current supported languages are Rust (stable) and Swift (experimental). The Runnable API is available for each. More languages such as AssemblyScript, Go, and C++ are coming soon!
+The current supported languages are Rust (stable), TypeScript/AssemblyScript (beta) and Swift (alpha). The Runnable API is available for each. More languages such as Go and C++ are coming soon!
 
 To create a Wasm runnable, check out the [subo CLI](https://github.com/suborbital/subo). Once you've generated a `.wasm` file, you can use it with Reactr just like any other Runnable!
 
@@ -20,7 +20,7 @@ go get github.com/suborbital/reactr/rwasm
 ```golang
 r := rt.New()
 
-doWasm := r.Handle("wasm", rwasm.NewRunner("path/to/runnable/file.wasm"))
+doWasm := r.Register("wasm", rwasm.NewRunner("path/to/runnable/file.wasm"))
 
 res, err := doWasm("input_will_be_converted_to_bytes").Then()
 if err != nil {
