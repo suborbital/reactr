@@ -5,7 +5,7 @@ export function run(input: ArrayBuffer): ArrayBuffer {
 
 	logInfo("fetching " + url)
 
-	let resp = httpGet(url)
+	let resp = httpGet(url, null)
   
 	return resp
 }
