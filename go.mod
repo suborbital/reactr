@@ -5,7 +5,6 @@ go 1.15
 require (
 	github.com/google/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/sethvargo/go-envconfig v0.3.2 // indirect
 	github.com/suborbital/atmo v0.2.3-0.20210521151945-bc9b42cd29c6
 	github.com/suborbital/grav v0.3.2
 	github.com/suborbital/vektor v0.4.0

@@ -29,9 +29,9 @@
   },
   "homepage": "https://github.com/suborbital/reactr#readme",
   "dependencies": {
-    "@assemblyscript/loader": "^0.18.24"
+    "@assemblyscript/loader": "^0.19"
   },
   "devDependencies": {
-    "assemblyscript": "^0.18.24"
+    "assemblyscript": "^0.19"
   }
 }
