@@ -8,3 +8,4 @@ preMakeTargets:
 
 postMakeTargets:
   - crate/publish
+  - npm/publish

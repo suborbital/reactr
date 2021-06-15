@@ -1,6 +1,6 @@
 {
   "name": "@suborbital/suborbital",
-  "version": "0.9.10",
+  "version": "0.10.0",
   "types": "assembly/index.ts",
   "description": "Suborbital's Runnable API for AssemblyScript",
   "main": "assembly/index.ts",
@@ -29,9 +29,9 @@
   },
   "homepage": "https://github.com/suborbital/reactr#readme",
   "dependencies": {
-    "@assemblyscript/loader": "^0.18.24"
+    "@assemblyscript/loader": "^0.19"
   },
   "devDependencies": {
-    "assemblyscript": "^0.18.24"
+    "assemblyscript": "^0.19"
   }
 }
