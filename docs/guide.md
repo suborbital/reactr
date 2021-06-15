@@ -97,7 +97,7 @@ Note that you cannot get result values from result groups, the error returned fr
 ### Pools
 Each `Runnable` that you register is given a worker to process their jobs. By default, each worker has one work thread processing jobs in sequence. If you want a particular worker to process more than one job concurrently, you can increase its `PoolSize`:
 ```golang
-doGeneric := r.Handle("generic", generic{}, rt.PoolSize(3))
+doGeneric := r.Register("generic", generic{}, rt.PoolSize(3))
 
 grp := rt.NewGroup()
 grp.Add(doGeneric("first"))
@@ -115,7 +115,7 @@ By default, if a job becomes stuck and is blocking execution, it will block fore
 ``` golang
 h := rt.New()
 
-doTimeout := r.Handle("timeout", timeoutRunner{}, rt.TimeoutSeconds(3))
+doTimeout := r.Register("timeout", timeoutRunner{}, rt.TimeoutSeconds(3))
 ```
 When `TimeoutSeconds` is set and a job executes for longer than the provided number of seconds, the worker will move on to the next job and `ErrJobTimeout` will be returned to the Result. The failed job will continue to execute in the background, but its result will be discarded.
 
@@ -133,7 +133,7 @@ The `r.Schedule` method will allow you to register a Schedule, and there are two
 ```golang
 r := rt.New()
 
-r.Handle("worker", &workerRunner{})
+r.Register("worker", &workerRunner{})
 
 // runs every hour
 r.Schedule(rt.Every(60*60, func() Job {
@@ -150,14 +150,14 @@ The `Runnable` interface defines an `OnChange` function which gives the Runnable
 
 Most Runnables can return `nil` from this function, however returning an error will cause the worker start to be paused and retried until the required pool size has been acheived. The number of seconds between retries (default 3) and the maximum number of retries (default 5) can be configured when registering a Runnable:
 ```golang
-doBad := r.Handle("badRunner", badRunner{}, rt.RetrySeconds(1), rt.MaxRetries(10))
+doBad := r.Register("badRunner", badRunner{}, rt.RetrySeconds(1), rt.MaxRetries(10))
 ```
 Any error from a failed worker will be returned to the first job that is attempted for that Runnable.
 
 ### Pre-warming
 When a Runnable is mounted, it is simply registered as available to receive work. The Runnable is not actually invoked until the first job of the given type is received. For basic Runnables, this is normally fine, but for Runnables who use the `OnChange` method to provision resources, this can cause the first job to be slow. The `PreWarm` option is available to allow Runnables to be started as soon as they are mounted, rather than waiting for the first job. This mitigates cold-starts when anything expensive is needed at startup.
-```
-doExpensive := r.Handle("expensive", expensiveRunnable{}, rt.PreWarm())
+```golang
+doExpensive := r.Register("expensive", expensiveRunnable{}, rt.PreWarm())
 ```
 
 ### Shortcuts
@@ -178,7 +178,7 @@ func (g math) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 }
 ```
 ```golang
-doMath := r.Handle("math", math{})
+doMath := r.Register("math", math{})
 
 for i := 1; i < 10; i++ {
 	equals, _ := doMath(input{i, i * 3}).ThenInt()
