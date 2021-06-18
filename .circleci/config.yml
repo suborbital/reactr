@@ -2,7 +2,7 @@
 version: 2.1
 jobs:
   build:
-    working_directory: $CIRCLE_WORKING_DIRECTORY
+    working_directory: ~/project
     docker:
       - image: circleci/golang:1.16
     steps:
