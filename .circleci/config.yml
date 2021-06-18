@@ -18,6 +18,10 @@ jobs:
           paths:
             - "/go/pkg/mod"
       - run:
+          name: List
+          command: |
+            ls
+      - run:
           name: Run tests
           command: |
             make test
