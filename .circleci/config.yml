@@ -2,7 +2,6 @@
 version: 2.1
 jobs:
   build:
-    working_directory: ~/project
     docker:
       - image: circleci/golang:1.16
     steps:
@@ -10,18 +9,10 @@ jobs:
       - restore_cache:
           keys:
             - go-mod-v4-{{ checksum "go.sum" }}
-      - run:
-          name: Install Dependencies
-          command: go get
+      - run: go get
       - save_cache:
           key: go-mod-v4-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg/mod"
-      - run:
-          name: List
-          command: |
-            ls
-      - run:
-          name: Run tests
-          command: |
-            make test
+      - run: ls
+      - run: make test
