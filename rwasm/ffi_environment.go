@@ -64,7 +64,7 @@ type wasmEnvironment struct {
 type wasmInstance struct {
 	wasmerInst *wasmer.Instance
 
-	rtCtx   *rt.Ctx
+	ctx     *rt.Ctx
 	request *request.CoordinatedRequest
 
 	ffiResult []byte
@@ -165,7 +165,7 @@ func (w *wasmEnvironment) useInstance(req *request.CoordinatedRequest, ctx *rt.C
 	}
 
 	// setup the instance's temporary state
-	inst.rtCtx = ctx
+	inst.ctx = ctx
 	inst.request = req
 	inst.ffiResult = nil
 
@@ -173,7 +173,7 @@ func (w *wasmEnvironment) useInstance(req *request.CoordinatedRequest, ctx *rt.C
 
 	// clear the instance's temporary state
 	removeIdentifier(ident)
-	inst.rtCtx = nil
+	inst.ctx = nil
 	inst.request = nil
 	inst.ffiResult = nil
 

@@ -34,7 +34,7 @@ func cache_set(keyPointer int32, keySize int32, valPointer int32, valSize int32,
 
 	logger.Debug("[rwasm] setting cache key", string(key))
 
-	if err := inst.rtCtx.Cache.Set(string(key), val, int(ttl)); err != nil {
+	if err := inst.ctx.Cache.Set(string(key), val, int(ttl)); err != nil {
 		logger.ErrorString("[rwasm] failed to set cache key", string(key), err.Error())
 		return -2
 	}
@@ -67,7 +67,7 @@ func cache_get(keyPointer int32, keySize int32, identifier int32) int32 {
 
 	logger.Debug("[rwasm] getting cache key", string(key))
 
-	val, err := inst.rtCtx.Cache.Get(string(key))
+	val, err := inst.ctx.Cache.Get(string(key))
 	if err != nil {
 		logger.ErrorString("[rwasm] failed to get cache key", string(key), err.Error())
 		return -2

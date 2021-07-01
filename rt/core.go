@@ -17,15 +17,13 @@ type coreDoFunc func(job *Job) *Result
 type core struct {
 	workers map[string]*worker
 	watcher *watcher
-	cache   Cache
 	log     *vlog.Logger
 	lock    sync.RWMutex
 }
 
-func newCore(log *vlog.Logger, cache Cache) *core {
+func newCore(log *vlog.Logger) *core {
 	c := &core{
 		workers: map[string]*worker{},
-		cache:   cache,
 		log:     log,
 		lock:    sync.RWMutex{},
 	}
@@ -72,7 +70,7 @@ func (c *core) register(jobType string, runnable Runnable, options ...Option) {
 		opts = o(opts)
 	}
 
-	w := newWorker(runnable, c.cache, opts)
+	w := newWorker(runnable, opts)
 
 	c.workers[jobType] = w
 
