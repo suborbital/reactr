@@ -18,7 +18,7 @@ var sharedRT *rt.Reactr
 
 func init() {
 	// set a logger for rwasm to use
-	rwasm.UseLogger(vlog.Default(
+	rwasm.UseInternalLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
 

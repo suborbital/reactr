@@ -29,7 +29,7 @@ type uniqueVal struct {
 	val []byte
 }
 
-func NewMemoryCache() Cache {
+func DefaultCache() Cache {
 	m := &memoryCache{
 		values: make(map[string]*uniqueVal),
 		lock:   sync.RWMutex{},

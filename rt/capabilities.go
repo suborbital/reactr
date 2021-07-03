@@ -9,7 +9,25 @@ var ErrCapabilityNotAvailable = errors.New("capability not available")
 
 // Capabilities define the capabilities available to a Runnable
 type Capabilities struct {
-	Cache rcap.Cache
+	LoggerSource   rcap.LoggerSource
+	RequestHandler rcap.RequestHandler
+	HTTPClient     rcap.HTTPClient
+	FileSource     rcap.FileSource
+	Cache          rcap.Cache
 
+	// doFunc is not exposed as it would make a private rt function available outside the package
 	doFunc coreDoFunc
+}
+
+// DefaultCaps returns the default capabilities for a generic Reactr instance
+func DefaultCaps() *Capabilities {
+	caps := &Capabilities{
+		LoggerSource:   rcap.DefaultLoggerSource(),
+		RequestHandler: rcap.DefaultRequestHandler(),
+		HTTPClient:     rcap.DefaultHTTPClient(),
+		FileSource:     rcap.DefaultFileSource(nil), // set file access to nil by default, it can be set later.
+		Cache:          rcap.DefaultCache(),
+	}
+
+	return caps
 }

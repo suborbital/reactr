@@ -60,7 +60,7 @@ func (c *core) do(job *Job) *Result {
 }
 
 // register adds a handler
-func (c *core) register(jobType string, runnable Runnable, options ...Option) {
+func (c *core) register(jobType string, runnable Runnable, caps *Capabilities, options ...Option) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -70,7 +70,7 @@ func (c *core) register(jobType string, runnable Runnable, options ...Option) {
 		opts = o(opts)
 	}
 
-	w := newWorker(runnable, opts)
+	w := newWorker(runnable, caps, opts)
 
 	c.workers[jobType] = w
 
