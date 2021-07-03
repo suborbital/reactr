@@ -6,7 +6,8 @@ import (
 )
 
 type logScope struct {
-	Identifier int32 `json:"ident"`
+	RequestID  string `json:"request_id,omitempty"`
+	Identifier int32  `json:"ident"`
 }
 
 func logMsg() *HostFn {

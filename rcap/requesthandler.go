@@ -19,32 +19,22 @@ var (
 	ErrInvalidKey       = errors.New("invalid key")
 )
 
-// RequestHandler is a capabilty that allows Runnables to handle HTTP requests
-type RequestHandler interface {
-	SetReq(req *request.CoordinatedRequest)
-	GetField(fieldType int32, key string) ([]byte, error)
-	SetResponseHeader(key, val string) error
-}
-
-// defaultRequestHandler provides information about the request bound to a runnable
-type defaultRequestHandler struct {
+// RequestHandler allows runnables to handle HTTP requests
+type RequestHandler struct {
 	req *request.CoordinatedRequest
 }
 
-// DefaultRequestHandler provides the default request handler
-func DefaultRequestHandler() RequestHandler {
-	d := &defaultRequestHandler{}
+// NewRequestHandler provides a handler for the given request
+func NewRequestHandler(req *request.CoordinatedRequest) *RequestHandler {
+	d := &RequestHandler{
+		req: req,
+	}
 
 	return d
 }
 
-// SetReq sets the request to be handled
-func (d *defaultRequestHandler) SetReq(req *request.CoordinatedRequest) {
-	d.req = req
-}
-
-func (d *defaultRequestHandler) GetField(fieldType int32, key string) ([]byte, error) {
-	if d.req == nil {
+func (r RequestHandler) GetField(fieldType int32, key string) ([]byte, error) {
+	if r.req == nil {
 		return nil, ErrReqNotSet
 	}
 
@@ -54,39 +44,39 @@ func (d *defaultRequestHandler) GetField(fieldType int32, key string) ([]byte, e
 	case fieldTypeMeta:
 		switch key {
 		case "method":
-			val = d.req.Method
+			val = r.req.Method
 		case "url":
-			val = d.req.URL
+			val = r.req.URL
 		case "id":
-			val = d.req.ID
+			val = r.req.ID
 		case "body":
-			val = string(d.req.Body)
+			val = string(r.req.Body)
 		default:
 			return nil, ErrInvalidKey
 		}
 	case fieldTypeBody:
-		bodyVal, err := d.req.BodyField(key)
+		bodyVal, err := r.req.BodyField(key)
 		if err == nil {
 			val = bodyVal
 		} else {
 			return nil, errors.Wrap(err, "failed to get BodyField")
 		}
 	case fieldTypeHeader:
-		header, ok := d.req.Headers[key]
+		header, ok := r.req.Headers[key]
 		if ok {
 			val = header
 		} else {
 			return nil, ErrInvalidKey
 		}
 	case fieldTypeParams:
-		param, ok := d.req.Params[key]
+		param, ok := r.req.Params[key]
 		if ok {
 			val = param
 		} else {
 			return nil, ErrInvalidKey
 		}
 	case fieldTypeState:
-		stateVal, ok := d.req.State[key]
+		stateVal, ok := r.req.State[key]
 		if ok {
 			val = string(stateVal)
 		} else {
@@ -100,16 +90,16 @@ func (d *defaultRequestHandler) GetField(fieldType int32, key string) ([]byte, e
 }
 
 // SetResponseHeader sets a header on the response
-func (d *defaultRequestHandler) SetResponseHeader(key, val string) error {
-	if d.req == nil {
+func (r RequestHandler) SetResponseHeader(key, val string) error {
+	if r.req == nil {
 		return ErrReqNotSet
 	}
 
-	if d.req.RespHeaders == nil {
-		d.req.RespHeaders = map[string]string{}
+	if r.req.RespHeaders == nil {
+		r.req.RespHeaders = map[string]string{}
 	}
 
-	d.req.RespHeaders[key] = val
+	r.req.RespHeaders[key] = val
 
 	return nil
 }
