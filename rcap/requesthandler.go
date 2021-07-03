@@ -19,6 +19,7 @@ var (
 	ErrInvalidKey       = errors.New("invalid key")
 )
 
+// RequestHandler is a capabilty that allows Runnables to handle HTTP requests
 type RequestHandler interface {
 	SetReq(req *request.CoordinatedRequest)
 	GetField(fieldType int32, key string) ([]byte, error)
@@ -30,7 +31,7 @@ type defaultRequestHandler struct {
 	req *request.CoordinatedRequest
 }
 
-// DefaultRequestHandler provides the default request info handler
+// DefaultRequestHandler provides the default request handler
 func DefaultRequestHandler() RequestHandler {
 	d := &defaultRequestHandler{}
 

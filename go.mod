@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/google/uuid v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/suborbital/atmo v0.2.4-0.20210703023811-c300771a336d
+	github.com/suborbital/atmo v0.2.4-0.20210703165749-14c9326b2f7f
 	github.com/suborbital/grav v0.3.3
 	github.com/suborbital/vektor v0.4.1
 	github.com/wasmerio/wasmer-go v1.0.3
