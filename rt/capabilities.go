@@ -19,8 +19,7 @@ type Capabilities struct {
 	doFunc coreDoFunc
 }
 
-// DefaultCaps returns the default capabilities for a generic Reactr instance
-func DefaultCaps() *Capabilities {
+func defaultCaps() *Capabilities {
 	caps := &Capabilities{
 		LoggerSource:   rcap.DefaultLoggerSource(),
 		RequestHandler: rcap.DefaultRequestHandler(),

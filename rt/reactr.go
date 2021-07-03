@@ -34,7 +34,7 @@ func New() *Reactr {
 
 	r := &Reactr{
 		core:        core,
-		defaultCaps: DefaultCaps(),
+		defaultCaps: defaultCaps(),
 		log:         logger,
 	}
 
@@ -138,6 +138,15 @@ func (r *Reactr) Listen(pod *grav.Pod, msgType string) {
 
 		return nil
 	})
+}
+
+// DefaultCaps returns this instance's Capabilities object
+// this is a POINTER, so any changes you make to the object
+// will be used for future new worker registrations. You should
+// probably ONLY copy specific single caps from this object, not
+// using the whole things wholesale, as that would be unsafe.
+func (r *Reactr) DefaultCaps() *Capabilities {
+	return r.defaultCaps
 }
 
 // IsRegistered returns true if the instance
