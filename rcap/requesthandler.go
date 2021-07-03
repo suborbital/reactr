@@ -6,11 +6,11 @@ import (
 )
 
 const (
-	fieldTypeMeta   = int32(0)
-	fieldTypeBody   = int32(1)
-	fieldTypeHeader = int32(2)
-	fieldTypeParams = int32(3)
-	fieldTypeState  = int32(4)
+	RequestFieldTypeMeta   = int32(0)
+	RequestFieldTypeBody   = int32(1)
+	RequestFieldTypeHeader = int32(2)
+	RequestFieldTypeParams = int32(3)
+	RequestFieldTypeState  = int32(4)
 )
 
 var (
@@ -41,7 +41,7 @@ func (r RequestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 	val := ""
 
 	switch fieldType {
-	case fieldTypeMeta:
+	case RequestFieldTypeMeta:
 		switch key {
 		case "method":
 			val = r.req.Method
@@ -54,28 +54,28 @@ func (r RequestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 		default:
 			return nil, ErrInvalidKey
 		}
-	case fieldTypeBody:
+	case RequestFieldTypeBody:
 		bodyVal, err := r.req.BodyField(key)
 		if err == nil {
 			val = bodyVal
 		} else {
 			return nil, errors.Wrap(err, "failed to get BodyField")
 		}
-	case fieldTypeHeader:
+	case RequestFieldTypeHeader:
 		header, ok := r.req.Headers[key]
 		if ok {
 			val = header
 		} else {
 			return nil, ErrInvalidKey
 		}
-	case fieldTypeParams:
+	case RequestFieldTypeParams:
 		param, ok := r.req.Params[key]
 		if ok {
 			val = param
 		} else {
 			return nil, ErrInvalidKey
 		}
-	case fieldTypeState:
+	case RequestFieldTypeState:
 		stateVal, ok := r.req.State[key]
 		if ok {
 			val = string(stateVal)

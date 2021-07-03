@@ -2,6 +2,7 @@ package rwasm
 
 import (
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/wasmerio/wasmer-go/wasmer"
 )
 
@@ -34,7 +35,19 @@ func log_msg(pointer int32, size int32, level int32, identifier int32) {
 
 	msgBytes := inst.readMemory(pointer, size)
 
-	l := inst.ctx.LoggerSource.Logger().CreateScoped(logScope{Identifier: identifier})
+	scope := logScope{Identifier: identifier}
+
+	// if this job is handling a request, add the Request ID for extra context
+	if inst.ctx.RequestHandler != nil {
+		requestID, err := inst.ctx.RequestHandler.GetField(rcap.RequestFieldTypeMeta, "id")
+		if err != nil {
+			// do nothing, we won't fail the log call because of this
+		} else {
+			scope.RequestID = string(requestID)
+		}
+	}
+
+	l := inst.ctx.LoggerSource.Logger().CreateScoped(scope)
 
 	switch level {
 	case 1:
