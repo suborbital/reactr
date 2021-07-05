@@ -18,14 +18,14 @@ var sharedRT *rt.Reactr
 
 func init() {
 	// set a logger for rwasm to use
-	rwasm.UseLogger(vlog.Default(
+	rwasm.UseInternalLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
 
 	// create a shared instance for some tests to use
 	sharedRT = rt.New()
 
-	if err := load.IntoInstanceFromPath(sharedRT, "../testdata/runnables.wasm.zip"); err != nil {
+	if err := load.BundleFromPath(sharedRT, "../testdata/runnables.wasm.zip"); err != nil {
 		fmt.Println(errors.Wrap(err, "failed to AtHandleBundleAtPath"))
 		return
 	}

@@ -38,7 +38,8 @@ func TestHandleMessage(t *testing.T) {
 	r := New()
 	g := grav.New()
 
-	r.HandleMsg(g.Connect(), msgTypeTester, &msgRunner{})
+	r.Register(msgTypeTester, &msgRunner{})
+	r.Listen(g.Connect(), msgTypeTester)
 
 	counter := testutil.NewAsyncCounter(10)
 
@@ -60,7 +61,8 @@ func TestHandleMessagePt2(t *testing.T) {
 	r := New()
 	g := grav.New()
 
-	r.HandleMsg(g.Connect(), msgTypeTester, &msgRunner{})
+	r.Register(msgTypeTester, &msgRunner{})
+	r.Listen(g.Connect(), msgTypeTester)
 
 	counter := testutil.NewAsyncCounter(10000)
 
@@ -84,7 +86,8 @@ func TestHandleMessageNilResult(t *testing.T) {
 	r := New()
 	g := grav.New()
 
-	r.HandleMsg(g.Connect(), msgTypeNil, &nilRunner{})
+	r.Register(msgTypeNil, &nilRunner{})
+	r.Listen(g.Connect(), msgTypeNil)
 
 	counter := testutil.NewAsyncCounter(10)
 
