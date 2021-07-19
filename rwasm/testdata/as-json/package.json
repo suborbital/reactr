@@ -15,7 +15,6 @@
   "dependencies": {
     "@assemblyscript/loader": "^0.19",
     "@suborbital/suborbital": "^0.10.0",
-    "json-as": "github:aspkg/as-json",
-    "source-map-support": "^0.5.19"
+    "json-as": "github:aspkg/as-json"
   }
 }

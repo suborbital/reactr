@@ -60,7 +60,7 @@ func TestASJSON(t *testing.T) {
 		return
 	}
 
-	if string(res.([]byte)) != `{"firstName":"Connor","lastName":"Hicks","age":26,"meta":{"country":"Canada"},"tags":["hello","world"]}` {
+	if string(res.([]byte)) != `{"firstName":"Connor","lastName":"Hicks","age":26,"meta":{"country":"Canada","province":"Ontario","isAwesome":true},"tags":["hello","world"]}` {
 		t.Error("as-json failed, got:", string(res.([]byte)))
 	}
 }

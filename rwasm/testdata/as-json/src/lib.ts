@@ -15,6 +15,8 @@ class JSONSchema {
 @json
 class Meta {
 	country: string
+	province: string
+	isAwesome: boolean
 }
 
 export function run(_: ArrayBuffer): ArrayBuffer {
@@ -25,6 +27,8 @@ export function run(_: ArrayBuffer): ArrayBuffer {
 		age: 26,
 		meta: {
 			country: "Canada",
+			province: "Ontario",
+			isAwesome: true,
 		},
 		tags: ["hello", "world"]
 	}
@@ -33,11 +37,9 @@ export function run(_: ArrayBuffer): ArrayBuffer {
 
 	logInfo(stringified)
 
-	// const stringified2 = "{\"firstName\":\"Connor\",\"lastName\":\"Hicks\",\"age\":14,\"meta\":{\"country\":\"Canada\"},\"tags\":[\"hello\",\"world\"]}"
-	
-	// const parsed = JSON.parse<JSONSchema>(stringified2)
+	const parsed = JSON.parse<JSONSchema>(stringified)
 
-	// const stringifiedAgain = JSON.stringify(parsed)
+	const stringifiedAgain = JSON.stringify(parsed)
 
-	return String.UTF8.encode(stringified)
+	return String.UTF8.encode(stringifiedAgain)
 }
