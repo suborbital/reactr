@@ -128,7 +128,7 @@ pub mod graphql {
         match super::ffi::result(result_size) {
             Ok(res) => Ok(res),
             Err(e) => {
-                Err(super::runnable::RunErr::new(e.code, "failed to fetch_url"))
+                Err(super::runnable::RunErr::new(e.code, "failed to graphql_query"))
             }
         }
     }
