@@ -3,6 +3,7 @@ package rcap
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -87,7 +88,7 @@ func (g *defaultGraphQLClient) Do(endpoint, query string) (*GraphQLResponse, err
 	}
 
 	if gqlResp.Errors != nil && len(gqlResp.Errors) > 0 {
-		return gqlResp, errors.New("GraphQL returned errors")
+		return gqlResp, fmt.Errorf("graphQL error; path: %s, message: %s", gqlResp.Errors[0].Path, gqlResp.Errors[0].Message)
 	}
 
 	return gqlResp, nil
