@@ -37,7 +37,7 @@ func TestGraphQLRunner(t *testing.T) {
 	r := rt.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/rs-graqhql/rs-graqhql.wasm"))
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"))
 
 	_, err := doWasm("").Then()
 	if err != nil {

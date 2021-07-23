@@ -9,24 +9,19 @@ import (
 	"github.com/pkg/errors"
 )
 
-// inputs: {
-// method: "GET" | "post"
-// headers: map[string]string
-// endpoint: string
-// query: string,
-// variables?: {},
-// operationName?: string,
-// }
-// outputs { data: null |{}, errors: null | [{ message, path }] }
-
 // GraphQLClient is a GraphQL capability for Reactr Modules
-type GraphQLClient struct {
+type GraphQLClient interface {
+	Do(endpoint, query string) (*GraphQLResponse, error)
+}
+
+// defaultGraphQLClient is the default implementation of the GraphQL capability
+type defaultGraphQLClient struct {
 	client *http.Client
 }
 
-// NewGraphQLClient creates a GraphQLClient object
-func NewGraphQLClient() *GraphQLClient {
-	g := &GraphQLClient{
+// DefaultGraphQLClient creates a GraphQLClient object
+func DefaultGraphQLClient() GraphQLClient {
+	g := &defaultGraphQLClient{
 		client: http.DefaultClient,
 	}
 
@@ -52,7 +47,7 @@ type GraphQLError struct {
 	Path    string `json:"path"`
 }
 
-func (g *GraphQLClient) Do(endpoint, query string) (*GraphQLResponse, error) {
+func (g *defaultGraphQLClient) Do(endpoint, query string) (*GraphQLResponse, error) {
 	r := &GraphQLRequest{
 		Query:     query,
 		Variables: map[string]string{},

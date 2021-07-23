@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 
@@ -8,7 +9,7 @@ import (
 )
 
 func main() {
-	gqlClient := rcap.NewGraphQLClient()
+	gqlClient := rcap.DefaultGraphQLClient()
 
 	resp, err := gqlClient.Do("https://api.rawkode.dev", `{
 		allProfiles {
@@ -23,5 +24,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(resp.Data)
+	jsonBytes, _ := json.Marshal(resp.Data)
+
+	fmt.Println(string(jsonBytes))
 }

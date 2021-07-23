@@ -12,7 +12,7 @@ var ErrCapabilityNotAvailable = errors.New("capability not available")
 type Capabilities struct {
 	LoggerSource  rcap.LoggerSource
 	HTTPClient    rcap.HTTPClient
-	GraphQLClient *rcap.GraphQLClient
+	GraphQLClient rcap.GraphQLClient
 	FileSource    rcap.FileSource
 	Cache         rcap.Cache
 
@@ -27,7 +27,7 @@ func defaultCaps(logger *vlog.Logger) Capabilities {
 	caps := Capabilities{
 		LoggerSource:  rcap.DefaultLoggerSource(logger),
 		HTTPClient:    rcap.DefaultHTTPClient(),
-		GraphQLClient: rcap.NewGraphQLClient(),
+		GraphQLClient: rcap.DefaultGraphQLClient(),
 		FileSource:    rcap.DefaultFileSource(nil), // set file access to nil by default, it can be set later.
 		Cache:         rcap.DefaultCache(),
 
