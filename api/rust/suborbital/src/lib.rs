@@ -106,7 +106,7 @@ pub mod runnable {
     }
 }
 
-pub mod graqhql {
+pub mod graphql {
 
     extern {
         fn graphql_query(endpoint_pointer: *const u8, endpoint_size: i32, query_pointer: *const u8, query_size: i32, ident: i32) -> i32;

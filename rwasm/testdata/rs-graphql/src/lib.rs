@@ -1,5 +1,5 @@
 use suborbital::runnable::*;
-use suborbital::graqhql::*;
+use suborbital::graphql::*;
 use suborbital::log::*;
 use suborbital::util;
 
