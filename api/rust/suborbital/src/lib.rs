@@ -113,11 +113,6 @@ pub mod graphql {
     }
 
     pub fn query(endpoint: &str, query: &str) -> Result<Vec<u8>,super::runnable::RunErr> {
-        // let endpoint_slice = String::from(endpoint);
-        // let endpoint_pointer = endpoint_slice.as_ptr();
-
-        // let query_slice = query.as_bytes();
-        // let query_pointer = query_slice.as_ptr();
 
         let endpoint_size = endpoint.len() as i32;
         let query_size = query.len() as i32;
