@@ -33,4 +33,5 @@ jobs:
         
       - name: Run test
         run: |
+          echo $GITHUB_TOKEN
           go test -v ./...
