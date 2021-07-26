@@ -95,7 +95,7 @@ func (g *defaultGraphQLClient) Do(auth AuthProvider, endpoint, query string) (*G
 	}
 
 	if resp.StatusCode > 299 {
-		return gqlResp, errors.New("non-200 HTTP response code")
+		return gqlResp, fmt.Errorf("non-200 HTTP response code; %s", string(respJSON))
 	}
 
 	if gqlResp.Errors != nil && len(gqlResp.Errors) > 0 {
