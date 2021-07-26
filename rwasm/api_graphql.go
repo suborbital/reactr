@@ -36,7 +36,7 @@ func graphql_query(endpointPointer int32, endpointSize int32, queryPointer int32
 	queryBytes := inst.readMemory(queryPointer, querySize)
 	query := string(queryBytes)
 
-	resp, err := inst.ctx.GraphQLClient.Do(endpoint, query)
+	resp, err := inst.ctx.GraphQLClient.Do(inst.ctx.Auth, endpoint, query)
 	if err != nil {
 		internalLogger.Error(errors.Wrap(err, "failed to GraphQLClient.Do"))
 		return -1

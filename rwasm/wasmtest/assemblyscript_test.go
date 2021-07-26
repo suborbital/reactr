@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
@@ -68,16 +69,26 @@ func TestASJSON(t *testing.T) {
 func TestASGraphql(t *testing.T) {
 	r := rt.New()
 
-	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Register("as-graphql", rwasm.NewRunner("../testdata/as-graphql/as-graphql.wasm"))
+	caps := r.DefaultCaps()
+	caps.Auth = rcap.DefaultAuthProvider(&rcap.AuthProviderConfig{
+		Headers: map[string]rcap.AuthHeader{
+			"api.github.com": {
+				HeaderType: "bearer",
+				Value:      "env(GITHUB_TOKEN)",
+			},
+		},
+	})
 
-	res, err := doWasm("").Then()
+	// test a WASM module that is loaded directly instead of through the bundle
+	r.RegisterWithCaps("as-graphql", rwasm.NewRunner("../testdata/as-graphql/as-graphql.wasm"), caps)
+
+	res, err := r.Do(rt.NewJob("as-graphql", nil)).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
 	}
 
-	if string(res.([]byte)) != `{"data":{"allProfiles":[{"forename":"David","surname":"McKay"}]}}` {
+	if string(res.([]byte)) != `{"data":{"repository":{"name":"reactr","nameWithOwner":"suborbital/reactr"}}}` {
 		t.Error("as-graphql failed, got:", string(res.([]byte)))
 	}
 }

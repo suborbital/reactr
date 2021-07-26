@@ -10,6 +10,7 @@ var ErrCapabilityNotAvailable = errors.New("capability not available")
 
 // Capabilities define the capabilities available to a Runnable
 type Capabilities struct {
+	Auth          rcap.AuthProvider
 	LoggerSource  rcap.LoggerSource
 	HTTPClient    rcap.HTTPClient
 	GraphQLClient rcap.GraphQLClient
@@ -25,6 +26,7 @@ type Capabilities struct {
 
 func defaultCaps(logger *vlog.Logger) Capabilities {
 	caps := Capabilities{
+		Auth:          rcap.DefaultAuthProvider(nil), // no authentication config is set up by default
 		LoggerSource:  rcap.DefaultLoggerSource(logger),
 		HTTPClient:    rcap.DefaultHTTPClient(),
 		GraphQLClient: rcap.DefaultGraphQLClient(),
