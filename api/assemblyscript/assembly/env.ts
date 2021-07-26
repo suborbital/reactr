@@ -4,6 +4,8 @@ export declare function return_result(ptr: usize, size: i32, ident: i32): void
 export declare function log_msg(ptr: usize, size: i32, level: i32, ident: i32): void
 // makes an http request
 export declare function fetch_url(method: i32, url_ptr: usize, url_size: i32, body_ptr: usize, body_size: i32, ident: i32): i32
+// makes a GraphQL request
+export declare function graphql_query(endpoint_ptr: usize, endpoint_size: i32, query_ptr: usize, query_size: i32, ident: i32): i32
 // sets a value in the cache
 export declare function cache_set(key_ptr: usize, key_size: i32, value_ptr: usize, value_size: i32, ttl: i32, ident: i32): i32
 // gets a value from the cache

@@ -106,6 +106,28 @@ pub mod runnable {
     }
 }
 
+pub mod graphql {
+
+    extern {
+        fn graphql_query(endpoint_pointer: *const u8, endpoint_size: i32, query_pointer: *const u8, query_size: i32, ident: i32) -> i32;
+    }
+
+    pub fn query(endpoint: &str, query: &str) -> Result<Vec<u8>,super::runnable::RunErr> {
+
+        let endpoint_size = endpoint.len() as i32;
+        let query_size = query.len() as i32;
+
+        let result_size = unsafe { graphql_query(endpoint.as_ptr(), endpoint_size, query.as_ptr(), query_size, super::STATE.ident) };
+
+        // retreive the result from the host and return it
+        match super::ffi::result(result_size) {
+            Ok(res) => Ok(res),
+            Err(e) => {
+                Err(super::runnable::RunErr::new(e.code, "failed to graphql_query"))
+            }
+        }
+    }
+}
 pub mod http {
     use std::collections::BTreeMap;
 

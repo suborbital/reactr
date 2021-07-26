@@ -65,6 +65,23 @@ func TestASJSON(t *testing.T) {
 	}
 }
 
+func TestASGraphql(t *testing.T) {
+	r := rt.New()
+
+	// test a WASM module that is loaded directly instead of through the bundle
+	doWasm := r.Register("as-graphql", rwasm.NewRunner("../testdata/as-graphql/as-graphql.wasm"))
+
+	res, err := doWasm("").Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	if string(res.([]byte)) != `{"data":{"allProfiles":[{"forename":"David","surname":"McKay"}]}}` {
+		t.Error("as-graphql failed, got:", string(res.([]byte)))
+	}
+}
+
 func TestASLargeData(t *testing.T) {
 	r := rt.New()
 
