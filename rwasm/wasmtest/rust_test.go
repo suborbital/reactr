@@ -3,10 +3,12 @@ package wasmtest
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
@@ -34,15 +36,33 @@ func TestWasmRunnerWithFetch(t *testing.T) {
 }
 
 func TestGraphQLRunner(t *testing.T) {
+	// bail out if GitHub auth is not set up (i.e. in Travis)
+	if _, ok := os.LookupEnv("GITHUB_TOKEN"); !ok {
+		return
+	}
+
 	r := rt.New()
 
-	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"))
+	caps := r.DefaultCaps()
+	caps.Auth = rcap.DefaultAuthProvider(&rcap.AuthProviderConfig{
+		Headers: map[string]rcap.AuthHeader{
+			"api.github.com": {
+				HeaderType: "bearer",
+				Value:      "env(GITHUB_TOKEN)",
+			},
+		},
+	})
 
-	_, err := doWasm("").Then()
+	r.RegisterWithCaps("rs-graphql", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"), caps)
+
+	res, err := r.Do(rt.NewJob("rs-graphql", nil)).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
+	}
+
+	if string(res.([]byte)) != `{"data":{"repository":{"name":"reactr","nameWithOwner":"suborbital/reactr"}}}` {
+		t.Error("as-graphql failed, got:", string(res.([]byte)))
 	}
 }
 

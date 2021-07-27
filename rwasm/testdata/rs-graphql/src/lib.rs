@@ -6,19 +6,19 @@ use suborbital::util;
 struct RsGraqhql{}
 
 impl Runnable for RsGraqhql {
-    fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr> {
-        let in_string = String::from_utf8(input).unwrap();
-
-        match query("https://api.rawkode.dev", "{ allProfiles { forename, surname } }") {
+    fn run(&self, _: Vec<u8>) -> Result<Vec<u8>, RunErr> {
+        let result = match query("https://api.github.com/graphql", "{ repository (owner: \"suborbital\", name: \"reactr\") { name, nameWithOwner }}") {
             Ok(response) => {
-                info(util::to_string(response).as_str())
+                info(util::to_string(response.clone()).as_str());
+                response
             }
             Err(e) => {
-                error(e.message.as_str())
+                error(e.message.as_str());
+                return Err(RunErr::new(1, e.message.as_str()))
             }
-        }
+        };
     
-        Ok(String::from(format!("hello {}", in_string)).as_bytes().to_vec())
+        Ok(result)
     }
 }
 

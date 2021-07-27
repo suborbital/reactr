@@ -3,10 +3,12 @@ package wasmtest
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
@@ -48,11 +50,11 @@ func TestASFetch(t *testing.T) {
 	}
 }
 
-func TestASGraphql(t *testing.T) {
+func TestASJSON(t *testing.T) {
 	r := rt.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := r.Register("as-graphql", rwasm.NewRunner("../testdata/as-graphql/as-graphql.wasm"))
+	doWasm := r.Register("as-json", rwasm.NewRunner("../testdata/as-json/as-json.wasm"))
 
 	res, err := doWasm("").Then()
 	if err != nil {
@@ -60,7 +62,39 @@ func TestASGraphql(t *testing.T) {
 		return
 	}
 
-	if string(res.([]byte)) != `{"data":{"allProfiles":[{"forename":"David","surname":"McKay"}]}}` {
+	if string(res.([]byte)) != `{"firstName":"Connor","lastName":"Hicks","age":26,"meta":{"country":"Canada","province":"Ontario","isAwesome":true},"tags":["hello","world"]}` {
+		t.Error("as-json failed, got:", string(res.([]byte)))
+	}
+}
+
+func TestASGraphql(t *testing.T) {
+	// bail out if GitHub auth is not set up (i.e. in Travis)
+	if _, ok := os.LookupEnv("GITHUB_TOKEN"); !ok {
+		return
+	}
+
+	r := rt.New()
+
+	caps := r.DefaultCaps()
+	caps.Auth = rcap.DefaultAuthProvider(&rcap.AuthProviderConfig{
+		Headers: map[string]rcap.AuthHeader{
+			"api.github.com": {
+				HeaderType: "bearer",
+				Value:      "env(GITHUB_TOKEN)",
+			},
+		},
+	})
+
+	// test a WASM module that is loaded directly instead of through the bundle
+	r.RegisterWithCaps("as-graphql", rwasm.NewRunner("../testdata/as-graphql/as-graphql.wasm"), caps)
+
+	res, err := r.Do(rt.NewJob("as-graphql", nil)).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	if string(res.([]byte)) != `{"data":{"repository":{"name":"reactr","nameWithOwner":"suborbital/reactr"}}}` {
 		t.Error("as-graphql failed, got:", string(res.([]byte)))
 	}
 }

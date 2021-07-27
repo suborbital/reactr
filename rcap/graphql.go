@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"github.com/pkg/errors"
 )
 
 // GraphQLClient is a GraphQL capability for Reactr Modules
 type GraphQLClient interface {
-	Do(endpoint, query string) (*GraphQLResponse, error)
+	Do(auth AuthProvider, endpoint, query string) (*GraphQLResponse, error)
 }
 
 // defaultGraphQLClient is the default implementation of the GraphQL capability
@@ -48,7 +49,7 @@ type GraphQLError struct {
 	Path    string `json:"path"`
 }
 
-func (g *defaultGraphQLClient) Do(endpoint, query string) (*GraphQLResponse, error) {
+func (g *defaultGraphQLClient) Do(auth AuthProvider, endpoint, query string) (*GraphQLResponse, error) {
 	r := &GraphQLRequest{
 		Query:     query,
 		Variables: map[string]string{},
@@ -59,12 +60,22 @@ func (g *defaultGraphQLClient) Do(endpoint, query string) (*GraphQLResponse, err
 		return nil, errors.Wrap(err, "failed to Marshal request")
 	}
 
+	endpointURL, err := url.Parse(endpoint)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Parse endpoint")
+	}
+
 	req, err := http.NewRequest(http.MethodPost, endpoint, bytes.NewBuffer(reqBytes))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to NewRequest")
 	}
 
 	req.Header.Add("Content-Type", "application/json")
+
+	authHeader := auth.HeaderForDomain(endpointURL.Host)
+	if authHeader.Value != "" {
+		req.Header.Add("Authorization", fmt.Sprintf("%s %s", authHeader.HeaderType, authHeader.Value))
+	}
 
 	resp, err := g.client.Do(req)
 	if err != nil {
@@ -84,7 +95,7 @@ func (g *defaultGraphQLClient) Do(endpoint, query string) (*GraphQLResponse, err
 	}
 
 	if resp.StatusCode > 299 {
-		return gqlResp, errors.New("non-200 HTTP response code")
+		return gqlResp, fmt.Errorf("non-200 HTTP response code; %s", string(respJSON))
 	}
 
 	if gqlResp.Errors != nil && len(gqlResp.Errors) > 0 {

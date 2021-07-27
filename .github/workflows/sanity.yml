@@ -33,4 +33,5 @@ jobs:
         
       - name: Run test
         run: |
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v ./...
