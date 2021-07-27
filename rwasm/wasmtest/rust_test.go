@@ -124,6 +124,43 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	}
 }
 
+func TestEmptyRequestBody(t *testing.T) {
+	r := rt.New()
+
+	// using a Rust module
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/log/log.wasm"))
+
+	req := &request.CoordinatedRequest{
+		Method: "GET",
+		URL:    "/hello/world",
+		ID:     uuid.New().String(),
+		Body:   []byte{},
+		State: map[string][]byte{
+			"hello": []byte("what is up"),
+		},
+	}
+
+	reqJSON, err := req.ToJSON()
+	if err != nil {
+		t.Error("failed to ToJSON", err)
+	}
+
+	res, err := doWasm(reqJSON).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if string(resp.Output) != "hello what is up" {
+		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
+	}
+}
+
 func TestContentType(t *testing.T) {
 	body := testBody{
 		Username: "cohix",
