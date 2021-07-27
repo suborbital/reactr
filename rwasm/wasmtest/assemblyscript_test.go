@@ -3,6 +3,7 @@ package wasmtest
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
@@ -67,6 +68,11 @@ func TestASJSON(t *testing.T) {
 }
 
 func TestASGraphql(t *testing.T) {
+	// bail out if GitHub auth is not set up (i.e. in Travis)
+	if _, ok := os.LookupEnv("GITHUB_TOKEN"); !ok {
+		return
+	}
+
 	r := rt.New()
 
 	caps := r.DefaultCaps()
