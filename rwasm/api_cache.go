@@ -1,8 +1,8 @@
 package rwasm
 
 import (
+	"github.com/jagger27/wasmer-go/wasmer"
 	"github.com/pkg/errors"
-	"github.com/wasmerio/wasmer-go/wasmer"
 )
 
 func cacheSet() *HostFn {

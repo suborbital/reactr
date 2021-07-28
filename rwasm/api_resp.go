@@ -1,9 +1,9 @@
 package rwasm
 
 import (
+	"github.com/jagger27/wasmer-go/wasmer"
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/rcap"
-	"github.com/wasmerio/wasmer-go/wasmer"
 )
 
 func respSetHeader() *HostFn {

@@ -7,11 +7,11 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/jagger27/wasmer-go/wasmer"
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm/moduleref"
 	"github.com/suborbital/vektor/vlog"
-	"github.com/wasmerio/wasmer-go/wasmer"
 )
 
 /*

@@ -3,7 +3,7 @@ package rwasm
 import (
 	"fmt"
 
-	"github.com/wasmerio/wasmer-go/wasmer"
+	"github.com/jagger27/wasmer-go/wasmer"
 )
 
 // HostFn describes a host function callable from within a Runnable module

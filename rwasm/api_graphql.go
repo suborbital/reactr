@@ -3,8 +3,8 @@ package rwasm
 import (
 	"encoding/json"
 
+	"github.com/jagger27/wasmer-go/wasmer"
 	"github.com/pkg/errors"
-	"github.com/wasmerio/wasmer-go/wasmer"
 )
 
 func graphQLQuery() *HostFn {
