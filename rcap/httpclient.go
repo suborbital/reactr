@@ -35,12 +35,12 @@ func (d *defaultHTTPClient) Do(auth AuthProvider, method, urlString string, body
 		return nil, errors.Wrap(err, "failed to NewRequest")
 	}
 
-	req.Header = headers
-
-	authHeader := auth.HeaderForDomain(req.Host)
-	if authHeader.Value != "" {
-		req.Header.Add("Authorization", fmt.Sprintf("%s %s", authHeader.HeaderType, authHeader.Value))
+	authHeader := auth.HeaderForDomain(urlObj.Host)
+	if authHeader != nil && authHeader.Value != "" {
+		headers.Add("Authorization", fmt.Sprintf("%s %s", authHeader.HeaderType, authHeader.Value))
 	}
+
+	req.Header = headers
 
 	return http.DefaultClient.Do(req)
 }
