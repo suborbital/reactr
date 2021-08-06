@@ -2,19 +2,26 @@ package rcap
 
 import "github.com/suborbital/vektor/vlog"
 
-// LoggerSource provides a logger to Runnables
-type LoggerSource interface {
+// LoggerConfig is configuration for the logger capability
+type LoggerConfig struct {
+	Enabled bool
+}
+
+// LoggerCapability provides a logger to Runnables
+type LoggerCapability interface {
 	Logger() *vlog.Logger
 }
 
 type loggerSource struct {
-	log *vlog.Logger
+	config LoggerConfig
+	log    *vlog.Logger
 }
 
 // DefaultLoggerSource returns a LoggerSource that provides vlog.Default
-func DefaultLoggerSource(logger *vlog.Logger) LoggerSource {
+func DefaultLoggerSource(config LoggerConfig, logger *vlog.Logger) LoggerCapability {
 	l := &loggerSource{
-		log: logger,
+		config: config,
+		log:    logger,
 	}
 
 	return l
@@ -22,5 +29,9 @@ func DefaultLoggerSource(logger *vlog.Logger) LoggerSource {
 
 // Logger returns the logger
 func (l *loggerSource) Logger() *vlog.Logger {
+	if !l.config.Enabled {
+		return nil
+	}
+
 	return l.log
 }
