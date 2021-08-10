@@ -13,7 +13,7 @@ import (
 
 // GraphQLConfig is configuration for the GraphQL capability
 type GraphQLConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 }
 
 // GraphQLCapability is a GraphQL capability for Reactr Modules

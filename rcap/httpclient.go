@@ -11,7 +11,7 @@ import (
 
 // HTTPConfig is configuration for the HTTP capability
 type HTTPConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 }
 
 // HTTPCapability gives Runnables the ability to make HTTP requests
@@ -35,7 +35,7 @@ func DefaultHTTPClient(config HTTPConfig) HTTPCapability {
 // Do performs the provided request
 func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []byte, headers http.Header) (*http.Response, error) {
 	if !h.config.Enabled {
-		return nil, errors.New("capability is not enabled")
+		return nil, ErrCapabilityNotEnabled
 	}
 
 	urlObj, err := url.Parse(urlString)

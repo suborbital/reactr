@@ -12,7 +12,7 @@ var ErrCacheKeyNotFound = errors.New("key not found")
 
 // CacheConfig is configuration for the cache capability
 type CacheConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 }
 
 // CacheCapability gives Runnables access to a key/value cache

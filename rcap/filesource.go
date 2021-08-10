@@ -8,7 +8,7 @@ var (
 
 // FileConfig is configuration for the File capability
 type FileConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 }
 
 // StaticFileFunc is a function that returns the contents of a requested file

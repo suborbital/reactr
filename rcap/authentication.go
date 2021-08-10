@@ -12,10 +12,10 @@ type AuthCapability interface {
 
 // AuthConfig is a config for the default auth provider
 type AuthConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 
 	// Headers is a map between domains and auth header that should be added to requests to those domains
-	Headers map[string]AuthHeader `json:"headers"`
+	Headers map[string]AuthHeader `json:"headers" yaml:"headers"`
 }
 
 // AuthHeader is an HTTP header designed to authenticate requests

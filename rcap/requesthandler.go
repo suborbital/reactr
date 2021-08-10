@@ -21,7 +21,7 @@ var (
 
 // RequestHandlerConfig is configuration for the request capability
 type RequestHandlerConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 }
 
 // RequestHandlerCapability allows runnables to handle HTTP requests

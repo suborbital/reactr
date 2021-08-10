@@ -4,7 +4,7 @@ import "github.com/suborbital/vektor/vlog"
 
 // LoggerConfig is configuration for the logger capability
 type LoggerConfig struct {
-	Enabled bool
+	Enabled bool `json:"enabled" yaml:"enabled"`
 }
 
 // LoggerCapability provides a logger to Runnables
