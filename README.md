@@ -21,6 +21,14 @@ go get github.com/suborbital/reactr/rt
 
 And then get started by defining something `Runnable`:
 ```golang
+package main
+
+import (
+	"fmt"
+
+	"github.com/suborbital/reactr/rt"
+)
+
 type generic struct{}
 
 // Run runs a generic job
@@ -56,9 +64,9 @@ func main() {
 
 	r.Register("generic", generic{})
 
-	res := r.Do(r.Job("generic", "hard work"))
+	result := r.Do(r.Job("generic", "hard work"))
 
-	res, err := res.Then()
+	res, err := result.Then()
 	if err != nil {
 		log.Fatal(err)
 	}
