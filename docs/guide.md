@@ -54,7 +54,7 @@ You won't always need or care about a job's output, and in those cases, make sur
 r.Do(r.Job("recursive", "first")).Discard()
 ```
 
-To to something asynchronously with the `Result` once it completes, call `ThenDo` on the result:
+To do something asynchronously with the `Result` once it completes, call `ThenDo` on the result:
 ```golang
 r.Do(r.Job("generic", "first")).ThenDo(func(res interface{}, err error) {
 	if err != nil {
@@ -185,7 +185,7 @@ for i := 1; i < 10; i++ {
 	fmt.Println("result", equals)
 }
 ```
-The `Handle` function returns an optional helper function. Instead of passing a job name and full `Job` into `r.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
+The `Register` function returns an optional helper function. Instead of passing a job name and full `Job` into `r.Do`, you can use the helper function to instead just pass the input data for the job, and you receive a `Result` as normal. `doMath`!
 
 ## Additional features
 
