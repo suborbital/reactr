@@ -5,6 +5,8 @@ import "github.com/suborbital/vektor/vlog"
 // LoggerConfig is configuration for the logger capability
 type LoggerConfig struct {
 	Enabled bool `json:"enabled" yaml:"enabled"`
+
+	Logger *vlog.Logger `json:"-" yaml:"-"`
 }
 
 // LoggerCapability provides a logger to Runnables
@@ -18,10 +20,10 @@ type loggerSource struct {
 }
 
 // DefaultLoggerSource returns a LoggerSource that provides vlog.Default
-func DefaultLoggerSource(config LoggerConfig, logger *vlog.Logger) LoggerCapability {
+func DefaultLoggerSource(config LoggerConfig) LoggerCapability {
 	l := &loggerSource{
 		config: config,
-		log:    logger,
+		log:    config.Logger,
 	}
 
 	return l

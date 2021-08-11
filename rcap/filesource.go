@@ -6,13 +6,15 @@ var (
 	ErrFileFuncNotSet = errors.New("file func not set")
 )
 
+// StaticFileFunc is a function that returns the contents of a requested file
+type StaticFileFunc func(string) ([]byte, error)
+
 // FileConfig is configuration for the File capability
 type FileConfig struct {
 	Enabled bool `json:"enabled" yaml:"enabled"`
-}
 
-// StaticFileFunc is a function that returns the contents of a requested file
-type StaticFileFunc func(string) ([]byte, error)
+	FileFunc StaticFileFunc `json:"-" yaml:"-"`
+}
 
 // FileCapability gives runnables access to various kinds of files
 type FileCapability interface {
@@ -25,10 +27,10 @@ type defaultFileSource struct {
 	staticFileFunc StaticFileFunc
 }
 
-func DefaultFileSource(config FileConfig, staticFileFunc StaticFileFunc) FileCapability {
+func DefaultFileSource(config FileConfig) FileCapability {
 	d := &defaultFileSource{
 		config:         config,
-		staticFileFunc: staticFileFunc,
+		staticFileFunc: config.FileFunc,
 	}
 
 	return d

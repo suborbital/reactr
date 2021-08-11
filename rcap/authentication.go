@@ -20,8 +20,8 @@ type AuthConfig struct {
 
 // AuthHeader is an HTTP header designed to authenticate requests
 type AuthHeader struct {
-	HeaderType string `json:"headerType"`
-	Value      string `json:"value"`
+	HeaderType string `json:"headerType" yaml:"headerType"`
+	Value      string `json:"value" yaml:"value"`
 }
 
 type defaultAuthProvider struct {
