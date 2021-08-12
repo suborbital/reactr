@@ -41,19 +41,20 @@ func TestGraphQLRunner(t *testing.T) {
 		return
 	}
 
-	r := rt.New()
-
-	caps := r.DefaultCaps()
-	caps.Auth = rcap.DefaultAuthProvider(&rcap.AuthProviderConfig{
+	config := rcap.DefaultCapabilityConfig()
+	config.Auth = &rcap.AuthConfig{
+		Enabled: true,
 		Headers: map[string]rcap.AuthHeader{
 			"api.github.com": {
 				HeaderType: "bearer",
 				Value:      "env(GITHUB_TOKEN)",
 			},
 		},
-	})
+	}
 
-	r.RegisterWithCaps("rs-graphql", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"), caps)
+	r := rt.NewWithConfig(config)
+
+	r.Register("rs-graphql", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"))
 
 	res, err := r.Do(rt.NewJob("rs-graphql", nil)).Then()
 	if err != nil {

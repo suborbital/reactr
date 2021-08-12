@@ -76,7 +76,8 @@ func TestASGraphql(t *testing.T) {
 	r := rt.New()
 
 	caps := r.DefaultCaps()
-	caps.Auth = rcap.DefaultAuthProvider(&rcap.AuthProviderConfig{
+	caps.Auth = rcap.DefaultAuthProvider(rcap.AuthConfig{
+		Enabled: true,
 		Headers: map[string]rcap.AuthHeader{
 			"api.github.com": {
 				HeaderType: "bearer",
