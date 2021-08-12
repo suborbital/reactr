@@ -6,7 +6,4 @@ class HelloSwift: Suborbital.Runnable {
     }
 }
 
-@_cdecl("init")
-func `init`() {
-    Suborbital.Set(runnable: HelloSwift())
-}
+Suborbital.Set(runnable: HelloSwift())

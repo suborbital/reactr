@@ -9,7 +9,4 @@ class SwiftSet: Suborbital.Runnable {
     }
 }
 
-@_cdecl("init")
-func `init`() {
-    Suborbital.Set(runnable: SwiftSet())
-}
+Suborbital.Set(runnable: SwiftSet())
