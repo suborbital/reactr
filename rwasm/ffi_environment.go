@@ -124,6 +124,14 @@ func (w *wasmEnvironment) addInstance() error {
 		}
 	}
 
+	// if the module has exported an init function, call it
+	init, err := inst.Exports.GetFunction("init")
+	if err == nil && init != nil {
+		if _, err := init(); err != nil {
+			return errors.Wrap(err, "failed to init")
+		}
+	}
+
 	instance := &wasmInstance{
 		wasmerInst: inst,
 		resultChan: make(chan []byte, 1),
