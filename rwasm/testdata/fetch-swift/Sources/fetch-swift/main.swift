@@ -13,7 +13,4 @@ class FetchSwift: Suborbital.Runnable {
     }
 }
 
-@_cdecl("init")
-func `init`() {
-    Suborbital.Set(runnable: FetchSwift())
-}
+Suborbital.Set(runnable: FetchSwift())

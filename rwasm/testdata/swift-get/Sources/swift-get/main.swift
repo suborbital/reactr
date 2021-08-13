@@ -6,7 +6,4 @@ class SwiftGet: Suborbital.Runnable {
     }
 }
 
-@_cdecl("init")
-func `init`() {
-    Suborbital.Set(runnable: SwiftGet())
-}
+Suborbital.Set(runnable: SwiftGet())

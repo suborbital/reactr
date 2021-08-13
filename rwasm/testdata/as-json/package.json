@@ -15,6 +15,7 @@
   "dependencies": {
     "@assemblyscript/loader": "^0.19",
     "@suborbital/suborbital": "^0.10.0",
-    "json-as": "github:aspkg/as-json"
+    "json-as": "0.1.1",
+    "visitor-as": "^0.6.0"
   }
 }

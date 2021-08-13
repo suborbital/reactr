@@ -19,6 +19,6 @@ impl Runnable for GetStatic {
 static RUNNABLE: &GetStatic = &GetStatic{};
 
 #[no_mangle]
-pub extern fn init() {
+pub extern fn _start() {
     use_runnable(RUNNABLE);
 }

@@ -29,6 +29,6 @@ impl Runnable for Log {
 static RUNNABLE: &Log = &Log{};
 
 #[no_mangle]
-pub extern fn init() {
+pub extern fn _start() {
     use_runnable(RUNNABLE);
 }

@@ -23,7 +23,4 @@ class SwiftEcho: Suborbital.Runnable {
     }
 }
 
-@_cdecl("init")
-func `init`() {
-    Suborbital.Set(runnable: SwiftEcho())
-}
+Suborbital.Set(runnable: SwiftEcho())

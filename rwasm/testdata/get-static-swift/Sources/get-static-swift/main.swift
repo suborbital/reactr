@@ -6,7 +6,4 @@ class GetStaticSwift: Suborbital.Runnable {
     }
 }
 
-@_cdecl("init")
-func `init`() {
-    Suborbital.Set(runnable: GetStaticSwift())
-}
+Suborbital.Set(runnable: GetStaticSwift())

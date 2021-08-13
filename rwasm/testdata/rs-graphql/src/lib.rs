@@ -27,6 +27,6 @@ impl Runnable for RsGraqhql {
 static RUNNABLE: &RsGraqhql = &RsGraqhql{};
 
 #[no_mangle]
-pub extern fn init() {
+pub extern fn _start() {
     use_runnable(RUNNABLE);
 }
