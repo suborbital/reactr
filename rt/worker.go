@@ -3,7 +3,6 @@ package rt
 import (
 	"context"
 	"fmt"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -26,8 +25,7 @@ type worker struct {
 
 	defaultCaps Capabilities
 
-	threads    []*workThread
-	threadLock sync.Mutex
+	threads []*workThread
 
 	started atomic.Value
 }
@@ -40,7 +38,6 @@ func newWorker(runner Runnable, caps Capabilities, opts workerOpts) *worker {
 		options:     opts,
 		defaultCaps: caps,
 		threads:     make([]*workThread, opts.poolSize),
-		threadLock:  sync.Mutex{},
 		started:     atomic.Value{},
 	}
 
@@ -108,6 +105,26 @@ func (w *worker) start(doFunc coreDoFunc) error {
 			attempts++
 			<-time.After(time.Duration(time.Second * time.Duration(w.options.retrySecs)))
 		}
+	}
+
+	return nil
+}
+
+func (w *worker) stop() error {
+	var err error
+
+	for _, t := range w.threads {
+		t.cancelFunc()
+
+		if changeErr := w.runner.OnChange(ChangeTypeStop); err != nil {
+			err = errors.Wrap(changeErr, "failed to runner.OnChange")
+		}
+	}
+
+	w.started.Store(false)
+
+	if err != nil {
+		return errors.Wrap(err, "one or more work threads failed to stop")
 	}
 
 	return nil

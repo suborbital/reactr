@@ -158,3 +158,33 @@ func TestPreWarmWorker(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestDeregisterWorker(t *testing.T) {
+	r := New()
+
+	r.Register("generic", generic{})
+
+	res := r.Do(r.Job("generic", "first"))
+
+	if res.UUID() == "" {
+		t.Error("result ID is empty")
+	}
+
+	result, err := res.Then()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if result.(string) != "last" {
+		t.Error("generic job failed, expected 'last', got", result.(string))
+	}
+
+	if err := r.DeRegister("generic"); err != nil {
+		t.Error(errors.Wrap(err, "failed to DeRegister"))
+	}
+
+	_, err = r.Do(r.Job("generic", "")).Then()
+	if err == nil {
+		t.Error("expected error but there was none")
+	}
+}

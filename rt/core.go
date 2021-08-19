@@ -83,6 +83,25 @@ func (c *core) register(jobType string, runnable Runnable, caps Capabilities, op
 	}
 }
 
+func (c *core) deRegister(jobType string) error {
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	worker, exists := c.workers[jobType]
+	if !exists {
+		// make this a no-op
+		return nil
+	}
+
+	delete(c.workers, jobType)
+
+	if err := worker.stop(); err != nil {
+		return errors.Wrap(err, "failed to worker.stop")
+	}
+
+	return nil
+}
+
 func (c *core) watch(sched Schedule) {
 	c.watcher.watch(sched)
 }
