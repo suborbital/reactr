@@ -1,6 +1,7 @@
 package rwasm
 
 import (
+	"context"
 	"crypto/rand"
 	"math"
 	"math/big"
@@ -12,6 +13,7 @@ import (
 	"github.com/suborbital/reactr/rwasm/moduleref"
 	"github.com/suborbital/vektor/vlog"
 	"github.com/wasmerio/wasmer-go/wasmer"
+	"golang.org/x/sync/semaphore"
 )
 
 /*
@@ -64,7 +66,8 @@ type wasmInstance struct {
 
 	resultChan chan []byte
 	errChan    chan rt.RunErr
-	lock       sync.Mutex
+
+	access *semaphore.Weighted
 }
 
 // instanceReference is a "pointer" to the global environments array and the
@@ -136,10 +139,52 @@ func (w *wasmEnvironment) addInstance() error {
 		wasmerInst: inst,
 		resultChan: make(chan []byte, 1),
 		errChan:    make(chan rt.RunErr, 1),
-		lock:       sync.Mutex{},
+		access:     semaphore.NewWeighted(1),
 	}
 
 	w.instances = append(w.instances, instance)
+
+	return nil
+}
+
+func (w *wasmEnvironment) removeInstance() error {
+	w.lock.Lock()
+	defer w.lock.Unlock()
+
+	if len(w.instances) == 0 {
+		return nil
+	}
+
+	// this process happens in 3 steps:
+	// 1. Grab the last instance in the array and shorten the array so that instance is no longer part of the array
+	// 2. Acquire the intsance's semaphore so we can be sure anyone vying for its attention is done with it
+	// 3. Kill off the internal wasm instance and then deallocate the whole thing so it gets garbage collected
+
+	// 1.
+	inst := w.instances[len(w.instances)-1]
+
+	if w.instIndex == len(w.instances)-1 {
+		w.instIndex--
+	}
+
+	w.instances = w.instances[:len(w.instances)-1]
+
+	// 2.
+	if err := inst.access.Acquire(context.Background(), 1); err != nil {
+		return errors.Wrap(err, "failed to Acquire instance for removal")
+	}
+
+	// 3.
+	inst.wasmerInst.Close()
+	inst.wasmerInst = nil
+	inst.ctx = nil
+	inst.ffiResult = nil
+	inst.resultChan = nil
+	inst.errChan = nil
+
+	inst.access.Release(1)
+	inst.access = nil
+	inst = nil
 
 	return nil
 }
@@ -159,8 +204,12 @@ func (w *wasmEnvironment) useInstance(ctx *rt.Ctx, instFunc func(*wasmInstance, 
 	instIndex := w.instIndex
 	inst := w.instances[instIndex]
 
-	inst.lock.Lock()
-	defer inst.lock.Unlock()
+	// acquire the instance's semaphore so we are guaranteed to be the only one using it
+	if err := inst.access.Acquire(context.Background(), 1); err != nil {
+		return errors.Wrap(err, "failed to acquire instance access")
+	}
+
+	defer inst.access.Release(1)
 
 	w.lock.Unlock() // now that we've acquired our instance, let the next one go
 
