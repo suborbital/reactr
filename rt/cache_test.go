@@ -97,7 +97,7 @@ func setupReactrWithCache() *Reactr {
 		config.Cache = &rcap.CacheConfig{
 			Enabled: true,
 			RedisConfig: &rcap.RedisConfig{
-				Addr: "localhost:6379",
+				ServerAddress: "localhost:6379",
 			},
 		}
 

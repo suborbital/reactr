@@ -14,14 +14,14 @@ type RedisCache struct {
 }
 
 type RedisConfig struct {
-	Addr     string `json:"address" yaml:"address"`
-	Username string `json:"username" yaml:"username"`
-	Password string `json:"password" yaml:"password"`
+	ServerAddress string `json:"serverAddress" yaml:"serverAddress"`
+	Username      string `json:"username" yaml:"username"`
+	Password      string `json:"password" yaml:"password"`
 }
 
 func newRedisCache(config CacheConfig) *RedisCache {
 	client := redis.NewClient(&redis.Options{
-		Addr:     config.RedisConfig.Addr,
+		Addr:     config.RedisConfig.ServerAddress,
 		Username: config.RedisConfig.Username,
 		Password: config.RedisConfig.Password,
 	})
