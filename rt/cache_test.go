@@ -1,10 +1,13 @@
 package rt
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 )
 
 type setTester struct{}
@@ -43,7 +46,7 @@ func (c *getTester) OnChange(_ ChangeEvent) error {
 }
 
 func TestCacheGetSet(t *testing.T) {
-	r := New()
+	r := setupReactrWithCache()
 	r.Register("set", &setTester{})
 	r.Register("get", &getTester{})
 
@@ -65,7 +68,7 @@ func TestCacheGetSet(t *testing.T) {
 }
 
 func TestCacheGetSetWithTTL(t *testing.T) {
-	r := New()
+	r := setupReactrWithCache()
 	r.Register("set", &setTester{})
 	r.Register("get", &getTester{})
 
@@ -82,4 +85,26 @@ func TestCacheGetSetWithTTL(t *testing.T) {
 		t.Error("should have errored, did not")
 		return
 	}
+}
+
+func setupReactrWithCache() *Reactr {
+	var r *Reactr
+
+	if _, exists := os.LookupEnv("REACTR_TEST_REDIS"); exists {
+		fmt.Println("using Redis for Reactr cache tests")
+
+		config := rcap.DefaultCapabilityConfig()
+		config.Cache = &rcap.CacheConfig{
+			Enabled: true,
+			RedisConfig: &rcap.RedisConfig{
+				Addr: "localhost:6379",
+			},
+		}
+
+		r = NewWithConfig(config)
+	} else {
+		r = New()
+	}
+
+	return r
 }
