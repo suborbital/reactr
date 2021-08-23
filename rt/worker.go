@@ -48,7 +48,9 @@ func newWorker(runner Runnable, caps Capabilities, opts workerOpts) *worker {
 
 func (w *worker) schedule(job *Job) {
 	if job.caps == nil {
-		job.caps = &w.defaultCaps
+		// make a copy so internals of the Capabilites aren't shared
+		caps := w.defaultCaps
+		job.caps = &caps
 	}
 
 	go func() {
