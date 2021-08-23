@@ -15,17 +15,20 @@ type coreDoFunc func(job *Job) *Result
 // core is the 'core scheduler' for reactr, handling execution of
 // Tasks, Jobs, and Schedules
 type core struct {
-	workers map[string]*worker
+	// scaler holds references to workers and autoscales their workThreads
+	scaler *scaler
+	// watcher holds onto active Schedules and ensures they get executed
 	watcher *watcher
-	log     *vlog.Logger
-	lock    sync.RWMutex
+
+	log  *vlog.Logger
+	lock sync.RWMutex
 }
 
 func newCore(log *vlog.Logger) *core {
 	c := &core{
-		workers: map[string]*worker{},
-		log:     log,
-		lock:    sync.RWMutex{},
+		scaler: newScaler(log),
+		log:    log,
+		lock:   sync.RWMutex{},
 	}
 
 	c.watcher = newWatcher(c.do)
@@ -36,7 +39,7 @@ func newCore(log *vlog.Logger) *core {
 func (c *core) do(job *Job) *Result {
 	result := newResult(job.UUID())
 
-	worker := c.findWorker(job.jobType)
+	worker := c.scaler.findWorker(job.jobType)
 	if worker == nil {
 		result.sendErr(fmt.Errorf("failed to getWorker for jobType %q", job.jobType))
 		return result
@@ -62,57 +65,34 @@ func (c *core) register(jobType string, runnable Runnable, caps Capabilities, op
 		opts = o(opts)
 	}
 
+	if opts.autoscaleMax > opts.poolSize {
+		// only start the autoscaler if one of the Runnables needs it
+		c.scaler.startAutoscaler()
+	}
+
 	w := newWorker(runnable, caps, opts)
 
-	c.workers[jobType] = w
-
-	go func() {
-		if err := w.start(); err != nil {
-			c.log.Error(errors.Wrapf(err, "failed to start %s worker", jobType))
-		}
-	}()
+	c.scaler.addWorker(jobType, w)
 }
 
 func (c *core) deRegister(jobType string) error {
-	c.lock.Lock()
-	defer c.lock.Unlock()
-
-	worker, exists := c.workers[jobType]
-	if !exists {
-		// make this a no-op
-		return nil
-	}
-
-	delete(c.workers, jobType)
-
-	if err := worker.stop(); err != nil {
-		return errors.Wrap(err, "failed to worker.stop")
-	}
-
-	return nil
-}
-
-func (c *core) watch(sched Schedule) {
-	c.watcher.watch(sched)
-}
-
-func (c *core) findWorker(jobType string) *worker {
-	c.lock.RLock()
-	defer c.lock.RUnlock()
-
-	if c.workers == nil {
-		return nil
-	}
-
-	if w, ok := c.workers[jobType]; ok {
-		return w
+	if err := c.scaler.removeWorker(jobType); err != nil {
+		return errors.Wrap(err, "failed to removeWorker")
 	}
 
 	return nil
 }
 
 func (c *core) hasWorker(jobType string) bool {
-	w := c.findWorker(jobType)
+	w := c.scaler.findWorker(jobType)
 
 	return w != nil
+}
+
+func (c *core) watch(sched Schedule) {
+	c.watcher.watch(sched)
+}
+
+func (c *core) metrics() ScalerMetrics {
+	return c.scaler.metrics()
 }

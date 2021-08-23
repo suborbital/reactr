@@ -25,7 +25,8 @@ type worker struct {
 
 	defaultCaps Capabilities
 
-	threads []*workThread
+	targetThreadCount int
+	threads           []*workThread
 
 	lock      *sync.RWMutex
 	reconcile *singleflight.Group
@@ -34,13 +35,14 @@ type worker struct {
 // newWorker creates a new goWorker
 func newWorker(runner Runnable, caps Capabilities, opts workerOpts) *worker {
 	w := &worker{
-		runner:      runner,
-		workChan:    make(chan *Job, defaultChanSize),
-		options:     opts,
-		defaultCaps: caps,
-		threads:     []*workThread{},
-		lock:        &sync.RWMutex{},
-		reconcile:   &singleflight.Group{},
+		runner:            runner,
+		workChan:          make(chan *Job, defaultChanSize),
+		options:           opts,
+		defaultCaps:       caps,
+		targetThreadCount: opts.poolSize,
+		threads:           []*workThread{},
+		lock:              &sync.RWMutex{},
+		reconcile:         &singleflight.Group{},
 	}
 
 	return w
@@ -76,7 +78,11 @@ func (w *worker) start() error {
 
 func (w *worker) stop() error {
 	// set the poolsize to 0 and give the workers a chance to wind down
-	w.options.poolSize = 0
+	return w.setThreadCount(0)
+}
+
+func (w *worker) setThreadCount(size int) error {
+	w.targetThreadCount = size
 
 	if err := w.reconcilePoolSize(); err != nil {
 		return errors.Wrap(err, "failed to reconcilePoolSize")
@@ -105,16 +111,16 @@ func (w *worker) reconcilePoolSize() error {
 	_, err, _ := w.reconcile.Do("reconcile", func() (interface{}, error) {
 		for {
 			w.lock.RLock()
-			threadCount := len(w.threads)
+			actualThreadCount := len(w.threads)
 			w.lock.RUnlock()
 
-			if threadCount < w.options.poolSize {
+			if actualThreadCount < w.targetThreadCount {
 				if err := w.addThread(); err != nil {
 					if shouldReturn() {
 						return nil, errors.Wrap(err, "failed to addThread more than numRetries")
 					}
 				}
-			} else if threadCount > w.options.poolSize {
+			} else if actualThreadCount > w.targetThreadCount {
 				if err := w.removeThread(); err != nil {
 					if shouldReturn() {
 						return nil, errors.Wrap(err, "failed to removeThread more than numRetries")
@@ -172,17 +178,23 @@ func (w *worker) removeThread() error {
 	return nil
 }
 
-// isStarted returns true if the worker is started and able to receive jobs
-func (w *worker) isStarted() bool {
+func (w *worker) metrics() WorkerMetrics {
 	w.lock.RLock()
 	defer w.lock.RUnlock()
 
-	return len(w.threads) > 0
+	m := WorkerMetrics{
+		TargetThreadCount: w.targetThreadCount,
+		ThreadCount:       len(w.threads),
+		JobCount:          len(w.workChan),
+	}
+
+	return m
 }
 
 type workerOpts struct {
 	jobType           string
 	poolSize          int
+	autoscaleMax      int
 	jobTimeoutSeconds int
 	numRetries        int
 	retrySecs         int
@@ -193,9 +205,10 @@ func defaultOpts(jobType string) workerOpts {
 	o := workerOpts{
 		jobType:           jobType,
 		poolSize:          1,
+		autoscaleMax:      1,
 		jobTimeoutSeconds: 0,
-		retrySecs:         3,
 		numRetries:        5,
+		retrySecs:         3,
 		preWarm:           false,
 	}
 
