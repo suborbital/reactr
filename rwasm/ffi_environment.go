@@ -54,7 +54,7 @@ type wasmEnvironment struct {
 
 	// the index of the last used wasm instance
 	instIndex int
-	lock      sync.Mutex
+	lock      sync.RWMutex
 }
 
 type wasmInstance struct {
@@ -88,12 +88,23 @@ func newEnvironment(ref *moduleref.WasmModuleRef) *wasmEnvironment {
 		ref:       ref,
 		instances: []*wasmInstance{},
 		instIndex: 0,
-		lock:      sync.Mutex{},
+		lock:      sync.RWMutex{},
 	}
 
 	environments[e.UUID] = e
 
 	return e
+}
+
+func (w *wasmEnvironment) instanceAtIndex(idx int) (*wasmInstance, error) {
+	w.lock.RLock()
+	defer w.lock.RUnlock()
+
+	if len(w.instances) <= idx-1 {
+		return nil, errors.New("invalid instance index")
+	}
+
+	return w.instances[idx], nil
 }
 
 // addInstance adds a new Wasm instance to the environment's pool
@@ -148,26 +159,24 @@ func (w *wasmEnvironment) addInstance() error {
 }
 
 func (w *wasmEnvironment) removeInstance() error {
-	w.lock.Lock()
-	defer w.lock.Unlock()
-
-	if len(w.instances) == 0 {
-		return nil
-	}
-
-	// this process happens in 3 steps:
-	// 1. Grab the last instance in the array and shorten the array so that instance is no longer part of the array
+	// this process happens in a 4 step lock-dance:
+	// 1. Lock, grab the last instance in the array, unlock
 	// 2. Acquire the intsance's semaphore so we can be sure anyone vying for its attention is done with it
+	// 3. Lock, shorten the array so that instance is no longer part of it, unlock
 	// 3. Kill off the internal wasm instance and then deallocate the whole thing so it gets garbage collected
 
 	// 1.
-	inst := w.instances[len(w.instances)-1]
+	w.lock.RLock()
 
-	if w.instIndex == len(w.instances)-1 {
-		w.instIndex--
+	if len(w.instances) == 0 {
+		w.lock.RUnlock()
+		return nil
 	}
 
-	w.instances = w.instances[:len(w.instances)-1]
+	inst := w.instances[len(w.instances)-1]
+
+	// unlock before attempting to acquire the instance, they can deadlock eachother
+	w.lock.RUnlock()
 
 	// 2.
 	if err := inst.access.Acquire(context.Background(), 1); err != nil {
@@ -175,6 +184,15 @@ func (w *wasmEnvironment) removeInstance() error {
 	}
 
 	// 3.
+	w.lock.Lock()
+	if w.instIndex == len(w.instances)-1 {
+		w.instIndex--
+	}
+
+	w.instances = w.instances[:len(w.instances)-1]
+	w.lock.Unlock()
+
+	// 4.
 	inst.wasmerInst.Close()
 	inst.wasmerInst = nil
 	inst.ctx = nil
@@ -191,7 +209,7 @@ func (w *wasmEnvironment) removeInstance() error {
 
 // useInstance provides an instance from the environment's pool to be used
 func (w *wasmEnvironment) useInstance(ctx *rt.Ctx, instFunc func(*wasmInstance, int32)) error {
-	// we have to do a lock dance between w.lock and inst.lock to ensure that
+	// we have to do a lock dance between w.lock and inst.access to ensure that
 	// a single instance isn't used by more than one runnable at the same time
 	w.lock.Lock()
 
@@ -204,14 +222,12 @@ func (w *wasmEnvironment) useInstance(ctx *rt.Ctx, instFunc func(*wasmInstance, 
 	instIndex := w.instIndex
 	inst := w.instances[instIndex]
 
+	// now that we've got an instance, release the lock since this can deadlock with inst.access
+	w.lock.Unlock()
+
 	// acquire the instance's semaphore so we are guaranteed to be the only one using it
-	if err := inst.access.Acquire(context.Background(), 1); err != nil {
-		return errors.Wrap(err, "failed to acquire instance access")
-	}
-
+	inst.access.Acquire(context.Background(), 1)
 	defer inst.access.Release(1)
-
-	w.lock.Unlock() // now that we've acquired our instance, let the next one go
 
 	// generate a random identifier as a reference to the instance in use to
 	// easily allow the Wasm module to reference itself when calling back over the FFI
@@ -331,11 +347,10 @@ func instanceForIdentifier(ident int32, needsFFIResult bool) (*wasmInstance, err
 		return nil, errors.New("environment does not exist")
 	}
 
-	if len(env.instances) <= ref.InstIndex-1 {
-		return nil, errors.New("invalid instance index")
+	inst, err := env.instanceAtIndex(ref.InstIndex)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to instanceAtIndex")
 	}
-
-	inst := env.instances[ref.InstIndex]
 
 	if needsFFIResult && inst.ffiResult != nil {
 		return nil, errors.New("cannot use instance for host call with existing call in progress")

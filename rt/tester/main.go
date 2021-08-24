@@ -4,10 +4,11 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
-	"os"
+	"log"
 	"time"
 
 	"github.com/suborbital/reactr/rt"
+	"github.com/suborbital/reactr/rwasm"
 	"golang.org/x/crypto/pbkdf2"
 )
 
@@ -17,11 +18,23 @@ func main() {
 	r := rt.New()
 
 	r.Register("pbkdf2", &pbkdf2Job{}, rt.PoolSize(1), rt.Autoscale(0))
+	r.Register("fetch", rwasm.NewRunner("./rwasm/testdata/as-fetch/as-fetch.wasm"), rt.PoolSize(1), rt.Autoscale(0))
+
+	group := rt.NewGroup()
 
 	go func() {
 		for i := 0; i < 1000; i++ {
-			r.Do(rt.NewJob("pbkdf2", []byte("someinputtobehashed")))
+			group.Add(r.Do(rt.NewJob("pbkdf2", []byte("someinputtobehashed"))))
+			group.Add(r.Do(rt.NewJob("fetch", "https://google.com")))
 		}
+
+		if err := group.Wait(); err != nil {
+			log.Fatal(err)
+		}
+
+		duration := time.Since(start)
+
+		fmt.Println("done!", duration.Seconds(), "s")
 	}()
 
 	go func() {
@@ -30,19 +43,11 @@ func main() {
 			metricsJSON, _ := json.MarshalIndent(metrics, "", "\t")
 			fmt.Println(string(metricsJSON))
 
-			if metrics.TotalThreadCount > 0 && metrics.TotalJobCount == 0 {
-				duration := time.Since(start)
-
-				fmt.Println("done!", duration.Seconds(), "s")
-
-				os.Exit(0)
-			}
-
 			time.Sleep(time.Second)
 		}
 	}()
 
-	time.Sleep(time.Second * 100)
+	time.Sleep(time.Minute)
 }
 
 // an intentionally slow job to test scaling
