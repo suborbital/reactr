@@ -17,9 +17,10 @@ type ScalerMetrics struct {
 
 // WorkerMetrics is metrics about a worker
 type WorkerMetrics struct {
-	TargetThreadCount int `json:"targetThreadCount"`
-	ThreadCount       int `json:"threadCount"`
-	JobCount          int `json:"jobCount"`
+	TargetThreadCount int     `json:"targetThreadCount"`
+	ThreadCount       int     `json:"threadCount"`
+	JobCount          int     `json:"jobCount"`
+	JobRate           float64 `json:"jobRate"`
 }
 
 type scaler struct {
@@ -54,13 +55,13 @@ func (s *scaler) startAutoscaler() {
 
 					// if job queue is double thread pool size, double the thread count
 					// until it reaches autoscaleMax, and reverse when job queue is half
-					if m.JobCount > m.ThreadCount*2 {
+					if m.JobCount > m.ThreadCount*2 || m.JobRate > float64(m.ThreadCount*2) {
 						if m.ThreadCount*2 <= worker.options.autoscaleMax {
 							worker.setThreadCount(m.ThreadCount * 2)
 						} else {
 							worker.setThreadCount(worker.options.autoscaleMax)
 						}
-					} else if m.JobCount < m.ThreadCount/2 {
+					} else if m.JobCount < m.ThreadCount/2 || m.JobRate < float64(m.ThreadCount*2) {
 						if m.ThreadCount/2 > worker.options.poolSize {
 							worker.setThreadCount(m.ThreadCount / 2)
 						} else {

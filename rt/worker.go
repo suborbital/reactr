@@ -30,6 +30,7 @@ type worker struct {
 
 	lock      *sync.RWMutex
 	reconcile *singleflight.Group
+	rate      *rateTracker
 }
 
 // newWorker creates a new goWorker
@@ -43,6 +44,7 @@ func newWorker(runner Runnable, caps Capabilities, opts workerOpts) *worker {
 		threads:           []*workThread{},
 		lock:              &sync.RWMutex{},
 		reconcile:         &singleflight.Group{},
+		rate:              newRateTracker(),
 	}
 
 	return w
@@ -62,6 +64,7 @@ func (w *worker) schedule(job *Job) {
 		}
 
 		w.workChan <- job
+		w.rate.add()
 	}()
 }
 
@@ -186,6 +189,7 @@ func (w *worker) metrics() WorkerMetrics {
 		TargetThreadCount: w.targetThreadCount,
 		ThreadCount:       len(w.threads),
 		JobCount:          len(w.workChan),
+		JobRate:           w.rate.average(),
 	}
 
 	return m
