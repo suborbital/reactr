@@ -43,14 +43,6 @@ func (c *core) do(job *Job) *Result {
 	}
 
 	go func() {
-		if !worker.isStarted() {
-			// "recursively" pass this function as the runFunc for the runnable
-			if err := worker.start(c.do); err != nil {
-				result.sendErr(errors.Wrapf(err, "failed start worker for jobType %q", job.jobType))
-				return
-			}
-		}
-
 		job.result = result
 
 		worker.schedule(job)
@@ -74,13 +66,11 @@ func (c *core) register(jobType string, runnable Runnable, caps Capabilities, op
 
 	c.workers[jobType] = w
 
-	if opts.preWarm {
-		go func() {
-			if err := w.start(c.do); err != nil {
-				c.log.Error(errors.Wrapf(err, "failed to preWarm %s worker", jobType))
-			}
-		}()
-	}
+	go func() {
+		if err := w.start(); err != nil {
+			c.log.Error(errors.Wrapf(err, "failed to start %s worker", jobType))
+		}
+	}()
 }
 
 func (c *core) deRegister(jobType string) error {
