@@ -6,6 +6,7 @@ import (
 	"math"
 	"math/big"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -200,7 +201,6 @@ func (w *wasmEnvironment) removeInstance() error {
 	inst.resultChan = nil
 	inst.errChan = nil
 
-	inst.access.Release(1)
 	inst.access = nil
 	inst = nil
 
@@ -226,7 +226,11 @@ func (w *wasmEnvironment) useInstance(ctx *rt.Ctx, instFunc func(*wasmInstance, 
 	w.lock.Unlock()
 
 	// acquire the instance's semaphore so we are guaranteed to be the only one using it
-	inst.access.Acquire(context.Background(), 1)
+	acquireCtx, _ := context.WithTimeout(context.Background(), time.Duration(time.Second*10))
+	if err := inst.access.Acquire(acquireCtx, 1); err != nil {
+		return errors.Wrap(err, "failed to Acquire instance")
+	}
+
 	defer inst.access.Release(1)
 
 	// generate a random identifier as a reference to the instance in use to
