@@ -167,3 +167,8 @@ func (r *Reactr) IsRegistered(jobType string) bool {
 func (r *Reactr) Job(jobType string, data interface{}) Job {
 	return NewJob(jobType, data)
 }
+
+// Metrics returns a snapshot in time describing Reactr's internals
+func (r *Reactr) Metrics() ScalerMetrics {
+	return r.core.metrics()
+}
