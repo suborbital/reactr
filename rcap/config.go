@@ -34,9 +34,11 @@ func DefaultConfigWithLogger(logger *vlog.Logger) CapabilityConfig {
 		},
 		HTTP: &HTTPConfig{
 			Enabled: true,
+			Rules:   defaultHTTPRules(),
 		},
 		GraphQL: &GraphQLConfig{
 			Enabled: true,
+			Rules:   defaultHTTPRules(),
 		},
 		Auth: &AuthConfig{
 			Enabled: true,

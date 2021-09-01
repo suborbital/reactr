@@ -11,7 +11,8 @@ import (
 
 // HTTPConfig is configuration for the HTTP capability
 type HTTPConfig struct {
-	Enabled bool `json:"enabled" yaml:"enabled"`
+	Enabled bool      `json:"enabled" yaml:"enabled"`
+	Rules   HTTPRules `json:"rules" yaml:"rules"`
 }
 
 // HTTPCapability gives Runnables the ability to make HTTP requests
