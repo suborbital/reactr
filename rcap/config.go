@@ -45,6 +45,7 @@ func DefaultConfigWithLogger(logger *vlog.Logger) CapabilityConfig {
 		},
 		Cache: &CacheConfig{
 			Enabled: true,
+			Rules:   defaultCacheRules(),
 		},
 		File: &FileConfig{
 			Enabled: true,
