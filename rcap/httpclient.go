@@ -49,6 +49,10 @@ func (h *httpClient) Do(auth AuthCapability, method, urlString string, body []by
 		return nil, errors.Wrap(err, "failed to NewRequest")
 	}
 
+	if err := h.config.Rules.requestIsAllowed(req); err != nil {
+		return nil, errors.Wrap(err, "failed to requestIsAllowed")
+	}
+
 	authHeader := auth.HeaderForDomain(urlObj.Host)
 	if authHeader != nil && authHeader.Value != "" {
 		headers.Add("Authorization", fmt.Sprintf("%s %s", authHeader.HeaderType, authHeader.Value))

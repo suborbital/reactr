@@ -82,6 +82,10 @@ func (g *defaultGraphQLClient) Do(auth AuthCapability, endpoint, query string) (
 		return nil, errors.Wrap(err, "failed to NewRequest")
 	}
 
+	if err := g.config.Rules.requestIsAllowed(req); err != nil {
+		return nil, errors.Wrap(err, "failed to requestIsAllowed")
+	}
+
 	req.Header.Add("Content-Type", "application/json")
 
 	authHeader := auth.HeaderForDomain(endpointURL.Host)
