@@ -110,6 +110,18 @@ if err := grp.Wait(); err != nil {
 ```
 Passing `PoolSize(3)` will spawn three work threads to process `generic` jobs.
 
+### Autoscaling pools
+By default, defining a pool size causes a static number of work threads to be started and will continue to run for the duration of the program's lifetime. If you have more variable workloads and need to scale your compute up and down to compensate, Reactr can handle that with the Autoscale option:
+
+```golang
+doGeneric := r.Register("generic", generic{}, rt.Autoscale(0))
+
+for i := 0; i < 10000; i++ {
+	doGeneric("lots to do").Discard()
+}
+```
+By passing the `rt.Autoscale` option, we indicate to Reactr that the worker should create and destroy threads as needed to handle the amount of work to be done. The parameter passed to Autoscale indicates the maximum number of threads. If you pass 0, it will default to the number of available CPUs.
+
 ### Timeouts
 By default, if a job becomes stuck and is blocking execution, it will block forever. If you want to have a worker time out after a certain amount of seconds on a stuck job, pass `rt.TimeoutSeconds` to Handle:
 ``` golang
