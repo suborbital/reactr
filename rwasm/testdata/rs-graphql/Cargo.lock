@@ -11,4 +11,4 @@ dependencies = [
 
 [[package]]
 name = "suborbital"
-version = "0.11.0"
+version = "0.11.1"
