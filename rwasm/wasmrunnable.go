@@ -8,7 +8,7 @@ import (
 	"github.com/suborbital/reactr/rwasm/api"
 	"github.com/suborbital/reactr/rwasm/moduleref"
 	"github.com/suborbital/reactr/rwasm/runtime"
-	runtimewasmer "github.com/suborbital/reactr/rwasm/runtime/wasmer"
+	runtimewasmtime "github.com/suborbital/reactr/rwasm/runtime/wasmtime"
 
 	"github.com/pkg/errors"
 )
@@ -28,7 +28,8 @@ func NewRunner(filepath string) *Runner {
 }
 
 func NewRunnerWithRef(ref *moduleref.WasmModuleRef) *Runner {
-	builder := runtimewasmer.NewBuilder(ref, api.API()...)
+	// builder := runtimewasmer.NewBuilder(ref, api.API()...)
+	builder := runtimewasmtime.NewBuilder(ref, api.API()...)
 
 	environment := runtime.NewEnvironment(builder)
 
@@ -73,7 +74,7 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 
 		// execute the Runnable's Run function, passing the input data and ident
 		// set runErr but don't return because the ExecutionResult error should override the Call error
-		_, runErr = instance.Call("run_e", inPointer, len(jobBytes), ident)
+		_, runErr = instance.Call("run_e", inPointer, int32(len(jobBytes)), ident)
 
 		// get the results from the instance
 		output, runErr = instance.ExecutionResult()

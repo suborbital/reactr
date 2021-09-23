@@ -68,7 +68,7 @@ func TestGraphQLRunner(t *testing.T) {
 }
 
 func TestWasmRunnerReturnError(t *testing.T) {
-	job := rt.NewJob("return-err", "")
+	job := rt.NewJob("return-err", "asdf")
 
 	_, err := sharedRT.Do(job).Then()
 	if err == nil {
