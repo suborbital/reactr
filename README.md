@@ -1,16 +1,12 @@
-![logo_transparent_wide](https://user-images.githubusercontent.com/5942370/107126087-ca589080-687b-11eb-820e-c6161c355eba.png)
+![SOS_Reactr-Long-FullColour](https://user-images.githubusercontent.com/5942370/134702418-4791b47c-4800-42f8-b13e-d6ee2587e8b7.png)
 
-Reactr is a fast, performant function scheduling system. Reactr is designed to be flexible, with the ability to run embedded in your Go applications or as a standalone FaaS server, and has first-class support for WebAssembly.
+Reactr is a fast, performant function scheduling library. Reactr is designed to be flexible, with the ability to run embedded in your Go applications and first-class support for WebAssembly.
 
 Reactr runs functions called Runnables, and transparently spawns workers to process jobs. Each worker processes jobs in sequence, using Runnables to execute them. Reactr jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
 
 ## Wasm
 
-Reactr has support for Wasm-packaged Runnables. The `rwasm` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable), TypeScript/AssemblyScript (beta), and Swift (alpha). See [wasm](./docs/wasm.md) and the [subo CLI](https://github.com/suborbital/subo) for details.
-
-## FaaS
-
-Reactr has early (read: alpha) support for acting as a Functions-as-a-Service system. Reactr can be run as a server, accepting jobs from HTTP/S and making the job results available to be fetched later. See [faas](./docs/faas.md) for details.
+Reactr has support for Wasm-packaged Runnables. The `rwasm` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable), TypeScript/AssemblyScript (beta), and Swift (alpha). See [Wasm](./docs/wasm.md) and the [Subo CLI](https://github.com/suborbital/subo) for details.
 
 ### The Basics
 
