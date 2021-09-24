@@ -1,4 +1,5 @@
 //go:build !wasmtime
+// +build !wasmtime
 
 package rwasm
 
