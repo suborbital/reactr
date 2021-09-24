@@ -5,10 +5,8 @@ import (
 
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
-	"github.com/suborbital/reactr/rwasm/api"
 	"github.com/suborbital/reactr/rwasm/moduleref"
 	"github.com/suborbital/reactr/rwasm/runtime"
-	runtimewasmtime "github.com/suborbital/reactr/rwasm/runtime/wasmtime"
 
 	"github.com/pkg/errors"
 )
@@ -28,8 +26,7 @@ func NewRunner(filepath string) *Runner {
 }
 
 func NewRunnerWithRef(ref *moduleref.WasmModuleRef) *Runner {
-	// builder := runtimewasmer.NewBuilder(ref, api.API()...)
-	builder := runtimewasmtime.NewBuilder(ref, api.API()...)
+	builder := runtimeBuilder(ref)
 
 	environment := runtime.NewEnvironment(builder)
 

@@ -31,7 +31,9 @@ jobs:
         run: |
           go get ./...
         
+        # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v ./...
+          go test -v --tags wasmtime ./...
