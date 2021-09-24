@@ -36,4 +36,8 @@ jobs:
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v ./...
+      
+      - name: Run test with Wasmtime
+        run: |
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v --tags wasmtime ./...
