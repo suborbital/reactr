@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [ "*" ]
   workflow_dispatch:
-    tags:
-      type: manual
 
 jobs:
 
