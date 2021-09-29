@@ -3,8 +3,22 @@ import { get_ffi_result } from "./env"
 var current_ident: i32 = 0;
 
 export class Result {
-	Result: ArrayBuffer | null
+	Result: ArrayBuffer
 	Err: Error | null
+
+	constructor(result: ArrayBuffer, err: Error | null) {
+		this.Result = result
+		this.Err = err
+	}
+
+	toString(): string {
+		let err = this.Err
+		if(err) {
+			return err.toString()
+		}
+
+		return String.UTF8.decode(this.Result)
+	}
 }
 
 export function setIdent(ident: i32): void {
@@ -18,10 +32,7 @@ export function getIdent(): i32 {
 export function ffi_result(size: i32): Result {
 	let allocSize = size
 
-	let unknownRes = {
-		Result: null,
-		Err: new Error("unknown error returned from host")
-	}
+	let unknownRes: Result = new Result(new ArrayBuffer(0), new Error("unknown error returned from host"))
 
 	if (size < 0) {
 		if (size == -1) {
@@ -38,19 +49,13 @@ export function ffi_result(size: i32): Result {
 		return unknownRes
 	}
 
-	let data = fromFFI(result_ptr, size)
+	let data = fromFFI(result_ptr, allocSize)
 
 	if (size < 0) {
-		return {
-			Result: null,
-			Err: new Error(String.UTF8.decode(data))
-		}
+		return new Result(new ArrayBuffer(0), new Error(String.UTF8.decode(data)))
 	}
 
-	return {
-		Result: data,
-		Err: null
-	}
+	return new Result(data, null)
 }
 
 export function fromFFI(ptr: usize, len: i32): ArrayBuffer {

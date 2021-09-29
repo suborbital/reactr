@@ -1,11 +1,9 @@
-import { httpGet, logInfo } from "@suborbital/suborbital"
+import { httpGet } from "@suborbital/suborbital"
 
 export function run(input: ArrayBuffer): ArrayBuffer {
 	let url = String.UTF8.decode(input)
 
-	// logInfo("fetching " + url)
-
 	let resp = httpGet(url, null)
   
-	return resp.Result ? resp.Result : new ArrayBuffer(0)
+	return resp.Result
 }

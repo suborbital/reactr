@@ -9,7 +9,11 @@ struct Fetch{}
 impl Runnable for Fetch {
     fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr> {
         let url = util::to_string(input);
-        http::get(url.as_str(), None)?;
+        
+        let _ = match http::get(url.as_str(), None) {
+            Ok(res) => res,
+            Err(e) => return Err(RunErr::new(1, e.message.as_str()))
+        };
 
         // test sending a POST request with headers and a body
         let mut headers = BTreeMap::new();
@@ -23,7 +27,7 @@ impl Runnable for Fetch {
                 log::info(util::to_string(res.clone()).as_str());
                 Ok(res)
             },
-            Err(e) => Err(e)
+            Err(e) => Err(RunErr::new(1, e.message.as_str()))
         }
     }
 }

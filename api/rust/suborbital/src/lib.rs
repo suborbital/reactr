@@ -318,7 +318,7 @@ pub mod req {
         // retreive the result from the host and return it
         match super::ffi::result(result_size) {
             Ok(res) => Some(res),
-            Err(e) => {
+            Err(_) => {
                 None
             }
         }
@@ -446,7 +446,7 @@ mod ffi {
         }
 
         let data: &[u8] = unsafe {
-            slice::from_raw_parts(result_ptr, size as usize)
+            slice::from_raw_parts(result_ptr, alloc_size as usize)
         };
 
         if size < 0 {
