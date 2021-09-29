@@ -7,5 +7,5 @@ export function run(input: ArrayBuffer): ArrayBuffer {
 
 	let resp = httpGet(url, null)
   
-	return resp
+	return resp.Result ? resp.Result : new ArrayBuffer(0)
 }

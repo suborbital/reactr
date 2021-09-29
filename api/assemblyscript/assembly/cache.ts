@@ -1,7 +1,7 @@
 import { cache_set, cache_get } from "./env"
-import { ffi_result, getIdent, toFFI } from "./ffi"
+import { Result, ffi_result, getIdent, toFFI } from "./ffi"
 
-export function cacheGet(key: string): ArrayBuffer {
+export function cacheGet(key: string): Result {
 	let keyBuf = String.UTF8.encode(key)
 	let keyFFI = toFFI(keyBuf)
 

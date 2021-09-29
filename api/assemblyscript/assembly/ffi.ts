@@ -2,6 +2,11 @@ import { get_ffi_result } from "./env"
 
 var current_ident: i32 = 0;
 
+export class Result {
+	Result: ArrayBuffer | null
+	Err: Error | null
+}
+
 export function setIdent(ident: i32): void {
 	current_ident = ident
 }
@@ -10,19 +15,42 @@ export function getIdent(): i32 {
 	return current_ident
 }
 
-export function ffi_result(size: i32): ArrayBuffer {
-	if (size < 0) {
-		return new ArrayBuffer(0)
+export function ffi_result(size: i32): Result {
+	let allocSize = size
+
+	let unknownRes = {
+		Result: null,
+		Err: new Error("unknown error returned from host")
 	}
 
-	let result_ptr = heap.alloc(size)
+	if (size < 0) {
+		if (size == -1) {
+			return unknownRes
+		}
+
+		allocSize = size * -1
+	}
+
+	let result_ptr = heap.alloc(allocSize)
 
 	let code = get_ffi_result(result_ptr, current_ident)
 	if (code != 0) {
-		return new ArrayBuffer(0)
+		return unknownRes
 	}
 
-	return fromFFI(result_ptr, size)
+	let data = fromFFI(result_ptr, size)
+
+	if (size < 0) {
+		return {
+			Result: null,
+			Err: new Error(String.UTF8.decode(data))
+		}
+	}
+
+	return {
+		Result: data,
+		Err: null
+	}
 }
 
 export function fromFFI(ptr: usize, len: i32): ArrayBuffer {

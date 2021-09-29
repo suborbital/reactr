@@ -41,6 +41,18 @@ pub mod runnable {
         }
     }
 
+    pub struct HostErr {
+        pub message: String,
+    }
+
+    impl HostErr {
+        pub fn new(msg: &str) -> Self {
+            HostErr {
+                message: String::from(msg)
+            }
+        }
+    }
+
     pub trait Runnable {
         fn run(&self, input: Vec<u8>) -> Result<Vec<u8>, RunErr>;
     }
@@ -112,7 +124,7 @@ pub mod graphql {
         fn graphql_query(endpoint_pointer: *const u8, endpoint_size: i32, query_pointer: *const u8, query_size: i32, ident: i32) -> i32;
     }
 
-    pub fn query(endpoint: &str, query: &str) -> Result<Vec<u8>,super::runnable::RunErr> {
+    pub fn query(endpoint: &str, query: &str) -> Result<Vec<u8>,super::runnable::HostErr> {
 
         let endpoint_size = endpoint.len() as i32;
         let query_size = query.len() as i32;
@@ -120,12 +132,7 @@ pub mod graphql {
         let result_size = unsafe { graphql_query(endpoint.as_ptr(), endpoint_size, query.as_ptr(), query_size, super::STATE.ident) };
 
         // retreive the result from the host and return it
-        match super::ffi::result(result_size) {
-            Ok(res) => Ok(res),
-            Err(e) => {
-                Err(super::runnable::RunErr::new(e.code, "failed to graphql_query"))
-            }
-        }
+        super::ffi::result(result_size)
     }
 }
 pub mod http {
@@ -140,23 +147,23 @@ pub mod http {
         fn fetch_url(method: i32, url_pointer: *const u8, url_size: i32, body_pointer: *const u8, body_size: i32, ident: i32) -> i32;
     }
 
-    pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
+    pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::HostErr> {
 		return do_request(METHOD_GET, url, None, headers);
 	}
     
-    pub fn post(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
+    pub fn post(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::HostErr> {
 		return do_request(METHOD_POST, url, body, headers);
 	}
     
-    pub fn patch(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
+    pub fn patch(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::HostErr> {
 		return do_request(METHOD_PATCH, url, body, headers);
 	}
     
-    pub fn delete(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
+    pub fn delete(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::HostErr> {
 		return do_request(METHOD_DELETE, url, None, headers);
 	}
 
-	fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::RunErr> {
+	fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, super::runnable::HostErr> {
         // the URL gets encoded with headers added on the end, seperated by ::
 	    // eg. https://google.com/somepage::authorization:bearer qdouwrnvgoquwnrg::anotherheader:nicetomeetyou
         let header_string = render_header_string(headers);
@@ -182,12 +189,7 @@ pub mod http {
         let result_size = unsafe { fetch_url(method, url_string.as_str().as_ptr(), url_string.len() as i32, body_pointer, body_size, super::STATE.ident) };
 
         // retreive the result from the host and return it
-        match super::ffi::result(result_size) {
-            Ok(res) => Ok(res),
-            Err(e) => {
-                Err(super::runnable::RunErr::new(e.code, "failed to fetch_url"))
-            }
-        }
+        super::ffi::result(result_size)
 	}
 	
 	fn render_header_string(headers: Option<BTreeMap<&str, &str>>) -> Option<String> {
@@ -227,17 +229,12 @@ pub mod cache {
         }
     }
 
-    pub fn get(key: &str) -> Result<Vec<u8>, super::runnable::RunErr> {
+    pub fn get(key: &str) -> Result<Vec<u8>, super::runnable::HostErr> {
         // do the request over FFI
         let result_size = unsafe { cache_get(key.as_ptr(), key.len() as i32, super::STATE.ident) };
         
         // retreive the result from the host and return it
-        match super::ffi::result(result_size) {
-            Ok(res) => Ok(res),
-            Err(e) => {
-                Err(super::runnable::RunErr::new(e.code, "failed to cache_get"))
-            }
-        }
+        super::ffi::result(result_size)
     }
 }
 
@@ -322,7 +319,6 @@ pub mod req {
         match super::ffi::result(result_size) {
             Ok(res) => Some(res),
             Err(e) => {
-                super::log::debug(format!("failed to request_get_field: {}", e.code).as_str());
                 None
             }
         }
@@ -381,8 +377,7 @@ pub mod file {
         // retreive the result from the host and return it
         match super::ffi::result(result_size) {
             Ok(res) => Some(res),
-            Err(e) => {
-                super::log::debug(format!("failed to get_static_file: {}", e.code).as_str());
+            Err(_) => {
                 None
             }
         }
@@ -425,14 +420,20 @@ mod ffi {
         fn get_ffi_result(pointer: *const u8, ident: i32) -> i32;
     }
     
-    pub fn result(size: i32) -> Result<Vec<u8>, super::runnable::RunErr> {
+    pub fn result(size: i32) -> Result<Vec<u8>, super::runnable::HostErr> {
+        let mut alloc_size = size;
+
         // FFI functions return negative values when an error occurs
         if size < 0 {
-            return Err(super::runnable::RunErr::new(size*-1, "an error was returned"));
+            if size == -1 {
+                return Err(super::runnable::HostErr::new("unknown error returned from host"))
+            }
+
+            alloc_size = size * -1
         }
 
         // create some memory for the host to write into
-        let mut result_mem = Vec::with_capacity(size as usize);
+        let mut result_mem = Vec::with_capacity(alloc_size as usize);
         let result_ptr = result_mem.as_mut_slice().as_mut_ptr() as *const u8;
 
         let code = unsafe {
@@ -441,13 +442,18 @@ mod ffi {
 
         // check if it was successful, and then re-build the memory
         if code != 0 {
-            return Err(super::runnable::RunErr::new(size*-1, "an error was returned"));
+            return Err(super::runnable::HostErr::new("unknown error returned from host"));
         }
 
-        let result: &[u8] = unsafe {
+        let data: &[u8] = unsafe {
             slice::from_raw_parts(result_ptr, size as usize)
         };
 
-        Ok(Vec::from(result))
+        if size < 0 {
+            let msg = Vec::from(data);
+            return Err(super::runnable::HostErr::new(super::util::to_string(msg).as_str()))
+        }
+
+        Ok(Vec::from(data))
     }
 }
