@@ -2,7 +2,7 @@
 
 Reactr is a fast, performant function scheduling library. Reactr is designed to be flexible, with the ability to run embedded in your Go applications and first-class support for WebAssembly.
 
-Reactr runs functions called Runnables, and transparently spawns workers to process jobs. Each worker processes jobs in sequence, using Runnables to execute them. Reactr jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retreived at a later time.
+Reactr runs functions called Runnables, and transparently spawns workers to process jobs. Each worker processes jobs in sequence, using Runnables to execute them. Reactr jobs are arbitrary data, and they return arbitrary data (or an error). Jobs are scheduled, and their results can be retrieved at a later time.
 
 ## Wasm
 
