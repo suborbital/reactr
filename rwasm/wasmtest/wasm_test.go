@@ -6,7 +6,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/suborbital/atmo/bundle/load"
 	"github.com/suborbital/reactr/rt"
-	"github.com/suborbital/reactr/rwasm"
+	"github.com/suborbital/reactr/rwasm/runtime"
 	"github.com/suborbital/vektor/vlog"
 )
 
@@ -18,7 +18,7 @@ var sharedRT *rt.Reactr
 
 func init() {
 	// set a logger for rwasm to use
-	rwasm.UseInternalLogger(vlog.Default(
+	runtime.UseInternalLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
 

@@ -1,4 +1,4 @@
-package rwasm
+package runtime
 
 import (
 	"crypto/rand"
@@ -12,7 +12,22 @@ import (
 // the instance mapper is a global var that maps a random int32 to a wasm instance to make bi-directional FFI calls "easy"
 var instanceMapper = sync.Map{}
 
-func setupNewIdentifier(inst *wasmInstance) (int32, error) {
+func InstanceForIdentifier(ident int32, needsFFIResult bool) (*WasmInstance, error) {
+	rawRef, exists := instanceMapper.Load(ident)
+	if !exists {
+		return nil, errors.New("instance does not exist")
+	}
+
+	ref := rawRef.(instanceReference)
+
+	if needsFFIResult && ref.Inst.ffiResult != nil {
+		return nil, errors.New("cannot use instance for host call with existing call in progress")
+	}
+
+	return ref.Inst, nil
+}
+
+func setupNewIdentifier(inst *WasmInstance) (int32, error) {
 	for {
 		ident, err := randomIdentifier()
 		if err != nil {
@@ -37,21 +52,6 @@ func setupNewIdentifier(inst *wasmInstance) (int32, error) {
 
 func removeIdentifier(ident int32) {
 	instanceMapper.Delete(ident)
-}
-
-func instanceForIdentifier(ident int32, needsFFIResult bool) (*wasmInstance, error) {
-	rawRef, exists := instanceMapper.Load(ident)
-	if !exists {
-		return nil, errors.New("instance does not exist")
-	}
-
-	ref := rawRef.(instanceReference)
-
-	if needsFFIResult && ref.Inst.ffiResult != nil {
-		return nil, errors.New("cannot use instance for host call with existing call in progress")
-	}
-
-	return ref.Inst, nil
 }
 
 func randomIdentifier() (int32, error) {

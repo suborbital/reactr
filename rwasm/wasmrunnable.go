@@ -5,14 +5,17 @@ import (
 
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
+	"github.com/suborbital/reactr/rwasm/api"
 	"github.com/suborbital/reactr/rwasm/moduleref"
+	"github.com/suborbital/reactr/rwasm/runtime"
+	runtimewasmer "github.com/suborbital/reactr/rwasm/runtime/wasmer"
 
 	"github.com/pkg/errors"
 )
 
 //Runner represents a wasm-based runnable
 type Runner struct {
-	env *wasmEnvironment
+	env *runtime.WasmEnvironment
 }
 
 // NewRunner returns a new *Runner
@@ -25,7 +28,9 @@ func NewRunner(filepath string) *Runner {
 }
 
 func NewRunnerWithRef(ref *moduleref.WasmModuleRef) *Runner {
-	environment := newEnvironment(ref)
+	builder := runtimewasmer.NewBuilder(ref, api.API()...)
+
+	environment := runtime.NewEnvironment(builder)
 
 	r := &Runner{
 		env: environment,
@@ -59,38 +64,22 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 	var output []byte
 	var runErr error
 
-	if err := w.env.useInstance(ctx, func(instance *wasmInstance, ident int32) {
-		inPointer, writeErr := instance.writeMemory(jobBytes)
+	if err := w.env.UseInstance(ctx, func(instance *runtime.WasmInstance, ident int32) {
+		inPointer, writeErr := instance.WriteMemory(jobBytes)
 		if writeErr != nil {
 			runErr = errors.Wrap(writeErr, "failed to instance.writeMemory")
 			return
 		}
 
-		wasmRun, err := instance.wasmerInst.Exports.GetFunction("run_e")
-		if err != nil || wasmRun == nil {
-			runErr = errors.New("missing required FFI function: run_e")
-			return
-		}
+		// execute the Runnable's Run function, passing the input data and ident
+		// set runErr but don't return because the ExecutionResult error should override the Call error
+		_, runErr = instance.Call("run_e", inPointer, len(jobBytes), ident)
 
-		// ident is a random identifier for this job run that allows for "easy" FFI function calls in both directions
-		if _, wasmErr := wasmRun(inPointer, len(jobBytes), ident); wasmErr != nil {
-			runErr = errors.Wrap(wasmErr, "failed to wasmRun")
-			// don't return here because the Runnable can still return its own error
-			// (select statement below) and that should be taken over this error
-		}
-
-		// determine if the instance called return_result or return_error
-		select {
-		case res := <-instance.resultChan:
-			output = res
-		case err := <-instance.errChan:
-			runErr = err
-		default:
-			// do nothing and fall through
-		}
+		// get the results from the instance
+		output, runErr = instance.ExecutionResult()
 
 		// deallocate the memory used for the input
-		instance.deallocate(inPointer, len(jobBytes))
+		instance.Deallocate(inPointer, len(jobBytes))
 	}); err != nil {
 		return nil, errors.Wrap(err, "failed to useInstance")
 	}
@@ -120,11 +109,11 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 func (w *Runner) OnChange(evt rt.ChangeEvent) error {
 	switch evt {
 	case rt.ChangeTypeStart:
-		if err := w.env.addInstance(); err != nil {
+		if err := w.env.AddInstance(); err != nil {
 			return errors.Wrap(err, "failed to addInstance")
 		}
 	case rt.ChangeTypeStop:
-		if err := w.env.removeInstance(); err != nil {
+		if err := w.env.RemoveInstance(); err != nil {
 			return errors.Wrap(err, "failed to removeInstance")
 		}
 	}
