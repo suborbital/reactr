@@ -1,6 +1,9 @@
 test:
 	go test -v --count=1 -p=1 ./...
 
+test/multi: test
+	go test --tags wasmtime -v --count=1 -p=1 ./...
+
 testdata:
 	subo build ./rwasm/testdata/ --native
 

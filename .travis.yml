@@ -6,6 +6,6 @@ jobs:
      arch: arm64-graviton2
 
 go:
-- "1.15.x"
+- "1.17.x"
 
 script: make test

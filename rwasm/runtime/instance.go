@@ -5,6 +5,8 @@ import (
 	"github.com/suborbital/reactr/rt"
 )
 
+var ErrExportNotFound = errors.New("the requested export is not found in the module")
+
 // WasmInstance is an instance of a Wasm runtime
 type WasmInstance struct {
 	runtime RuntimeInstance
@@ -22,7 +24,7 @@ type RuntimeBuilder interface {
 	New() (RuntimeInstance, error)
 }
 
-// RuntimeInstance is an interface that wraps various underlying Wasm runtimes like Wasmer, wasmTime
+// RuntimeInstance is an interface that wraps various underlying Wasm runtimes like Wasmer, Wasmtime
 type RuntimeInstance interface {
 	Call(fn string, args ...interface{}) (interface{}, error)
 	ReadMemory(pointer int32, size int32) []byte

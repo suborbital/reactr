@@ -96,17 +96,3 @@ func TestWasmFileGetStaticSwift(t *testing.T) {
 		t.Error("failed, got:\n", result, "\nexpeted:\n", expected)
 	}
 }
-
-func TestWasmLegacyInit(t *testing.T) {
-	job := rt.NewJob("legacy", "Connor")
-
-	res, err := sharedRT.Do(job).Then()
-	if err != nil {
-		t.Error(errors.Wrap(err, "failed to Then"))
-		return
-	}
-
-	if string(res.([]byte)) != "hello Connor" {
-		t.Error(fmt.Errorf("hello Connor, got %s", string(res.([]byte))))
-	}
-}

@@ -35,9 +35,7 @@ func (w *WasmerRuntime) ReadMemory(pointer int32, size int32) []byte {
 	data := memory.Data()[pointer:]
 	result := make([]byte, size)
 
-	for index := 0; int32(index) < size; index++ {
-		result[index] = data[index]
-	}
+	copy(result, data)
 
 	return result
 }

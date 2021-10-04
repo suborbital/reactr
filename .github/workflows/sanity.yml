@@ -12,7 +12,7 @@ jobs:
     strategy:
         matrix:
           os: [ubuntu-latest, macos-latest]
-          golang: [1.15, 1.16, 1.17]
+          golang: [1.17]
 
     name: Test
     runs-on: ${{ matrix.os }}
@@ -31,7 +31,13 @@ jobs:
         run: |
           go get ./...
         
+        # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v ./...
+      
+      - name: Run test with Wasmtime
+        run: |
+          export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          go test -v --tags wasmtime ./...

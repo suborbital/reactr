@@ -28,4 +28,6 @@ if err != nil {
 fmt.Println(string(res.([]byte)))
 ```
 
+By default, Reactr uses the Wasmer runtime internally, but supports the Wasmtime runtime as well. Pass `-tags wasmtime` to any `go` command to use Wasmtime. Wasmtime is not yet supported on ARM.
+
 And that's it! You can schedule Wasm jobs as normal, and Wasm environments will be managed automatically to run your jobs.
