@@ -194,7 +194,7 @@ func TestEmptyRequestBodyJSON(t *testing.T) {
 	}
 
 	if string(resp.Output) != "hello what is up" {
-		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
+		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(resp.Output)))
 	}
 }
 

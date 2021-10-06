@@ -441,10 +441,6 @@ mod ffi {
     pub fn result(size: i32) -> Result<Vec<u8>, super::runnable::HostErr> {
         let mut alloc_size = size;
 
-        if size == 0 {
-            return Ok(Vec::new())
-        }
-
         // FFI functions return negative values when an error occurs
         if size < 0 {
             if size == -1 {
