@@ -10,10 +10,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "assemblyscript": "^0.19"
+    "assemblyscript": "0.19.16"
   },
   "dependencies": {
-    "@assemblyscript/loader": "^0.19",
+    "@assemblyscript/loader": "0.19.16",
     "@suborbital/suborbital": "file:../../../api/assemblyscript"
   }
 }

@@ -31,7 +31,12 @@ func get_ffi_result(pointer int32, identifier int32) int32 {
 		return -1
 	}
 
-	inst.WriteMemoryAtLocation(pointer, result)
+	data := result.Result
+	if result.Err != nil {
+		data = []byte(result.Err.Error())
+	}
+
+	inst.WriteMemoryAtLocation(pointer, data)
 
 	return 0
 }

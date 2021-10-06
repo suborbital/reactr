@@ -212,21 +212,22 @@ func deallocate(ptr: UnsafeRawPointer, size: Int32) {
 }
 
 func ffiResult(size: Int32) -> String {
+    var allocSize = size
+    
     if size < 0 {
-        LogErr(msg: "an error was returned")
-        return ""
+        allocSize = size * -1
     }
     
-    let resultPtr = allocate(size: size)
+    let resultPtr = allocate(size: allocSize)
     
     let code = get_ffi_result(result_pointer: resultPtr, ident: CURRENT_IDENT)
     
     if code != Int32(0) {
-        LogErr(msg: "an error was returned")
+        LogErr(msg: "unknown error returned from host")
         return ""
     }
     
-    return fromFFI(ptr: resultPtr, size: size)
+    return fromFFI(ptr: resultPtr, size: allocSize)
 }
 
 func toFFI(val: String, use: (UnsafePointer<Int8>, Int32) -> Void) {

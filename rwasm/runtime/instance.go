@@ -13,10 +13,16 @@ type WasmInstance struct {
 
 	ctx *rt.Ctx
 
-	ffiResult []byte
+	ffiResult *FFIResult
 
 	resultChan chan []byte
 	errChan    chan rt.RunErr
+}
+
+// FFIResult is the results of an FFI host function call
+type FFIResult struct {
+	Result []byte
+	Err    error
 }
 
 // RuntimeBuilder is a factory-style interface that can build Wasm runtimes
@@ -80,17 +86,22 @@ func (w *WasmInstance) Ctx() *rt.Ctx {
 	return w.ctx
 }
 
-func (w *WasmInstance) SetFFIResult(data []byte) error {
+func (w *WasmInstance) SetFFIResult(result []byte, err error) (*FFIResult, error) {
 	if w.ffiResult != nil {
-		return errors.New("instance ffiResult is already set")
+		return nil, errors.New("instance ffiResult is already set")
 	}
 
-	w.ffiResult = data
+	r := &FFIResult{
+		Result: result,
+		Err:    err,
+	}
 
-	return nil
+	w.ffiResult = r
+
+	return r, nil
 }
 
-func (w *WasmInstance) UseFFIResult() ([]byte, error) {
+func (w *WasmInstance) UseFFIResult() (*FFIResult, error) {
 	if w.ffiResult == nil {
 		return nil, errors.New("instance ffiResult is not set")
 	}
@@ -116,4 +127,13 @@ func (w *WasmInstance) WriteMemoryAtLocation(pointer int32, data []byte) {
 
 func (w *WasmInstance) Deallocate(pointer int32, length int) {
 	w.runtime.Deallocate(pointer, length)
+}
+
+// FFISize returns the "size" of the result (positive int32 for a successful result, negative for error result)
+func (r *FFIResult) FFISize() int32 {
+	if r.Err != nil {
+		return int32(len([]byte(r.Err.Error())) * -1)
+	}
+
+	return int32(len(r.Result))
 }

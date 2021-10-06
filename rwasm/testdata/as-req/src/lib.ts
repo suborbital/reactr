@@ -5,14 +5,15 @@ export function run(input: ArrayBuffer): ArrayBuffer {
 	logInfo(inStr)
   
 	logInfo(reqMethod())
-	logInfo(String.UTF8.decode(reqBody()))
+	logInfo(String.UTF8.decode(reqBody().Result))
 	logInfo(reqBodyField("username"))
 	logInfo(reqBodyField("baz")) // ensure it doesn't crash on something that doesn't exist
 	logInfo(reqURL())
 	logInfo(reqID())
 
 	let hello = reqState("hello")
-	logInfo(hello)
+	let helloString = String.UTF8.decode(hello.Result)
+	logInfo(helloString)
 
-	return String.UTF8.encode("hello " + hello)
+	return String.UTF8.encode("hello " + helloString)
 }

@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/pkg/errors"
-	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/rwasm/runtime"
 )
 
@@ -34,22 +33,15 @@ func request_get_field(fieldType int32, keyPointer int32, keySize int32, identif
 	val, err := inst.Ctx().RequestHandler.GetField(fieldType, key)
 	if err != nil {
 		runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
-
-		switch err {
-		case rcap.ErrReqNotSet:
-			return -2
-		case rcap.ErrInvalidKey:
-			return -3
-		case rcap.ErrInvalidFieldType:
-			return -4
-		default:
-			return -5
-		}
 	}
 
-	inst.SetFFIResult(val)
+	result, err := inst.SetFFIResult(val, err)
+	if err != nil {
+		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		return -1
+	}
 
-	return int32(len(val))
+	return result.FFISize()
 }
 
 func RequestSetFieldHandler() runtime.HostFn {
