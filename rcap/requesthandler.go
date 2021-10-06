@@ -27,6 +27,7 @@ type RequestHandlerConfig struct {
 // RequestHandlerCapability allows runnables to handle HTTP requests
 type RequestHandlerCapability interface {
 	GetField(fieldType int32, key string) ([]byte, error)
+	SetField(fieldType int32, key string, val string) error
 	SetResponseHeader(key, val string) error
 }
 
@@ -45,6 +46,7 @@ func NewRequestHandler(config RequestHandlerConfig, req *request.CoordinatedRequ
 	return d
 }
 
+// GetField gets a field from the attached request
 func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 	if !r.config.Enabled {
 		return nil, ErrCapabilityNotEnabled
@@ -103,6 +105,47 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 	}
 
 	return []byte(val), nil
+}
+
+// SetField sets a field on the attached request
+func (r *requestHandler) SetField(fieldType int32, key string, val string) error {
+	if !r.config.Enabled {
+		return ErrCapabilityNotEnabled
+	}
+
+	if r.req == nil {
+		return ErrReqNotSet
+	}
+
+	switch fieldType {
+	case RequestFieldTypeMeta:
+		switch key {
+		case "method":
+			r.req.Method = val
+		case "url":
+			r.req.URL = val
+		case "id":
+			// do nothing
+		case "body":
+			r.req.Body = []byte(val)
+		default:
+			return ErrInvalidKey
+		}
+	case RequestFieldTypeBody:
+		if err := r.req.SetBodyField(key, val); err != nil {
+			return errors.Wrap(err, "failed to get SetBodyField")
+		}
+	case RequestFieldTypeHeader:
+		r.req.Headers[key] = val
+	case RequestFieldTypeParams:
+		r.req.Params[key] = val
+	case RequestFieldTypeState:
+		r.req.State[key] = []byte(val)
+	default:
+		return ErrInvalidFieldType
+	}
+
+	return nil
 }
 
 // SetResponseHeader sets a header on the response
