@@ -243,6 +243,7 @@ pub mod req {
 
     extern {
         fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, ident: i32) -> i32;
+        fn request_set_field(field_type: i32, key_pointer: *const u8, key_size: i32, val_pointer: *const u8, val_size: i32, ident: i32) -> i32;
     }
 
     static FIELD_TYPE_META: i32 = 0 as i32;
@@ -293,6 +294,10 @@ pub mod req {
         }
     }
     
+    pub fn set_header(key: &str, val: &str) -> Option<super::runnable::HostErr> {
+        set_field(FIELD_TYPE_HEADER, key, val)
+    }
+    
     pub fn url_param(key: &str) -> String {
         match get_field(FIELD_TYPE_PARAMS, key) {
             Some(bytes) => return util::to_string(bytes),
@@ -320,6 +325,19 @@ pub mod req {
             Ok(res) => Some(res),
             Err(_) => {
                 None
+            }
+        }
+    }
+    
+    fn set_field(field_type: i32, key: &str, val: &str) -> Option<super::runnable::HostErr> {
+        // make the request over FFI
+        let result_size = unsafe { request_set_field(field_type, key.as_ptr(), key.len() as i32, val.as_ptr(), val.len() as i32, super::STATE.ident) };
+
+        // retreive the result from the host and return it
+        match super::ffi::result(result_size) {
+            Ok(_) => None,
+            Err(e) => {
+                Some(e)
             }
         }
     }
@@ -422,6 +440,10 @@ mod ffi {
     
     pub fn result(size: i32) -> Result<Vec<u8>, super::runnable::HostErr> {
         let mut alloc_size = size;
+
+        if size == 0 {
+            return Ok(Vec::new())
+        }
 
         // FFI functions return negative values when an error occurs
         if size < 0 {

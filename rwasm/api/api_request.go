@@ -71,23 +71,18 @@ func request_set_field(fieldType int32, keyPointer int32, keySize int32, valPoin
 	keyBytes := inst.ReadMemory(keyPointer, keySize)
 	key := string(keyBytes)
 
-	val, err := inst.Ctx().RequestHandler.GetField(fieldType, key)
-	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
+	valBytes := inst.ReadMemory(valPointer, valSize)
+	val := string(valBytes)
 
-		switch err {
-		case rcap.ErrReqNotSet:
-			return -2
-		case rcap.ErrInvalidKey:
-			return -3
-		case rcap.ErrInvalidFieldType:
-			return -4
-		default:
-			return -5
-		}
+	if err := inst.Ctx().RequestHandler.SetField(fieldType, key, val); err != nil {
+		runtime.InternalLogger().Error(errors.Wrap(err, "failed to SetField"))
 	}
 
-	inst.SetFFIResult(val)
+	result, err := inst.SetFFIResult(nil, err)
+	if err != nil {
+		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		return -1
+	}
 
-	return int32(len(val))
+	return result.FFISize()
 }
