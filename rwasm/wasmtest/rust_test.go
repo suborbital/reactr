@@ -104,12 +104,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 		},
 	}
 
-	reqJSON, err := req.ToJSON()
-	if err != nil {
-		t.Error("failed to ToJSON", err)
-	}
-
-	res, err := doWasm(reqJSON).Then()
+	res, err := doWasm(req).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
@@ -125,7 +120,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	}
 }
 
-func TestEmptyRequestBody(t *testing.T) {
+func TestEmptyRequestBodyJSON(t *testing.T) {
 	r := rt.New()
 
 	// using a Rust module
