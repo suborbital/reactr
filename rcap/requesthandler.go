@@ -21,7 +21,9 @@ var (
 
 // RequestHandlerConfig is configuration for the request capability
 type RequestHandlerConfig struct {
-	Enabled bool `json:"enabled" yaml:"enabled"`
+	Enabled       bool `json:"enabled" yaml:"enabled"`
+	AllowGetField bool `json:"allowGetField" yaml:"allowGetField"`
+	AllowSetField bool `json:"allowSetField" yaml:"allowSetField"`
 }
 
 // RequestHandlerCapability allows runnables to handle HTTP requests
@@ -49,6 +51,8 @@ func NewRequestHandler(config RequestHandlerConfig, req *request.CoordinatedRequ
 // GetField gets a field from the attached request
 func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 	if !r.config.Enabled {
+		return nil, ErrCapabilityNotEnabled
+	} else if !r.config.AllowGetField {
 		return nil, ErrCapabilityNotEnabled
 	}
 
@@ -110,6 +114,8 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 // SetField sets a field on the attached request
 func (r *requestHandler) SetField(fieldType int32, key string, val string) error {
 	if !r.config.Enabled {
+		return ErrCapabilityNotEnabled
+	} else if !r.config.AllowSetField {
 		return ErrCapabilityNotEnabled
 	}
 
