@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -82,28 +83,36 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 		}
 	}
 
-	// filter the request through the capabilities
-	resp, err := inst.Ctx().HTTPClient.Do(inst.Ctx().Auth, httpMethod, urlString, body, *headers)
+	// wrap everything in a function so any errors get collected
+	resp, err := func() ([]byte, error) {
+		// filter the request through the capabilities
+		resp, err := inst.Ctx().HTTPClient.Do(inst.Ctx().Auth, httpMethod, urlString, body, *headers)
+		if err != nil {
+			runtime.InternalLogger().Error(errors.Wrap(err, "failed to Do request"))
+			return nil, err
+		}
+
+		defer resp.Body.Close()
+		respBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			runtime.InternalLogger().Error(errors.Wrap(err, "failed to Read response body"))
+		}
+
+		if resp.StatusCode > 299 {
+			runtime.InternalLogger().Debug("runnable's http request returned non-200 response:", resp.StatusCode)
+			return nil, fmt.Errorf("%d: %s", resp.StatusCode, string(respBytes))
+		}
+
+		return respBytes, nil
+	}()
+
+	result, err := inst.SetFFIResult(resp, err)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "failed to Do request"))
-		return -3
+		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		return -1
 	}
 
-	if resp.StatusCode > 299 {
-		runtime.InternalLogger().Debug("runnable's http request returned non-200 response:", resp.StatusCode)
-		return int32(resp.StatusCode) * -1 // return a negative value, i.e. -404 for a 404 error
-	}
-
-	defer resp.Body.Close()
-	respBytes, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "failed to Read response body"))
-		return -4
-	}
-
-	inst.SetFFIResult(respBytes)
-
-	return int32(len(respBytes))
+	return result.FFISize()
 }
 
 func parseHTTPHeaders(urlParts []string) (*http.Header, error) {

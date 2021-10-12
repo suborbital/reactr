@@ -20,8 +20,8 @@ func TestDisabledHTTP(t *testing.T) {
 
 	_, err := doWasm("https://1password.com").Then()
 	if err != nil {
-		if err.Error() != `failed to execute Wasm Runnable: {"code":3,"message":"failed to fetch_url"}` {
-			t.Error("received incorrect error code", err.Error())
+		if err.Error() != `failed to execute Wasm Runnable: {"code":1,"message":"capability is not enabled"}` {
+			t.Error("received incorrect error", err.Error())
 		}
 	} else {
 		t.Error("runnable should have failed")
@@ -54,7 +54,7 @@ func TestDisabledGraphQL(t *testing.T) {
 
 	_, err := r.Do(rt.NewJob("rs-graphql", nil)).Then()
 	if err != nil {
-		if err.Error() != `failed to execute Wasm Runnable: {"code":1,"message":"failed to graphql_query"}` {
+		if err.Error() != `failed to execute Wasm Runnable: {"code":1,"message":"capability is not enabled"}` {
 			t.Error("incorrect error ", err.Error())
 		}
 	} else {

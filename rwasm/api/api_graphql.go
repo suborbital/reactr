@@ -36,19 +36,28 @@ func graphql_query(endpointPointer int32, endpointSize int32, queryPointer int32
 	queryBytes := inst.ReadMemory(queryPointer, querySize)
 	query := string(queryBytes)
 
-	resp, err := inst.Ctx().GraphQLClient.Do(inst.Ctx().Auth, endpoint, query)
+	// wrap everything in a function so any errors get collected
+	resp, err := func() ([]byte, error) {
+		resp, err := inst.Ctx().GraphQLClient.Do(inst.Ctx().Auth, endpoint, query)
+		if err != nil {
+			runtime.InternalLogger().Error(errors.Wrap(err, "failed to GraphQLClient.Do"))
+			return nil, err
+		}
+
+		respBytes, err := json.Marshal(resp)
+		if err != nil {
+			runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to Marshal"))
+			return nil, err
+		}
+
+		return respBytes, nil
+	}()
+
+	result, err := inst.SetFFIResult(resp, err)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "failed to GraphQLClient.Do"))
+		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
 		return -1
 	}
 
-	respBytes, err := json.Marshal(resp)
-	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to Marshal"))
-		return -1
-	}
-
-	inst.SetFFIResult(respBytes)
-
-	return int32(len(respBytes))
+	return result.FFISize()
 }

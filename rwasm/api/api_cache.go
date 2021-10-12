@@ -70,10 +70,13 @@ func cache_get(keyPointer int32, keySize int32, identifier int32) int32 {
 	val, err := inst.Ctx().Cache.Get(string(key))
 	if err != nil {
 		runtime.InternalLogger().ErrorString("[rwasm] failed to get cache key", string(key), err.Error())
-		return -2
 	}
 
-	inst.SetFFIResult(val)
+	result, err := inst.SetFFIResult(val, err)
+	if err != nil {
+		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		return -1
+	}
 
-	return int32(len(val))
+	return result.FFISize()
 }
