@@ -106,7 +106,7 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 		return respBytes, nil
 	}()
 
-	result, err := inst.SetFFIResult(resp, err)
+	result, err := inst.Ctx().SetFFIResult(resp, err)
 	if err != nil {
 		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
 		return -1
