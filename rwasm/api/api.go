@@ -17,6 +17,7 @@ func API() []runtime.HostFn {
 		RequestGetFieldHandler(),
 		RespSetHeaderHandler(),
 		GetStaticFileHandler(),
+		DBExecHandler(),
 		AbortHandler(),
 	}
 

@@ -384,6 +384,21 @@ pub mod file {
     }
 }
 
+pub mod db {
+    static DB_QUERY_TYPE_INSERT: i32 = 0;
+
+    extern {
+        fn db_exec(query_type: i32, name_ptr: *const u8, name_size: i32, ident: i32) -> i32;
+    }
+
+    pub fn insert(name: &str) -> Result<Vec<u8>, super::runnable::HostErr> {
+        let result_size = unsafe { db_exec(DB_QUERY_TYPE_INSERT, name.as_ptr(), name.len() as i32, super::STATE.ident) };
+
+        // retreive the result from the host and return it
+        super::ffi::result(result_size)
+    }
+}
+
 pub mod util {
     pub fn to_string(input: Vec<u8>) -> String {
         String::from_utf8(input).unwrap_or_default()
@@ -418,6 +433,7 @@ mod ffi {
     
     extern {
         fn get_ffi_result(pointer: *const u8, ident: i32) -> i32;
+        fn add_ffi_var(name_ptr: *const u8, name_len: i32, val_ptr: *const u8, val_len: i32, ident: i32) -> i32;
     }
     
     pub fn result(size: i32) -> Result<Vec<u8>, super::runnable::HostErr> {
@@ -455,5 +471,9 @@ mod ffi {
         }
 
         Ok(Vec::from(data))
+    }
+
+    pub fn add_var(name: &str, value: &str) {
+        unsafe { add_ffi_var(name.as_ptr(), name.len() as i32, value.as_ptr(), value.len() as i32, super::STATE.ident);}
     }
 }
