@@ -2,6 +2,7 @@ package wasmtest
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -12,7 +13,12 @@ import (
 )
 
 func TestDBInsertQuery(t *testing.T) {
-	config := rcap.DefaultConfigWithDB(vlog.Default(), "bvzxim39dfti:pscale_pw_7gfxZr0DqAedpAkhJpMfNX5wXKS2eDgZovmzbBoxnns@tcp(ww5mgqwa0v0z.us-east-4.psdb.cloud)/suborbital-compute-network?tls=true")
+	dbConnString, exists := os.LookupEnv("REACTR_DB_CONN_STRING")
+	if !exists {
+		t.Skip("skipping as conn string env var not set")
+	}
+
+	config := rcap.DefaultConfigWithDB(vlog.Default(), dbConnString)
 	r := rt.NewWithConfig(config)
 
 	doWasm := r.Register("rs-dbtest", rwasm.NewRunner("../testdata/rs-dbtest/rs-dbtest.wasm"))
