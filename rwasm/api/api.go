@@ -9,6 +9,7 @@ func API() []runtime.HostFn {
 		ReturnResultHandler(),
 		ReturnErrorHandler(),
 		GetFFIResultHandler(),
+		AddFFIVariableHandler(),
 		FetchURLHandler(),
 		GraphQLQueryHandler(),
 		CacheSetHandler(),

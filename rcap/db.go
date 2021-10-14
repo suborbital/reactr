@@ -12,10 +12,11 @@ var (
 	ErrQueryNotFound     = errors.New("query not found")
 	ErrQueryNotPrepared  = errors.New("query not prepared")
 	ErrQueryTypeMismatch = errors.New("query type incorrect")
+	ErrQueryVarsMismatch = errors.New("number of variables incorrect")
 )
 
 type DatabaseCapability interface {
-	ExecInsertQuery(name string, vars map[string]string) (interface{}, error)
+	ExecInsertQuery(name string, vars []interface{}) (interface{}, error)
 	Prepare(q *Query) error
 }
 
@@ -70,12 +71,12 @@ func NewSqlDatabase(config *DatabaseConfig) DatabaseCapability {
 	q := &Query{
 		Type:     QueryTypeInsert,
 		Name:     "InsertTest",
-		VarCount: 0,
+		VarCount: 2,
 		Query: `
 		INSERT INTO users
 			(uuid, email, created_at, state)
 		VALUES
-			('asdfdfghj', 'connor+1@suborbital.dev', NOW(), 'A')`,
+			(?, ?, NOW(), 'A')`,
 	}
 
 	if err := s.Prepare(q); err != nil {
@@ -87,7 +88,7 @@ func NewSqlDatabase(config *DatabaseConfig) DatabaseCapability {
 }
 
 // ExecInsertQuery executes a prepared Insert query
-func (s *SqlDatabase) ExecInsertQuery(name string, vars map[string]string) (interface{}, error) {
+func (s *SqlDatabase) ExecInsertQuery(name string, vars []interface{}) (interface{}, error) {
 	if !s.config.Enabled {
 		return nil, ErrCapabilityNotEnabled
 	}
@@ -105,7 +106,11 @@ func (s *SqlDatabase) ExecInsertQuery(name string, vars map[string]string) (inte
 		return nil, ErrQueryNotPrepared
 	}
 
-	result, err := query.stmt.Exec()
+	if query.VarCount != len(vars) {
+		return nil, ErrQueryVarsMismatch
+	}
+
+	result, err := query.stmt.Exec(vars...)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Exec")
 	}

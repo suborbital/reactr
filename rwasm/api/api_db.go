@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
+
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm/runtime"
 )
 
@@ -30,7 +33,14 @@ func db_exec(queryType, namePointer, nameSize, identifier int32) int32 {
 	nameBytes := inst.ReadMemory(namePointer, nameSize)
 	name := string(nameBytes)
 
-	_, err = inst.Ctx().Database.ExecInsertQuery(name, nil)
+	vars, err := inst.Ctx().UseVars()
+	if err != nil {
+		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to UseVars"))
+	}
+
+	fmt.Println("VARS:", vars)
+
+	_, err = inst.Ctx().Database.ExecInsertQuery(name, varsToInterface(vars))
 	if err != nil {
 		runtime.InternalLogger().ErrorString("[rwasm] failed to ExexInsertQuery", name, err.Error())
 
@@ -41,4 +51,14 @@ func db_exec(queryType, namePointer, nameSize, identifier int32) int32 {
 	res, _ := inst.Ctx().SetFFIResult([]byte("success!"), nil)
 
 	return res.FFISize()
+}
+
+func varsToInterface(vars []rt.FFIVariable) []interface{} {
+	iVars := []interface{}{}
+
+	for _, v := range vars {
+		iVars = append(iVars, v.Value)
+	}
+
+	return iVars
 }
