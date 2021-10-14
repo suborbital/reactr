@@ -75,7 +75,7 @@ func NewSqlDatabase(config *DatabaseConfig) DatabaseCapability {
 		INSERT INTO users
 			(uuid, email, created_at, state)
 		VALUES
-			('asdfdfg', 'connor@suborbital.dev', NOW(), 'A')`,
+			('asdfdfghj', 'connor+1@suborbital.dev', NOW(), 'A')`,
 	}
 
 	if err := s.Prepare(q); err != nil {
