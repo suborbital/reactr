@@ -45,12 +45,10 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 	// check if the job is a CoordinatedRequest (pointer or bytes), and set up the WasmInstance if so
 	if jobReq, ok := job.Data().(*request.CoordinatedRequest); ok {
 		req = jobReq
-		ctx.UseRequest(req)
-		jobBytes = req.Body
+
 	} else if jobReq, err := request.FromJSON(job.Bytes()); err == nil {
 		req = jobReq
-		ctx.UseRequest(req)
-		jobBytes = req.Body
+
 	} else {
 		// if it's not a request, treat it as normal data
 		bytes, bytesErr := interfaceToBytes(job.Data())
@@ -59,6 +57,11 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 		}
 
 		jobBytes = bytes
+	}
+
+	if req != nil {
+		ctx.UseRequest(req)
+		jobBytes = req.Body
 	}
 
 	var output []byte

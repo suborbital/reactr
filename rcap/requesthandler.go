@@ -1,6 +1,8 @@
 package rcap
 
 import (
+	"strings"
+
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/request"
 )
@@ -84,7 +86,9 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 			return nil, errors.Wrap(err, "failed to get BodyField")
 		}
 	case RequestFieldTypeHeader:
-		header, ok := r.req.Headers[key]
+		// lowercase to make the search case-insensitive
+		lowerKey := strings.ToLower(key)
+		header, ok := r.req.Headers[lowerKey]
 		if ok {
 			val = header
 		} else {

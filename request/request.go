@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/suborbital/vektor/vk"
@@ -36,7 +37,8 @@ func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 
 	flatHeaders := map[string]string{}
 	for k, v := range r.Header {
-		flatHeaders[k] = v[0]
+		//we lowercase the key to have case-insensitive lookup later
+		flatHeaders[strings.ToLower(k)] = v[0]
 	}
 
 	flatParams := map[string]string{}
