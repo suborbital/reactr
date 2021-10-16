@@ -1,0 +1,4 @@
+name: tinygo-hello
+namespace: default
+lang: tinygo
+apiVersion: 0.2.5

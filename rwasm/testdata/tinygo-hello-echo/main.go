@@ -1,11 +1,7 @@
 package main
 
-package main
-
 import (
-	"fmt"
-
-	"github.com/jagger27/hello-wasm/suborbital"
+	"github.com/suborbital/libtinygo"
 )
 
 type Hello struct{}
@@ -16,5 +12,5 @@ func (h Hello) Run(input []byte) []byte {
 
 // insert here
 func main() {
-	suborbital.RUNNABLE = Hello{}
+	libtinygo.RUNNABLE = Hello{}
 }

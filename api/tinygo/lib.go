@@ -1,4 +1,4 @@
-package suborbital
+package libtinygo
 
 // #include <stdint.h>
 // void return_result(void* pointer, int32_t size, int32_t ident);
