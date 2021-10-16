@@ -9,7 +9,7 @@ require (
 	github.com/suborbital/atmo v0.3.1-0.20210811161300-cf9b7d3fbb19
 	github.com/suborbital/grav v0.4.1
 	github.com/suborbital/vektor v0.4.1
-	github.com/wasmerio/wasmer-go v1.0.4
+	github.com/wasmerio/wasmer-go v1.0.5-0.20210830090846-bdfaa48b1016
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
