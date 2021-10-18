@@ -1,7 +1,8 @@
-package libtinygo
+package runnable
 
 // #include <stdint.h>
-// void return_result(void* pointer, int32_t size, int32_t ident);
+// void return_result(void* rawdata, int32_t size, int32_t ident);
+// void return_error(int32_t code, void* rawdata, int32_t size, int32_t ident);
 import "C"
 import (
 	"reflect"
@@ -9,11 +10,21 @@ import (
 	"unsafe"
 )
 
-var RUNNABLE Runnable
+var runnable_ Runnable
+
+func Use(runnable Runnable) {
+	runnable_ = runnable
+}
 
 // The Runnable interface is all that needs to be implemented by a Reactr runnable.
 type Runnable interface {
-	Run(input []byte) []byte
+	Run(input []byte) ([]byte, error)
+}
+
+// RunErr adds a status code for use in FFI calls to return_result()
+type RunErr struct {
+	Code int
+	error
 }
 
 //export allocate
@@ -40,19 +51,46 @@ func deallocate(pointer uintptr, size int32) {
 }
 
 //export run_e
-func run_e(pointer uintptr, size int32, ident int32) {
+func run_e(rawdata uintptr, size int32, ident int32) {
 	var input []byte
 
 	inputHeader := (*reflect.SliceHeader)(unsafe.Pointer(&input))
-	inputHeader.Data = pointer
+	inputHeader.Data = rawdata
 	inputHeader.Len = uintptr(size)
 	inputHeader.Cap = uintptr(size)
 
-	result := RUNNABLE.Run(input)
+	result, err := runnable_.Run(input)
 
-	runtime.KeepAlive(result)
+	if err != nil {
+		returnError(err, ident)
+		return
+	}
 
-	resultHeader := (*reflect.SliceHeader)(unsafe.Pointer(&result))
+	resPtr, resLen := rawSlicePointer(result)
 
-	C.return_result(unsafe.Pointer(resultHeader.Data), int32(len(result)), int32(ident))
+	C.return_result(resPtr, resLen, ident)
+}
+
+func returnError(err error, ident int32) {
+	code := int32(500)
+
+	if err == nil {
+		C.return_error(code, 0, 0, ident)
+		return
+	}
+
+	switch e := err.(type) {
+	case RunErr:
+		code = int32(e.Code)
+	}
+
+	errPtr, errLen := rawSlicePointer([]byte(err.Error()))
+
+	C.return_error(code, errPtr, errLen, ident)
+}
+
+func rawSlicePointer(slice []byte) (unsafe.Pointer, int32) {
+	header := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
+
+	return unsafe.Pointer(header.Data), int32(len(slice))
 }

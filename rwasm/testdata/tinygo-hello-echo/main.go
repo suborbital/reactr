@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/suborbital/libtinygo"
+	"github.com/suborbital/runnable"
 )
 
 type Hello struct{}
 
-func (h Hello) Run(input []byte) []byte {
-	return []byte("Hello, " + string(input))
+func (h Hello) Run(input []byte) ([]byte, error) {
+	return []byte("Hello, " + string(input)), nil
 }
 
 // insert here
 func main() {
-	libtinygo.RUNNABLE = Hello{}
+	runnable.Use(Hello{})
 }
