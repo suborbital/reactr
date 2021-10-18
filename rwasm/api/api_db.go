@@ -39,16 +39,17 @@ func db_exec(queryType, namePointer, nameSize, identifier int32) int32 {
 	}
 
 	fmt.Println("VARS:", vars)
+	fmt.Println("queryType:", queryType)
 
-	_, err = inst.Ctx().Database.ExecInsertQuery(name, varsToInterface(vars))
+	queryResult, err := inst.Ctx().Database.ExecQuery(queryType, name, varsToInterface(vars))
 	if err != nil {
-		runtime.InternalLogger().ErrorString("[rwasm] failed to ExexInsertQuery", name, err.Error())
+		runtime.InternalLogger().ErrorString("[rwasm] failed to ExecQuery", name, err.Error())
 
 		res, _ := inst.Ctx().SetFFIResult(nil, err)
 		return res.FFISize()
 	}
 
-	res, _ := inst.Ctx().SetFFIResult([]byte("success!"), nil)
+	res, _ := inst.Ctx().SetFFIResult(queryResult, nil)
 
 	return res.FFISize()
 }

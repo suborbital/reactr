@@ -12,7 +12,7 @@ import (
 	"github.com/suborbital/vektor/vlog"
 )
 
-func TestDBInsertQuery(t *testing.T) {
+func TestDBQuery(t *testing.T) {
 	dbConnString, exists := os.LookupEnv("REACTR_DB_CONN_STRING")
 	if !exists {
 		t.Skip("skipping as conn string env var not set")
@@ -26,7 +26,8 @@ func TestDBInsertQuery(t *testing.T) {
 	res, err := doWasm(nil).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to doWasm"))
+		return
 	}
 
-	fmt.Println(res)
+	fmt.Println("RESULT:", string(res.([]byte)))
 }
