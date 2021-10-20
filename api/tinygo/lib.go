@@ -5,6 +5,7 @@ package runnable
 // void return_error(int32_t code, void* rawdata, int32_t size, int32_t ident);
 import "C"
 import (
+	"errors"
 	"reflect"
 	"runtime"
 	"unsafe"
@@ -23,8 +24,13 @@ type Runnable interface {
 
 // RunErr adds a status code for use in FFI calls to return_result()
 type RunErr struct {
-	Code int
 	error
+	Code int
+}
+
+// NewError creates a new RunErr, which is a normal Go error plus an error code
+func NewError(message string, code int) RunErr {
+	return RunErr{errors.New(message), code}
 }
 
 //export allocate
@@ -75,7 +81,7 @@ func returnError(err error, ident int32) {
 	code := int32(500)
 
 	if err == nil {
-		C.return_error(code, 0, 0, ident)
+		C.return_error(code, unsafe.Pointer(uintptr(0)), 0, ident)
 		return
 	}
 

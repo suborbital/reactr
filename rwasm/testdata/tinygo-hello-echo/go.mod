@@ -1,9 +1,9 @@
-module vendor.suborbital.dev/default/hello
+module vendor.suborbital.dev/default/tinygo-hello-echo
 
-replace github.com/suborbital/libtinygo => /root/reactr/api/tinygo
+replace github.com/suborbital/runnable => /root/reactr/api/tinygo
 
 require (
-	github.com/suborbital/libtinygo v1.0.0
+	github.com/suborbital/runnable v1.0.0
 )
 
 go 1.17
