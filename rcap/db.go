@@ -7,16 +7,18 @@ import (
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
 
 var (
-	ErrQueryNotFound     = errors.New("query not found")
-	ErrQueryNotPrepared  = errors.New("query not prepared")
-	ErrQueryTypeMismatch = errors.New("query type incorrect")
-	ErrQueryTypeInvalid  = errors.New("query type invalid")
-	ErrQueryVarsMismatch = errors.New("number of variables incorrect")
+	ErrDatabaseTypeInvalid = errors.New("database type invalid")
+	ErrQueryNotFound       = errors.New("query not found")
+	ErrQueryNotPrepared    = errors.New("query not prepared")
+	ErrQueryTypeMismatch   = errors.New("query type incorrect")
+	ErrQueryTypeInvalid    = errors.New("query type invalid")
+	ErrQueryVarsMismatch   = errors.New("number of variables incorrect")
 )
 
 type DatabaseCapability interface {
@@ -26,8 +28,14 @@ type DatabaseCapability interface {
 
 type DatabaseConfig struct {
 	Enabled          bool   `json:"enabled" yaml:"enabled"`
+	DBType           string `json:"dbType" yaml:"dbType"`
 	ConnectionString string `json:"connectionString" yaml:"connectionString"`
 }
+
+const (
+	DBTypeMySQL    = "mysql"
+	DBTypePostgres = "pgx"
+)
 
 type QueryType int32
 
@@ -54,18 +62,19 @@ type SqlDatabase struct {
 }
 
 // NewSqlDatabase creates a new SQL database
-func NewSqlDatabase(config *DatabaseConfig) DatabaseCapability {
+func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	if !config.Enabled || config.ConnectionString == "" {
-		return nil
+		return nil, nil
 	}
 
-	db, err := sqlx.Connect("mysql", config.ConnectionString)
+	if config.DBType != DBTypeMySQL && config.DBType != DBTypePostgres {
+		return nil, ErrDatabaseTypeInvalid
+	}
+
+	db, err := sqlx.Connect(config.DBType, config.ConnectionString)
 	if err != nil {
-		fmt.Println("CONNECT FAILED", err)
-		return nil
+		return nil, errors.Wrap(err, "failed to Connect")
 	}
-
-	fmt.Println("connected!")
 
 	s := &SqlDatabase{
 		config:  config,
@@ -73,37 +82,51 @@ func NewSqlDatabase(config *DatabaseConfig) DatabaseCapability {
 		queries: map[string]*Query{},
 	}
 
-	q := &Query{
-		Type:     QueryTypeInsert,
-		Name:     "InsertTest",
-		VarCount: 2,
-		Query: `
-		INSERT INTO users
-			(uuid, email, created_at, state)
-		VALUES
-			(?, ?, NOW(), 'A')`,
-	}
+	// q := &Query{
+	// 	Type:     QueryTypeInsert,
+	// 	Name:     "InsertTest",
+	// 	VarCount: 2,
+	// 	Query: `
+	// 	INSERT INTO users
+	// 		(uuid, email, created_at, state)
+	// 	VALUES
+	// 		(?, ?, NOW(), 'A')`,
+	// }
 
-	if err := s.Prepare(q); err != nil {
-		fmt.Println("FAILED TO PREPARE:", err)
-		return nil
-	}
+	// if err := s.Prepare(q); err != nil {
+	// 	fmt.Println("FAILED TO PREPARE:", err)
+	// 	return nil, errors.Wrap(err, "failed to Prepare query")
+	// }
 
-	q2 := &Query{
+	// q2 := &Query{
+	// 	Type:     QueryTypeSelect,
+	// 	Name:     "SelectUserWithEmail",
+	// 	VarCount: 1,
+	// 	Query: `
+	// 	SELECT * FROM users
+	// 	WHERE email = ?`,
+	// }
+
+	// if err := s.Prepare(q2); err != nil {
+	// 	fmt.Println("FAILED TO PREPARE Q2:", err)
+	// 	return nil, errors.Wrap(err, "failed to Prepare query")
+	// }
+
+	q3 := &Query{
 		Type:     QueryTypeSelect,
-		Name:     "SelectUserWithEmail",
+		Name:     "PGSelectUserWithEmail",
 		VarCount: 1,
 		Query: `
 		SELECT * FROM users
-		WHERE email = ?`,
+		WHERE email = $1`,
 	}
 
-	if err := s.Prepare(q2); err != nil {
-		fmt.Println("FAILED TO PREPARE Q2:", err)
-		return nil
+	if err := s.Prepare(q3); err != nil {
+		fmt.Println("FAILED TO PREPARE Q3:", err)
+		return nil, errors.Wrap(err, "failed to Prepare query")
 	}
 
-	return s
+	return s, nil
 }
 
 func (s *SqlDatabase) Prepare(q *Query) error {

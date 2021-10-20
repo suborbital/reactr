@@ -13,12 +13,16 @@ func TestDisabledHTTP(t *testing.T) {
 	config := rcap.DefaultCapabilityConfig()
 	config.HTTP = &rcap.HTTPConfig{Enabled: false}
 
-	r := rt.NewWithConfig(config)
+	r, err := rt.NewWithConfig(config)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	// test a WASM module that is loaded directly instead of through the bundle
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/fetch/fetch.wasm"))
 
-	_, err := doWasm("https://1password.com").Then()
+	_, err = doWasm("https://1password.com").Then()
 	if err != nil {
 		if err.Error() != `failed to execute Wasm Runnable: {"code":1,"message":"capability is not enabled"}` {
 			t.Error("received incorrect error", err.Error())
@@ -48,11 +52,15 @@ func TestDisabledGraphQL(t *testing.T) {
 		},
 	}
 
-	r := rt.NewWithConfig(config)
+	r, err := rt.NewWithConfig(config)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	r.Register("rs-graphql", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"))
 
-	_, err := r.Do(rt.NewJob("rs-graphql", nil)).Then()
+	_, err = r.Do(rt.NewJob("rs-graphql", nil)).Then()
 	if err != nil {
 		if err.Error() != `failed to execute Wasm Runnable: {"code":1,"message":"capability is not enabled"}` {
 			t.Error("incorrect error ", err.Error())

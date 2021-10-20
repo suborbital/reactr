@@ -18,8 +18,13 @@ func TestDBQuery(t *testing.T) {
 		t.Skip("skipping as conn string env var not set")
 	}
 
-	config := rcap.DefaultConfigWithDB(vlog.Default(), dbConnString)
-	r := rt.NewWithConfig(config)
+	config := rcap.DefaultConfigWithDB(vlog.Default(), rcap.DBTypePostgres, dbConnString)
+
+	r, err := rt.NewWithConfig(config)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	doWasm := r.Register("rs-dbtest", rwasm.NewRunner("../testdata/rs-dbtest/rs-dbtest.wasm"))
 

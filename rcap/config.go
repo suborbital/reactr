@@ -29,15 +29,15 @@ func DefaultCapabilityConfig() CapabilityConfig {
 
 // DefaultConfigWithLogger returns a capability config with a custom logger
 func DefaultConfigWithLogger(logger *vlog.Logger) CapabilityConfig {
-	return NewConfig(logger, "")
+	return NewConfig(logger, "", "")
 }
 
 // DefaultConfigWithDB returns a capability config with a custom logger and database configured
-func DefaultConfigWithDB(logger *vlog.Logger, dbConnString string) CapabilityConfig {
-	return NewConfig(logger, dbConnString)
+func DefaultConfigWithDB(logger *vlog.Logger, dbType, dbConnString string) CapabilityConfig {
+	return NewConfig(logger, dbType, dbConnString)
 }
 
-func NewConfig(logger *vlog.Logger, dbConnString string) CapabilityConfig {
+func NewConfig(logger *vlog.Logger, dbType, dbConnString string) CapabilityConfig {
 	c := CapabilityConfig{
 		Logger: &LoggerConfig{
 			Enabled: true,
@@ -63,6 +63,7 @@ func NewConfig(logger *vlog.Logger, dbConnString string) CapabilityConfig {
 		},
 		DB: &DatabaseConfig{
 			Enabled:          dbConnString != "",
+			DBType:           dbType,
 			ConnectionString: dbConnString,
 		},
 		RequestHandler: &RequestHandlerConfig{

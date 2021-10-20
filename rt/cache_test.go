@@ -46,11 +46,16 @@ func (c *getTester) OnChange(_ ChangeEvent) error {
 }
 
 func TestCacheGetSet(t *testing.T) {
-	r := setupReactrWithCache()
+	r, err := setupReactrWithCache()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	r.Register("set", &setTester{})
 	r.Register("get", &getTester{})
 
-	_, err := r.Do(NewJob("set", "very important information")).Then()
+	_, err = r.Do(NewJob("set", "very important information")).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to set"))
 		return
@@ -68,11 +73,16 @@ func TestCacheGetSet(t *testing.T) {
 }
 
 func TestCacheGetSetWithTTL(t *testing.T) {
-	r := setupReactrWithCache()
+	r, err := setupReactrWithCache()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	r.Register("set", &setTester{})
 	r.Register("get", &getTester{})
 
-	_, err := r.Do(NewJob("set", "very important information")).Then()
+	_, err = r.Do(NewJob("set", "very important information")).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to set"))
 		return
@@ -87,7 +97,7 @@ func TestCacheGetSetWithTTL(t *testing.T) {
 	}
 }
 
-func setupReactrWithCache() *Reactr {
+func setupReactrWithCache() (*Reactr, error) {
 	var r *Reactr
 
 	if _, exists := os.LookupEnv("REACTR_TEST_REDIS"); exists {
@@ -101,10 +111,14 @@ func setupReactrWithCache() *Reactr {
 			},
 		}
 
-		r = NewWithConfig(config)
+		var err error
+		r, err = NewWithConfig(config)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to NewWithConfig")
+		}
 	} else {
 		r = New()
 	}
 
-	return r
+	return r, nil
 }

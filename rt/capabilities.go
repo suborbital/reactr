@@ -28,12 +28,20 @@ type Capabilities struct {
 }
 
 // DefaultCapabilities returns the default capabilities with the provided Logger
-func DefaultCapabilities(logger *vlog.Logger) Capabilities {
-	return CapabilitiesFromConfig(rcap.DefaultConfigWithLogger(logger))
+func DefaultCapabilities(logger *vlog.Logger) *Capabilities {
+	// this will never error with the default config, as the db capability is disabled
+	caps, _ := CapabilitiesFromConfig(rcap.DefaultConfigWithLogger(logger))
+
+	return caps
 }
 
-func CapabilitiesFromConfig(config rcap.CapabilityConfig) Capabilities {
-	caps := Capabilities{
+func CapabilitiesFromConfig(config rcap.CapabilityConfig) (*Capabilities, error) {
+	database, err := rcap.NewSqlDatabase(config.DB)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to NewSqlDatabase")
+	}
+
+	caps := &Capabilities{
 		config:        config,
 		Auth:          rcap.DefaultAuthProvider(*config.Auth),
 		LoggerSource:  rcap.DefaultLoggerSource(*config.Logger),
@@ -41,13 +49,13 @@ func CapabilitiesFromConfig(config rcap.CapabilityConfig) Capabilities {
 		GraphQLClient: rcap.DefaultGraphQLClient(*config.GraphQL),
 		Cache:         rcap.SetupCache(*config.Cache),
 		FileSource:    rcap.DefaultFileSource(*config.File),
-		Database:      rcap.NewSqlDatabase(config.DB),
+		Database:      database,
 
 		// RequestHandler and doFunc don't get set here since they are set by
 		// the rt and rwasm internals; a better solution for this should probably be found
 	}
 
-	return caps
+	return caps, nil
 }
 
 // Config returns the configuration that was used to create the Capabilities

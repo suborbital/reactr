@@ -6,10 +6,9 @@ struct RsDbtest{}
 impl Runnable for RsDbtest {
     fn run(&self, _: Vec<u8>) -> Result<Vec<u8>, RunErr> {
         let mut args: Vec<db::QueryArg> = Vec::new();
-        // args.push(db::QueryArg{name: String::from("uuid"), value: String::from("qwertyuiop")});
         args.push(db::QueryArg{name: String::from("email"), value: String::from("connor@suborbital.dev")});
 
-        match db::select("SelectUserWithEmail", args) {
+        match db::select("PGSelectUserWithEmail", args) {
             Ok(result) => Ok(result),
             Err(e) => {
                 Err(RunErr::new(500, e.message.as_str()))
