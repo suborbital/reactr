@@ -4,7 +4,8 @@ import (
 	"database/sql"
 	"encoding/binary"
 	"encoding/json"
-	"fmt"
+	"strings"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v4/stdlib"
@@ -94,7 +95,6 @@ func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	// }
 
 	// if err := s.Prepare(q); err != nil {
-	// 	fmt.Println("FAILED TO PREPARE:", err)
 	// 	return nil, errors.Wrap(err, "failed to Prepare query")
 	// }
 
@@ -108,7 +108,6 @@ func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	// }
 
 	// if err := s.Prepare(q2); err != nil {
-	// 	fmt.Println("FAILED TO PREPARE Q2:", err)
 	// 	return nil, errors.Wrap(err, "failed to Prepare query")
 	// }
 
@@ -122,7 +121,6 @@ func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	}
 
 	if err := s.Prepare(q3); err != nil {
-		fmt.Println("FAILED TO PREPARE Q3:", err)
 		return nil, errors.Wrap(err, "failed to Prepare query")
 	}
 
@@ -144,7 +142,6 @@ func (s *SqlDatabase) Prepare(q *Query) error {
 
 func (s *SqlDatabase) ExecQuery(queryType int32, name string, vars []interface{}) ([]byte, error) {
 	// the returned data varies depending on the query type
-	fmt.Println("QUERY TYPE:", queryType)
 
 	switch QueryType(queryType) {
 	case QueryTypeInsert:
@@ -241,6 +238,11 @@ func rowsToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
 		return nil, errors.Wrap(err, "failed to get Columns from query result")
 	}
 
+	types, err := rows.ColumnTypes()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get ColumnTypes from query result")
+	}
+
 	results := []map[string]interface{}{}
 
 	for {
@@ -254,7 +256,7 @@ func rowsToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
 
 		dest := make([]interface{}, len(cols))
 		for i := range dest {
-			var val []byte
+			val := typeFromDBType(types[i].DatabaseTypeName())
 			dest[i] = &val
 		}
 
@@ -265,12 +267,29 @@ func rowsToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
 		result := map[string]interface{}{}
 
 		for i, c := range cols {
-			bytes, _ := dest[i].(*[]byte)
-			result[c] = string(*bytes)
+			result[c] = dest[i]
 		}
 
 		results = append(results, result)
 	}
 
 	return results, nil
+}
+
+// converts a database type to a *non-pointer* Go type
+func typeFromDBType(dbType string) interface{} {
+	switch strings.ToLower(dbType) {
+	case "varchar", "text", "nvarchar", "char", "uuid":
+		return ""
+	case "decimal", "float", "long":
+		return 0.0
+	case "int", "bigint", "number":
+		return int64(0)
+	case "timestamp", "datetime", "time", "date":
+		return time.Time{}
+	case "boolean", "bool":
+		return true
+	default:
+		return []byte{}
+	}
 }
