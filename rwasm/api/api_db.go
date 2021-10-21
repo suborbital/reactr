@@ -1,8 +1,6 @@
 package api
 
 import (
-	"fmt"
-
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm/runtime"
@@ -37,9 +35,6 @@ func db_exec(queryType, namePointer, nameSize, identifier int32) int32 {
 	if err != nil {
 		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to UseVars"))
 	}
-
-	fmt.Println("VARS:", vars)
-	fmt.Println("queryType:", queryType)
 
 	queryResult, err := inst.Ctx().Database.ExecQuery(queryType, name, varsToInterface(vars))
 	if err != nil {

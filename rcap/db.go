@@ -28,9 +28,10 @@ type DatabaseCapability interface {
 }
 
 type DatabaseConfig struct {
-	Enabled          bool   `json:"enabled" yaml:"enabled"`
-	DBType           string `json:"dbType" yaml:"dbType"`
-	ConnectionString string `json:"connectionString" yaml:"connectionString"`
+	Enabled          bool    `json:"enabled" yaml:"enabled"`
+	DBType           string  `json:"dbType" yaml:"dbType"`
+	ConnectionString string  `json:"connectionString" yaml:"connectionString"`
+	Queries          []Query `json:"queries" yaml:"queries"`
 }
 
 const (
@@ -46,12 +47,12 @@ const (
 )
 
 type Query struct {
-	Type     QueryType
-	Name     string
-	VarCount int
-	Query    string
+	Type     QueryType `json:"type" yaml:"type"`
+	Name     string    `json:"name" yaml:"name"`
+	VarCount int       `json:"varCount" yaml:"varCount"`
+	Query    string    `json:"query" yaml:"query"`
 
-	stmt *sqlx.Stmt
+	stmt *sqlx.Stmt `json:"-" yaml:"-"`
 }
 
 // SqlDatabase is an SQL implementation of DatabaseCapability
@@ -83,45 +84,10 @@ func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 		queries: map[string]*Query{},
 	}
 
-	// q := &Query{
-	// 	Type:     QueryTypeInsert,
-	// 	Name:     "InsertTest",
-	// 	VarCount: 2,
-	// 	Query: `
-	// 	INSERT INTO users
-	// 		(uuid, email, created_at, state)
-	// 	VALUES
-	// 		(?, ?, NOW(), 'A')`,
-	// }
-
-	// if err := s.Prepare(q); err != nil {
-	// 	return nil, errors.Wrap(err, "failed to Prepare query")
-	// }
-
-	// q2 := &Query{
-	// 	Type:     QueryTypeSelect,
-	// 	Name:     "SelectUserWithEmail",
-	// 	VarCount: 1,
-	// 	Query: `
-	// 	SELECT * FROM users
-	// 	WHERE email = ?`,
-	// }
-
-	// if err := s.Prepare(q2); err != nil {
-	// 	return nil, errors.Wrap(err, "failed to Prepare query")
-	// }
-
-	q3 := &Query{
-		Type:     QueryTypeSelect,
-		Name:     "PGSelectUserWithEmail",
-		VarCount: 1,
-		Query: `
-		SELECT * FROM users
-		WHERE email = $1`,
-	}
-
-	if err := s.Prepare(q3); err != nil {
-		return nil, errors.Wrap(err, "failed to Prepare query")
+	for _, q := range config.Queries {
+		if err := s.Prepare(&q); err != nil {
+			return nil, errors.Wrapf(err, "failed to Prepare query %s", q.Name)
+		}
 	}
 
 	return s, nil

@@ -18,7 +18,16 @@ func TestDBQuery(t *testing.T) {
 		t.Skip("skipping as conn string env var not set")
 	}
 
-	config := rcap.DefaultConfigWithDB(vlog.Default(), rcap.DBTypePostgres, dbConnString)
+	q := rcap.Query{
+		Type:     rcap.QueryTypeSelect,
+		Name:     "PGSelectUserWithEmail",
+		VarCount: 1,
+		Query: `
+		SELECT * FROM users
+		WHERE email = $1`,
+	}
+
+	config := rcap.DefaultConfigWithDB(vlog.Default(), rcap.DBTypePostgres, dbConnString, []rcap.Query{q})
 
 	r, err := rt.NewWithConfig(config)
 	if err != nil {
