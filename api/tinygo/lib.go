@@ -29,7 +29,7 @@ type RunErr struct {
 }
 
 // NewError creates a new RunErr, which is a normal Go error plus an error code
-func NewError(message string, code int) RunErr {
+func NewError(code int, message string) RunErr {
 	return RunErr{errors.New(message), code}
 }
 
