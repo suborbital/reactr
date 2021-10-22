@@ -11,3 +11,4 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 suborbital = { path = "../../../api/rust/suborbital" }
+uuid = { version = "0.8", features = ["v4"] }

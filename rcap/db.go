@@ -2,7 +2,6 @@ package rcap
 
 import (
 	"database/sql"
-	"encoding/binary"
 	"encoding/json"
 	"strings"
 	"time"
@@ -63,6 +62,10 @@ type SqlDatabase struct {
 	queries map[string]*Query
 }
 
+type insertQueryResult struct {
+	LastInsertID int64 `json:"lastInsertID"`
+}
+
 // NewSqlDatabase creates a new SQL database
 func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	if !config.Enabled || config.ConnectionString == "" {
@@ -84,7 +87,9 @@ func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 		queries: map[string]*Query{},
 	}
 
-	for _, q := range config.Queries {
+	for i := range config.Queries {
+		q := config.Queries[i]
+
 		if err := s.Prepare(&q); err != nil {
 			return nil, errors.Wrapf(err, "failed to Prepare query %s", q.Name)
 		}
@@ -139,7 +144,7 @@ func (s *SqlDatabase) execInsertQuery(name string, vars []interface{}) ([]byte, 
 	}
 
 	if query.VarCount != len(vars) {
-		return nil, ErrQueryVarsMismatch
+		return nil, errors.Wrapf(ErrQueryVarsMismatch, "expected %d variables, got %d", query.VarCount, len(vars))
 	}
 
 	result, err := query.stmt.Exec(vars...)
@@ -150,10 +155,16 @@ func (s *SqlDatabase) execInsertQuery(name string, vars []interface{}) ([]byte, 
 	// no need to check error, if insertID is 0, that's fine
 	insertID, _ := result.LastInsertId()
 
-	idBytes := make([]byte, binary.MaxVarintLen64)
-	len := binary.PutVarint(idBytes, insertID)
+	insertResult := insertQueryResult{
+		LastInsertID: insertID,
+	}
 
-	return idBytes[:len], nil
+	resultJSON, err := json.Marshal(insertResult)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Marshal result")
+	}
+
+	return resultJSON, nil
 }
 
 // execSelectQuery executes a prepared Select query
@@ -176,7 +187,7 @@ func (s *SqlDatabase) execSelectQuery(name string, vars []interface{}) ([]byte, 
 	}
 
 	if query.VarCount != len(vars) {
-		return nil, ErrQueryVarsMismatch
+		return nil, errors.Wrapf(ErrQueryVarsMismatch, "expected %d variables, got %d", query.VarCount, len(vars))
 	}
 
 	rows, err := query.stmt.Query(vars...)
@@ -190,12 +201,12 @@ func (s *SqlDatabase) execSelectQuery(name string, vars []interface{}) ([]byte, 
 		return nil, errors.Wrap(err, "failed to rowsToMap")
 	}
 
-	destJSON, err := json.Marshal(result)
+	resultJSON, err := json.Marshal(result)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Marshal query result")
 	}
 
-	return destJSON, nil
+	return resultJSON, nil
 }
 
 func rowsToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
