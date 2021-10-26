@@ -1,12 +1,12 @@
-use super::{Runnable, RunErr};
+use super::{RunErr, Runnable};
 
 /// A dummy struct to hold down the fort until a real Runnable is set
 pub struct DefaultRunnable;
 
 impl DefaultRunnable {
-	pub const fn new() -> Self {
-		Self
-	}
+    pub const fn new() -> Self {
+        Self
+    }
 }
 
 impl Runnable for DefaultRunnable {
