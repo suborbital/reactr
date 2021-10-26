@@ -104,12 +104,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 		},
 	}
 
-	reqJSON, err := req.ToJSON()
-	if err != nil {
-		t.Error("failed to ToJSON", err)
-	}
-
-	res, err := doWasm(reqJSON).Then()
+	res, err := doWasm(req).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
@@ -125,7 +120,48 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	}
 }
 
-func TestEmptyRequestBody(t *testing.T) {
+func TestWasmRunnerSetRequest(t *testing.T) {
+	r := rt.New()
+
+	// using a Rust module
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/rs-reqset/rs-reqset.wasm"))
+
+	body := testBody{
+		Username: "cohix",
+	}
+
+	bodyJSON, _ := json.Marshal(body)
+
+	req := &request.CoordinatedRequest{
+		Method: "GET",
+		URL:    "/hello/world",
+		ID:     uuid.New().String(),
+		Body:   bodyJSON,
+		State: map[string][]byte{
+			"hello": []byte("what is up"),
+		},
+		Headers: map[string]string{},
+	}
+
+	res, err := doWasm(req).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if val, ok := req.Headers["X-REACTR-TEST"]; !ok {
+		t.Error("header was not set correctly")
+	} else if val != "test successful!" {
+		t.Error(fmt.Errorf("expected 'test successful!', got %s", val))
+	}
+}
+
+func TestEmptyRequestBodyJSON(t *testing.T) {
 	r := rt.New()
 
 	// using a Rust module
@@ -158,7 +194,7 @@ func TestEmptyRequestBody(t *testing.T) {
 	}
 
 	if string(resp.Output) != "hello what is up" {
-		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
+		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(resp.Output)))
 	}
 }
 
