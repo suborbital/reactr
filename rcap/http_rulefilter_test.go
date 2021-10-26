@@ -245,6 +245,30 @@ func TestDisallowedIPs(t *testing.T) {
 		}
 	})
 
+	t.Run("Loopback IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[::1]", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Localhost IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[fe80::1]", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Private IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[fd00::2f00]", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+	
 	t.Run("Resolves to Private disallowed", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet, "http://local.suborbital.network", nil)
 
