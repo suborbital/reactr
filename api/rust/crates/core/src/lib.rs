@@ -19,12 +19,12 @@ use runnable::default_runnable::DefaultRunnable;
 
 /// State struct to hold our dynamic Runnable
 struct State<'a> {
-    ident: i32,
-    runnable: &'a dyn runnable::Runnable,
+	ident: i32,
+	runnable: &'a dyn runnable::Runnable,
 }
 
 /// The state that holds the user-provided Runnable and the current ident
 static mut STATE: State = State {
-    ident: 0,
-    runnable: &DefaultRunnable::new(),
+	ident: 0,
+	runnable: &DefaultRunnable::new(),
 };
