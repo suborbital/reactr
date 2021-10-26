@@ -35,7 +35,7 @@ func request_get_field(fieldType int32, keyPointer int32, keySize int32, identif
 		runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
 	}
 
-	result, err := inst.SetFFIResult(val, err)
+	result, err := inst.Ctx().SetFFIResult(val, err)
 	if err != nil {
 		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
 		return -1
@@ -78,7 +78,7 @@ func request_set_field(fieldType int32, keyPointer int32, keySize int32, valPoin
 		runtime.InternalLogger().Error(errors.Wrap(err, "failed to SetField"))
 	}
 
-	result, err := inst.SetFFIResult(nil, err)
+	result, err := inst.Ctx().SetFFIResult(nil, err)
 	if err != nil {
 		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
 		return -1

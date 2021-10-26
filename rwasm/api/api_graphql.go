@@ -53,7 +53,7 @@ func graphql_query(endpointPointer int32, endpointSize int32, queryPointer int32
 		return respBytes, nil
 	}()
 
-	result, err := inst.SetFFIResult(resp, err)
+	result, err := inst.Ctx().SetFFIResult(resp, err)
 	if err != nil {
 		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
 		return -1
