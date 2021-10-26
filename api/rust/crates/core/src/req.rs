@@ -5,9 +5,17 @@ use crate::util;
 use crate::STATE;
 use field_type::FieldType;
 
-extern {
-	fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, ident: i32) -> i32;
-	fn request_set_field(field_type: i32, key_pointer: *const u8, key_size: i32, val_pointer: *const u8, val_size: i32, ident: i32) -> i32;
+extern "C" {
+    fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, ident: i32)
+        -> i32;
+    fn request_set_field(
+        field_type: i32,
+        key_pointer: *const u8,
+        key_size: i32,
+        val_pointer: *const u8,
+        val_size: i32,
+        ident: i32,
+    ) -> i32;
 }
 
 pub fn method() -> String {
@@ -15,7 +23,7 @@ pub fn method() -> String {
 }
 
 pub fn set_method(val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::Meta.into(), "method", val)
+    set_field(FieldType::Meta.into(), "method", val)
 }
 
 pub fn url() -> String {
@@ -23,7 +31,7 @@ pub fn url() -> String {
 }
 
 pub fn set_url(val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::Meta.into(), "url", val)
+    set_field(FieldType::Meta.into(), "url", val)
 }
 
 pub fn id() -> String {
@@ -35,7 +43,7 @@ pub fn body_raw() -> Vec<u8> {
 }
 
 pub fn set_body(val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::Body.into(), "body", val)
+    set_field(FieldType::Body.into(), "body", val)
 }
 
 pub fn body_field(key: &str) -> String {
@@ -43,7 +51,7 @@ pub fn body_field(key: &str) -> String {
 }
 
 pub fn set_body_field(key: &str, val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::Body.into(), key, val)
+    set_field(FieldType::Body.into(), key, val)
 }
 
 pub fn header(key: &str) -> String {
@@ -51,7 +59,7 @@ pub fn header(key: &str) -> String {
 }
 
 pub fn set_header(key: &str, val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::Header.into(), key, val)
+    set_field(FieldType::Header.into(), key, val)
 }
 
 pub fn url_param(key: &str) -> String {
@@ -59,7 +67,7 @@ pub fn url_param(key: &str) -> String {
 }
 
 pub fn set_url_param(key: &str, val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::Params.into(), key, val)
+    set_field(FieldType::Params.into(), key, val)
 }
 
 pub fn state(key: &str) -> Option<String> {
@@ -67,7 +75,7 @@ pub fn state(key: &str) -> Option<String> {
 }
 
 pub fn set_state(key: &str, val: &str) -> Result<(), super::runnable::HostErr> {
-	set_field(FieldType::State.into(), key, val)
+    set_field(FieldType::State.into(), key, val)
 }
 
 pub fn state_raw(key: &str) -> Option<Vec<u8>> {
@@ -85,14 +93,21 @@ fn get_field(field_type: i32, key: &str) -> Option<Vec<u8>> {
 }
 
 fn set_field(field_type: i32, key: &str, val: &str) -> Result<(), super::runnable::HostErr> {
-	// make the request over FFI
-	let result_size = unsafe { request_set_field(field_type, key.as_ptr(), key.len() as i32, val.as_ptr(), val.len() as i32, super::STATE.ident) };
+    // make the request over FFI
+    let result_size = unsafe {
+        request_set_field(
+            field_type,
+            key.as_ptr(),
+            key.len() as i32,
+            val.as_ptr(),
+            val.len() as i32,
+            super::STATE.ident,
+        )
+    };
 
-	// retreive the result from the host and return it
-	match ffi::result(result_size) {
-		Ok(_) => Ok(()),
-		Err(e) => {
-			Err(e)
-		}
-	}
+    // retreive the result from the host and return it
+    match ffi::result(result_size) {
+        Ok(_) => Ok(()),
+        Err(e) => Err(e),
+    }
 }
