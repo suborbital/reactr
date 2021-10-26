@@ -109,7 +109,7 @@ func resolvesToPrivate(host string) error {
 	}
 
 	for _, ip := range ips {
-		if isPrivate(ip) {
+		if ip.IsPrivate() || ip.IsLoopback() || ip.IsUnspecified() {
 			return ErrPrivateDisallowed
 		}
 	}
@@ -164,34 +164,6 @@ func matchesDomain(pattern, domain string) bool {
 	}
 
 	return true
-}
-
-var privateIPNetworks = []net.IPNet{
-	{
-		IP:   net.ParseIP("10.0.0.0"),
-		Mask: net.CIDRMask(8, 32),
-	},
-	{
-		IP:   net.ParseIP("127.0.0.0"),
-		Mask: net.CIDRMask(8, 32),
-	},
-	{
-		IP:   net.ParseIP("172.16.0.0"),
-		Mask: net.CIDRMask(12, 32),
-	},
-	{
-		IP:   net.ParseIP("192.168.0.0"),
-		Mask: net.CIDRMask(16, 32),
-	},
-}
-
-func isPrivate(ip net.IP) bool {
-	for _, ipNet := range privateIPNetworks {
-		if ipNet.Contains(ip) {
-			return true
-		}
-	}
-	return false
 }
 
 // defaultHTTPRules returns the default rules with all requests allowed
