@@ -211,18 +211,9 @@ func TestBlockedWithCNAME(t *testing.T) {
 func TestDisallowedIPs(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.AllowIPs = false
-	rules.AllowPrivate = false
 
 	t.Run("IP disallowed", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet, "http://100.11.12.13", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Private disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://localhost", nil)
 
 		if err := rules.requestIsAllowed(req); err == nil {
 			t.Error("error did not occur, should have")
@@ -268,9 +259,9 @@ func TestDisallowedIPs(t *testing.T) {
 			t.Error("error did not occur, should have")
 		}
 	})
-	
-	t.Run("Resolves to Private disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://local.suborbital.network", nil)
+
+	t.Run("Public IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[2604:a880:cad:d0::dff:7001]", nil)
 
 		if err := rules.requestIsAllowed(req); err == nil {
 			t.Error("error did not occur, should have")
@@ -279,6 +270,83 @@ func TestDisallowedIPs(t *testing.T) {
 
 	t.Run("domain allowed", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet, "http://friday.com", nil)
+
+		if err := rules.requestIsAllowed(req); err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+
+	t.Run("localhost allowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://localhost:8080", nil)
+
+		if err := rules.requestIsAllowed(req); err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+}
+
+func TestDisallowedLocal(t *testing.T) {
+	rules := defaultHTTPRules()
+	rules.AllowPrivate = false
+
+	t.Run("Loopback IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[::1]", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Localhost IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[fe80::1]", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Private IPv6 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://[fd00::2f00]", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Resolves to Private disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://local.suborbital.network", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Private disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://localhost", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Localhost IP disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://127.0.0.1", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Private IP disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://192.168.0.11", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("Resolves to public allowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "https://suborbital.dev", nil)
 
 		if err := rules.requestIsAllowed(req); err != nil {
 			t.Error("error occurred, should not have:", err)

@@ -27,7 +27,10 @@ type HTTPRules struct {
 
 // requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed
 func (h HTTPRules) requestIsAllowed(req *http.Request) error {
-	hosts := []string{req.URL.Host}
+	// remove square brackets from raw IPv6 host
+	cleanHost := strings.TrimSuffix(strings.TrimPrefix(req.URL.Host, "["), "]")
+
+	hosts := []string{cleanHost}
 
 	if !h.AllowHTTP {
 		if req.URL.Scheme == "http" {
@@ -36,7 +39,7 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	}
 
 	// determine if the passed-in host is an IP address
-	isRawIP := net.ParseIP(req.URL.Host) != nil
+	isRawIP := net.ParseIP(cleanHost) != nil
 	if !h.AllowIPs && isRawIP {
 		return ErrIPsDisallowed
 	}
@@ -109,7 +112,7 @@ func resolvesToPrivate(host string) error {
 	}
 
 	for _, ip := range ips {
-		if ip.IsPrivate() || ip.IsLoopback() || ip.IsUnspecified() {
+		if ip.IsPrivate() || !ip.IsGlobalUnicast() {
 			return ErrPrivateDisallowed
 		}
 	}
