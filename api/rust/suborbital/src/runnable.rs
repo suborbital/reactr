@@ -1,5 +1,7 @@
 pub mod default_runnable;
 
+pub use codegen::Runnable;
+
 use std::mem;
 use std::slice;
 use crate::util;
