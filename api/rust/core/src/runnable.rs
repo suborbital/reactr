@@ -93,17 +93,8 @@ pub unsafe extern "C" fn run_e(pointer: *const u8, size: i32, ident: i32) {
 
 	// call back to reactr to return the result or error
 	if code != 0 {
-		return_error(
-			code,
-			result_slice.as_ptr() as *const u8,
-			result_size as i32,
-			ident,
-		);
+		return_error(code, result_slice.as_ptr() as *const u8, result_size as i32, ident);
 	} else {
-		return_result(
-			result_slice.as_ptr() as *const u8,
-			result_size as i32,
-			ident,
-		);
+		return_result(result_slice.as_ptr() as *const u8, result_size as i32, ident);
 	}
 }

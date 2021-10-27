@@ -6,8 +6,7 @@ use crate::STATE;
 use field_type::FieldType;
 
 extern "C" {
-	fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, ident: i32)
-		-> i32;
+	fn request_get_field(field_type: i32, key_pointer: *const u8, key_size: i32, ident: i32) -> i32;
 	fn request_set_field(
 		field_type: i32,
 		key_pointer: *const u8,
@@ -86,8 +85,7 @@ pub fn state_raw(key: &str) -> Option<Vec<u8>> {
 ///
 /// Then retreives the result from the host and returns it
 fn get_field(field_type: i32, key: &str) -> Option<Vec<u8>> {
-	let result_size =
-		unsafe { request_get_field(field_type, key.as_ptr(), key.len() as i32, STATE.ident) };
+	let result_size = unsafe { request_get_field(field_type, key.as_ptr(), key.len() as i32, STATE.ident) };
 
 	ffi::result(result_size).map_or(None, Option::from)
 }

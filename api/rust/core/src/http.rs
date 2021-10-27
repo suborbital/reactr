@@ -22,19 +22,11 @@ pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, 
 	do_request(Method::GET.into(), url, None, headers)
 }
 
-pub fn post(
-	url: &str,
-	body: Option<Vec<u8>>,
-	headers: Option<BTreeMap<&str, &str>>,
-) -> Result<Vec<u8>, HostErr> {
+pub fn post(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
 	do_request(Method::POST.into(), url, body, headers)
 }
 
-pub fn patch(
-	url: &str,
-	body: Option<Vec<u8>>,
-	headers: Option<BTreeMap<&str, &str>>,
-) -> Result<Vec<u8>, HostErr> {
+pub fn patch(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
 	do_request(Method::PATCH.into(), url, body, headers)
 }
 
