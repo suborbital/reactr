@@ -33,14 +33,6 @@ name = "suborbital"
 version = "0.12.0"
 dependencies = [
  "codegen",
- "suborbital-core",
-]
-
-[[package]]
-name = "suborbital-core"
-version = "0.12.0"
-dependencies = [
- "codegen",
 ]
 
 [[package]]

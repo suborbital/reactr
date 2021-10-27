@@ -1,4 +1,4 @@
 [workspace]
 members = [
-  "api/rust"
+  "api/rust/*"
 ]
