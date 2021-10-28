@@ -69,14 +69,16 @@ type insertQueryResult struct {
 // NewSqlDatabase creates a new SQL database
 func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	if !config.Enabled || config.ConnectionString == "" {
-		return nil, nil
+		return &SqlDatabase{config: config}, nil
 	}
 
 	if config.DBType != DBTypeMySQL && config.DBType != DBTypePostgres {
 		return nil, ErrDatabaseTypeInvalid
 	}
 
-	db, err := sqlx.Connect(config.DBType, config.ConnectionString)
+	augmentedConnString := AugmentedValFromEnv(config.ConnectionString)
+
+	db, err := sqlx.Connect(config.DBType, augmentedConnString)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Connect")
 	}
