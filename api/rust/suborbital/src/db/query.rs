@@ -1,3 +1,9 @@
+
+pub struct QueryArg {
+	pub name: String,
+	pub value: String
+}
+
 pub enum QueryType {
 	SELECT,
 	INSERT,

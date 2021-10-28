@@ -4,12 +4,7 @@ use crate::ffi;
 use crate::runnable;
 use crate::STATE;
 
-use query::QueryType;
-
-pub struct QueryArg {
-	pub name: String,
-	pub value: String
-}
+use query::{QueryArg, QueryType};
 
 extern {
 	fn db_exec(query_type: i32, name_ptr: *const u8, name_size: i32, ident: i32) -> i32;
