@@ -1,12 +1,11 @@
-
 pub struct QueryArg {
 	pub name: String,
-	pub value: String
+	pub value: String,
 }
 
 impl QueryArg {
-	pub fn new(name: &str, value: &str) -> Self{
-		QueryArg{
+	pub fn new(name: &str, value: &str) -> Self {
+		QueryArg {
 			name: String::from(name),
 			value: String::from(value),
 		}
