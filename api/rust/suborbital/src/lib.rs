@@ -1,4 +1,5 @@
 pub mod runnable;
+pub mod db;
 pub mod graphql;
 pub mod http;
 pub mod cache;

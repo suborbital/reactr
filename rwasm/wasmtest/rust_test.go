@@ -52,7 +52,11 @@ func TestGraphQLRunner(t *testing.T) {
 		},
 	}
 
-	r := rt.NewWithConfig(config)
+	r, err := rt.NewWithConfig(config)
+	if err != nil {
+		t.Error(err)
+		return
+	}
 
 	r.Register("rs-graphql", rwasm.NewRunner("../testdata/rs-graphql/rs-graphql.wasm"))
 

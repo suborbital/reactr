@@ -24,7 +24,7 @@ type FFIResult struct {
 // such as a DB query. They are both ordered AND named, stored on the instance itself.
 type FFIVariable struct {
 	Name  string
-	Value string
+	Value interface{}
 }
 
 func newCtx(caps *Capabilities) *Ctx {
