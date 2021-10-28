@@ -56,7 +56,7 @@ func (c *Ctx) UseRequest(req *request.CoordinatedRequest) {
 		return
 	}
 
-	c.RequestHandler = rcap.NewRequestHandler(rcap.RequestHandlerConfig{Enabled: true}, req)
+	c.RequestHandler = rcap.NewRequestHandler(*c.Capabilities.RequestConfig, req)
 }
 
 func (c *Ctx) SetFFIResult(result []byte, err error) (*FFIResult, error) {

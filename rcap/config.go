@@ -68,7 +68,9 @@ func NewConfig(logger *vlog.Logger, dbType, dbConnString string, queries []Query
 			Queries:          queries,
 		},
 		RequestHandler: &RequestHandlerConfig{
-			Enabled: true,
+			Enabled:       true,
+			AllowGetField: true,
+			AllowSetField: true,
 		},
 	}
 

@@ -1,0 +1,38 @@
+pub mod query;
+
+use crate::ffi;
+use crate::runnable;
+use crate::STATE;
+
+use query::QueryType;
+
+pub struct QueryArg {
+	pub name: String,
+	pub value: String
+}
+
+extern {
+	fn db_exec(query_type: i32, name_ptr: *const u8, name_size: i32, ident: i32) -> i32;
+}
+
+pub fn insert(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::HostErr> {
+	for a in args {
+		ffi::add_var(a.name.as_str(), a.value.as_str())
+	}
+
+	let result_size = unsafe { db_exec(QueryType::INSERT.into(), name.as_ptr(), name.len() as i32, STATE.ident) };
+
+	// retreive the result from the host and return it
+	ffi::result(result_size)
+}
+
+pub fn select(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::HostErr> {
+	for a in args {
+		ffi::add_var(a.name.as_str(), a.value.as_str())
+	}
+
+	let result_size = unsafe { db_exec(QueryType::SELECT.into(), name.as_ptr(), name.len() as i32, STATE.ident) };
+
+	// retreive the result from the host and return it
+	ffi::result(result_size)
+}
