@@ -29,4 +29,4 @@ static mut STATE: State = State {
 	runnable: &DefaultRunnable::new(),
 };
 
-pub use codegen::*;
+pub use suborbital_macro::*;

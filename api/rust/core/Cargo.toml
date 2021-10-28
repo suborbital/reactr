@@ -12,4 +12,4 @@ homepage = "https://suborbital.dev"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-codegen = { path = "../codegen", version = "0.1.0" }
+suborbital-macro = { path = "../codegen", version = "0.1.0" }
