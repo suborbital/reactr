@@ -16,9 +16,8 @@ extern {
 // the return value is the inserted auto-increment ID from the query result, if any,
 // formatted as JSON with the key `lastInsertID`
 pub fn insert(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::HostErr> {
-	for a in args {
-		ffi::add_var(a.name.as_str(), a.value.as_str())
-	}
+	args.iter()
+		.for_each(|arg| ffi::add_var(&arg.name, &arg.value));
 
 	let result_size = unsafe { db_exec(QueryType::INSERT.into(), name.as_ptr(), name.len() as i32, STATE.ident) };
 
@@ -31,9 +30,8 @@ pub fn insert(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::Host
 //
 // the return value is the query result formatted as JSON, with each column name as a top-level key
 pub fn select(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::HostErr> {
-	for a in args {
-		ffi::add_var(a.name.as_str(), a.value.as_str())
-	}
+	args.iter()
+		.for_each(|arg| ffi::add_var(&arg.name, &arg.value));
 
 	let result_size = unsafe { db_exec(QueryType::SELECT.into(), name.as_ptr(), name.len() as i32, STATE.ident) };
 
