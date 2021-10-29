@@ -1,6 +1,5 @@
 use crate::STATE;
 use std::mem;
-use std::slice;
 
 extern "C" {
 	fn return_result(result_pointer: *const u8, result_size: i32, ident: i32);
@@ -60,8 +59,8 @@ pub unsafe extern "C" fn allocate(size: i32) -> *const u8 {
 
 /// # Safety
 #[no_mangle]
-pub unsafe extern "C" fn deallocate(pointer: *const u8, size: i32) {
-	let _ = slice::from_raw_parts(pointer, size as usize);
+pub unsafe extern fn deallocate(pointer: *mut u8, size: i32) {
+	drop(Vec::from_raw_parts(pointer, size as usize, size as usize))
 }
 
 /// # Safety
