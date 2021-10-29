@@ -1,3 +1,5 @@
+pub use suborbital_macro::*;
+
 pub mod cache;
 pub mod db;
 pub mod ffi;
@@ -25,4 +27,3 @@ static mut STATE: State = State {
 	runnable: None,
 };
 
-pub use suborbital_macro::*;
