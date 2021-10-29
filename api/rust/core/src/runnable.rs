@@ -1,7 +1,4 @@
-pub mod default_runnable;
-
-use crate::{util, STATE};
-
+use crate::STATE;
 use std::mem;
 use std::slice;
 
@@ -42,7 +39,7 @@ pub trait Runnable {
 
 pub fn use_runnable(runnable: &'static dyn Runnable) {
 	unsafe {
-		STATE.runnable = runnable;
+		STATE.runnable = Some(runnable);
 	}
 }
 
@@ -69,32 +66,25 @@ pub unsafe extern "C" fn deallocate(pointer: *const u8, size: i32) {
 
 /// # Safety
 #[no_mangle]
-pub unsafe extern "C" fn run_e(pointer: *const u8, size: i32, ident: i32) {
+pub unsafe extern "C" fn run_e(pointer: *mut u8, size: i32, ident: i32) {
 	STATE.ident = ident;
 
 	// rebuild the memory into something usable
-	let in_slice: &[u8] = slice::from_raw_parts(pointer, size as usize);
+	let in_bytes = Vec::from_raw_parts(pointer, size as usize, size as usize);
 
-	let in_bytes = Vec::from(in_slice);
-
-	let mut code = 0;
-
-	// call the runnable and check its result
-	let result: Vec<u8> = match STATE.runnable.run(in_bytes) {
-		Ok(val) => val,
-		Err(e) => {
-			code = e.code;
-			util::to_vec(e.message)
+	match execute_runnable(STATE.runnable, in_bytes) {
+		Ok(data) => {
+			return_result(data.as_ptr(), data.len() as i32, ident);
 		}
-	};
-
-	let result_slice = result.as_slice();
-	let result_size = result_slice.len();
-
-	// call back to reactr to return the result or error
-	if code != 0 {
-		return_error(code, result_slice.as_ptr() as *const u8, result_size as i32, ident);
-	} else {
-		return_result(result_slice.as_ptr() as *const u8, result_size as i32, ident);
+		Err(RunErr { code, message }) => {
+			return_error(code, message.as_ptr(), message.len() as i32, ident);
+		}
 	}
+}
+
+fn execute_runnable(runnable: Option<&dyn Runnable>, data: Vec<u8>) -> Result<Vec<u8>, RunErr> {
+	if let Some(runnable) = runnable {
+		return runnable.run(data);
+	}
+	Err(RunErr::new(-1, "No runnable set"))
 }
