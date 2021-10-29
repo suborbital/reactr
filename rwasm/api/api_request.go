@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/rwasm/runtime"
 )
 
@@ -30,9 +31,16 @@ func request_get_field(fieldType int32, keyPointer int32, keySize int32, identif
 	keyBytes := inst.ReadMemory(keyPointer, keySize)
 	key := string(keyBytes)
 
+	// err gets used in SetFFIResult below rather than returned
 	val, err := inst.Ctx().RequestHandler.GetField(fieldType, key)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
+		if err == rcap.ErrKeyNotFound {
+			// treat this as an empty value rather than an actual error
+			val = []byte{}
+			err = nil
+		} else {
+			runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
+		}
 	}
 
 	result, err := inst.Ctx().SetFFIResult(val, err)
