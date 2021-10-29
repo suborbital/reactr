@@ -109,7 +109,7 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 			return nil, ErrInvalidKey
 		}
 	default:
-		return nil, ErrInvalidFieldType
+		return nil, errors.Wrapf(ErrInvalidFieldType, "module requested field type %d", fieldType)
 	}
 
 	return []byte(val), nil
