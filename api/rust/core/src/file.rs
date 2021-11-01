@@ -1,7 +1,7 @@
-use crate::STATE;
 use crate::ffi;
+use crate::STATE;
 
-extern {
+extern "C" {
 	fn get_static_file(name_ptr: *const u8, name_size: i32, ident: i32) -> i32;
 }
 
@@ -13,8 +13,6 @@ pub fn get_static(name: &str) -> Option<Vec<u8>> {
 
 	match ffi::result(result_size) {
 		Ok(res) => Some(res),
-		Err(_) => {
-			None
-		}
+		Err(_) => None,
 	}
 }

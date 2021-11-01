@@ -1,6 +1,6 @@
 use crate::STATE;
 
-extern {
+extern "C" {
 	fn log_msg(pointer: *const u8, result_size: i32, level: i32, ident: i32);
 }
 

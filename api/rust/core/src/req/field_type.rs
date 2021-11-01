@@ -3,11 +3,11 @@ pub enum FieldType {
 	Body,
 	Header,
 	Params,
-	State
+	State,
 }
 
 impl From<FieldType> for i32 {
-    fn from(field_type: FieldType) -> Self {
+	fn from(field_type: FieldType) -> Self {
 		match field_type {
 			FieldType::Meta => 0,
 			FieldType::Body => 1,
@@ -15,5 +15,5 @@ impl From<FieldType> for i32 {
 			FieldType::Params => 3,
 			FieldType::State => 4,
 		}
-    }
+	}
 }

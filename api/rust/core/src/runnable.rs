@@ -1,10 +1,8 @@
-pub use codegen::Runnable;
-
 use crate::STATE;
 use std::mem;
 use std::slice;
 
-extern {
+extern "C" {
 	fn return_result(result_pointer: *const u8, result_size: i32, ident: i32);
 	fn return_error(code: i32, result_pointer: *const u8, result_size: i32, ident: i32);
 }
@@ -50,7 +48,7 @@ pub fn use_runnable(runnable: &'static dyn Runnable) {
 /// We hand over the the pointer to the allocated memory.
 /// Caller has to ensure that the memory gets freed again.
 #[no_mangle]
-pub unsafe extern fn allocate(size: i32) -> *const u8 {
+pub unsafe extern "C" fn allocate(size: i32) -> *const u8 {
 	let mut buffer = Vec::with_capacity(size as usize);
 
 	let pointer = buffer.as_mut_ptr();
@@ -62,13 +60,13 @@ pub unsafe extern fn allocate(size: i32) -> *const u8 {
 
 /// # Safety
 #[no_mangle]
-pub unsafe extern fn deallocate(pointer: *const u8, size: i32) {
+pub unsafe extern "C" fn deallocate(pointer: *const u8, size: i32) {
 	let _ = slice::from_raw_parts(pointer, size as usize);
 }
 
 /// # Safety
 #[no_mangle]
-pub unsafe extern fn run_e(pointer: *mut u8, size: i32, ident: i32) {
+pub unsafe extern "C" fn run_e(pointer: *mut u8, size: i32, ident: i32) {
 	STATE.ident = ident;
 
 	// rebuild the memory into something usable
@@ -84,7 +82,7 @@ pub unsafe extern fn run_e(pointer: *mut u8, size: i32, ident: i32) {
 	}
 }
 
-fn execute_runnable(runnable: Option<& dyn Runnable>, data: Vec<u8>) -> Result<Vec<u8>, RunErr> {
+fn execute_runnable(runnable: Option<&dyn Runnable>, data: Vec<u8>) -> Result<Vec<u8>, RunErr> {
 	if let Some(runnable) = runnable {
 		return runnable.run(data);
 	}

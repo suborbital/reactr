@@ -2,13 +2,20 @@ pub mod method;
 
 use std::collections::BTreeMap;
 
-use crate::runnable::HostErr;
 use crate::ffi;
+use crate::runnable::HostErr;
 use crate::STATE;
 use method::Method;
 
-extern {
-	fn fetch_url(method: i32, url_pointer: *const u8, url_size: i32, body_pointer: *const u8, body_size: i32, ident: i32) -> i32;
+extern "C" {
+	fn fetch_url(
+		method: i32,
+		url_pointer: *const u8,
+		url_size: i32,
+		body_pointer: *const u8,
+		body_size: i32,
+		ident: i32,
+	) -> i32;
 }
 
 pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
@@ -33,12 +40,17 @@ pub fn delete(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8
 ///
 /// > Remark: The URL gets encoded with headers added on the end, seperated by ::
 /// > eg. https://google.com/somepage::authorization:bearer qdouwrnvgoquwnrg::anotherheader:nicetomeetyou
-fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
+fn do_request(
+	method: i32,
+	url: &str,
+	body: Option<Vec<u8>>,
+	headers: Option<BTreeMap<&str, &str>>,
+) -> Result<Vec<u8>, HostErr> {
 	let header_string = render_header_string(headers);
-	
+
 	let url_string = match header_string {
 		Some(h) => format!("{}::{}", url, h),
-		None => String::from(url)
+		None => String::from(url),
 	};
 
 	let body_pointer: *const u8;
@@ -49,12 +61,19 @@ fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTr
 			let body_slice = b.as_slice();
 			body_pointer = body_slice.as_ptr();
 			body_size = b.len() as i32;
-		},
-		None => body_pointer = std::ptr::null::<u8>()
+		}
+		None => body_pointer = std::ptr::null::<u8>(),
 	}
-	
+
 	let result_size = unsafe {
-		fetch_url(method, url_string.as_str().as_ptr(), url_string.len() as i32, body_pointer, body_size, STATE.ident)
+		fetch_url(
+			method,
+			url_string.as_str().as_ptr(),
+			url_string.len() as i32,
+			body_pointer,
+			body_size,
+			STATE.ident,
+		)
 	};
 
 	ffi::result(result_size)
@@ -62,7 +81,7 @@ fn do_request(method: i32, url: &str, body: Option<Vec<u8>>, headers: Option<BTr
 
 fn render_header_string(headers: Option<BTreeMap<&str, &str>>) -> Option<String> {
 	let mut rendered: String = String::from("");
-	
+
 	let header_map = headers?;
 
 	for key in header_map.keys() {

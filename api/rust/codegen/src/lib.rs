@@ -6,7 +6,7 @@ use syn::DeriveInput;
 #[proc_macro_derive(Runnable)]
 pub fn derive_runnable(token_stream: TokenStream) -> TokenStream {
 	let input = parse_macro_input!(token_stream as DeriveInput);
-	
+
 	let runnable_name = input.ident;
 
 	let expanded = quote! {
