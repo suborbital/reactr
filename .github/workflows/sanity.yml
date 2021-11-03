@@ -28,7 +28,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh auth login --with-token $(echo $GITHUB_TOKEN)
           gh repo clone suborbital/subo
           cd subo
           make subo
