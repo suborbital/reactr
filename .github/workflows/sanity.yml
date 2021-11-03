@@ -33,6 +33,7 @@ jobs:
 
       - name: Build testdata
         run: |
+          go get -g github.com/suborbital/subo/subo
           make testdata/docker
         
         # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
