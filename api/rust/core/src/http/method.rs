@@ -8,10 +8,10 @@ pub enum Method {
 impl From<Method> for i32 {
 	fn from(field_type: Method) -> Self {
 		match field_type {
-			Method::GET => 0,
-			Method::POST => 1,
-			Method::PATCH => 2,
-			Method::DELETE => 3,
+			Method::GET => 1,
+			Method::POST => 2,
+			Method::PATCH => 3,
+			Method::DELETE => 4,
 		}
 	}
 }
