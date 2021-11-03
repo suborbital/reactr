@@ -26,6 +26,7 @@ jobs:
 
       - name: Install Subo
         run: |
+          gh auth login --with-token $GITHUB_TOKEN
           gh repo clone suborbital/subo
           cd subo
           make subo
