@@ -7,6 +7,9 @@ test/multi: test
 testdata:
 	subo build ./rwasm/testdata/ --native
 
+testdata/docker:
+	subo build ./rwasm/testdata/
+
 crate/check:
 	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi --dry-run
 
