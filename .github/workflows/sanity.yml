@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Subo
         run: |
-          git clone git@github.com:suborbital/subo.git
+          gh repo clone suborbital/subo
           cd subo
           make subo
           cd ../
