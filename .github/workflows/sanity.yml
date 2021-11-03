@@ -33,6 +33,7 @@ jobs:
           make subo
           cd ../
           rm -rf subo
+          export PATH=${PATH}:`go env GOPATH`/bin
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
@@ -43,7 +44,7 @@ jobs:
 
       - name: Build testdata
         run: |
-          /go/bin/subo build ./rwasm/testdata/
+          make testdata/docker
         
         # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
