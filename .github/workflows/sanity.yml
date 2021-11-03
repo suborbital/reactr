@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2-beta
         with:
           go-version: ${{ matrix.golang }}
         id: go
@@ -33,7 +33,6 @@ jobs:
           make subo
           cd ../
           rm -rf subo
-          export PATH=${PATH}:`go env GOPATH`/bin
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
