@@ -25,6 +25,8 @@ jobs:
         id: go
 
       - name: Install Subo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh auth login --with-token $(echo $GITHUB_TOKEN)
           gh repo clone suborbital/subo
