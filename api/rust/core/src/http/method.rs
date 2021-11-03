@@ -1,17 +1,24 @@
 pub enum Method {
 	GET,
+	HEAD,
+	OPTIONS,
 	POST,
+	PUT,
 	PATCH,
 	DELETE,
 }
 
 impl From<Method> for i32 {
+	use Method::*;
 	fn from(field_type: Method) -> Self {
 		match field_type {
-			Method::GET => 0,
-			Method::POST => 1,
-			Method::PATCH => 2,
-			Method::DELETE => 3,
+			GET => 0,
+			HEAD => 1,
+			OPTIONS => 2,
+			POST => 3,
+			PUT => 4,
+			PATCH => 5,
+			DELETE => 6,
 		}
 	}
 }
