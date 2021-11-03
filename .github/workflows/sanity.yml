@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
         matrix:
-          os: [ubuntu-latest, macos-latest]
+          os: [ubuntu-latest]
           golang: [1.17]
 
     name: Test
@@ -19,10 +19,21 @@ jobs:
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.golang }}
         id: go
+
+      - name: Install Subo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh repo clone suborbital/subo
+          cd subo
+          gh pr checkout 113
+          make subo
+          cd ../
+          rm -rf subo
 
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
@@ -33,7 +44,7 @@ jobs:
 
       - name: Build testdata
         run: |
-          make testdata/docker
+          make testdata/docker/dev
         
         # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
