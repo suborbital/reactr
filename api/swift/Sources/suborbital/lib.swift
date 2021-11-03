@@ -44,8 +44,9 @@ public func Set(runnable: Runnable) {
     RUNNABLE = runnable
 }
 
-let httpMethodGet = Int32(1)
-let httpMethodPost = Int32(2)
+let httpMethodGet = Int32(0)
+let httpMethodPost = Int32(1)
+let httpMethodPut = Int32(2)
 let httpMethodPatch = Int32(3)
 let httpMethodDelete = Int32(4)
 
@@ -55,6 +56,10 @@ public func HttpGet(url: String) -> String {
 
 public func HttpPost(url: String, body: String) -> String {
     return fetch(method: httpMethodPost, url: url, body: body)
+}
+
+public func HttpPut(url: String, body: String) -> String {
+    return fetch(method: httpMethodPut, url: url, body: body)
 }
 
 public func HttpPatch(url: String, body: String) -> String {

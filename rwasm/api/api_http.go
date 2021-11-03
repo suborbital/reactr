@@ -11,8 +11,9 @@ import (
 )
 
 const (
-	methodGet    = int32(1)
-	methodPost   = int32(2)
+	methodGet    = int32(0)
+	methodPost   = int32(1)
+	methodPut    = int32(2)
 	methodPatch  = int32(3)
 	methodDelete = int32(4)
 )
@@ -26,6 +27,7 @@ const (
 var methodValToMethod = map[int32]string{
 	methodGet:    http.MethodGet,
 	methodPost:   http.MethodPost,
+	methodPut:    http.MethodPut,
 	methodPatch:  http.MethodPatch,
 	methodDelete: http.MethodDelete,
 }

@@ -26,6 +26,10 @@ pub fn post(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &st
 	do_request(Method::POST.into(), url, body, headers)
 }
 
+pub fn put(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
+	do_request(Method::PUT.into(), url, body, headers)
+}
+
 pub fn patch(url: &str, body: Option<Vec<u8>>, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
 	do_request(Method::PATCH.into(), url, body, headers)
 }

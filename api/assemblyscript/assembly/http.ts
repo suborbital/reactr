@@ -9,6 +9,10 @@ export function httpPost(url: string, body: ArrayBuffer, headers: Map<string, st
 	return do_request(method_post, url, body, headers)
 }
 
+export function httpPut(url: string, body: ArrayBuffer, headers: Map<string, string> | null): Result {
+	return do_request(method_put, url, body, headers)
+}
+
 export function httpPatch(url: string, body: ArrayBuffer, headers: Map<string, string> | null): Result {
 	return do_request(method_patch, url, body, headers)
 }
@@ -17,8 +21,9 @@ export function httpDelete(url: string, headers: Map<string, string> | null): Re
 	return do_request(method_delete, url, new ArrayBuffer(0), headers)
 }
 
-const method_get = 1
-const method_post = 2
+const method_get = 0
+const method_post = 1
+const method_put = 2
 const method_patch = 3
 const method_delete = 4
 
