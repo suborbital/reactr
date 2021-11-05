@@ -15,7 +15,9 @@ To get started with Wasm Runnables, install Reactr's WebAssembly package `rwasm`
 go get github.com/suborbital/reactr/rwasm
 ```
 
-For now, WasmEdge runtime has not been merged into main repo, so we should replace it in the `go.mod`, something like:
+Install [WasmEdge](https://github.com/WasmEdge/WasmEdge/blob/master/docs/install.md) for using WasmEdge runtime.
+
+For now, WasmEdge runtime has not been merged into main repo, so we should replace it with your local repo in the `go.mod`, something like:
 ```
 replace github.com/suborbital/reactr v0.12.0 => ../second-state/reactr
 ```
