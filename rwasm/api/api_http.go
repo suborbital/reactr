@@ -11,13 +11,14 @@ import (
 )
 
 const (
-	methodGet     = int32(0)
-	methodHead    = int32(1)
-	methodOptions = int32(2)
-	methodPost    = int32(3)
-	methodPut     = int32(4)
-	methodPatch   = int32(5)
-	methodDelete  = int32(6)
+	methodGet int32 = iota
+	methodHead
+	methodOptions
+	methodPost
+	methodPut
+	methodPatch
+	methodDelete
+)
 )
 
 const (
