@@ -11,7 +11,7 @@ testdata/docker:
 	subo build ./rwasm/testdata/
 
 testdata/docker/dev:
-	subo build ./rwasm/testdata/ --builder-tag dev
+	subo build ./rwasm/testdata/ --builder-tag dev --mountpath $(PWD)
 
 crate/check:
 	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi --dry-run
