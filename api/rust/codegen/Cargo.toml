@@ -1,7 +1,7 @@
 [package]
 name = "suborbital-macro"
 version = "0.1.0"
-edition = "2021"
+edition = "2018"
 authors = ["cohix <connorjhicks@gmail.com>", "Florian Fromm <flrn.frmm@gmail.com>"]
 description = "Macro for setting up a Runnable"
 license = "Apache-2.0"
