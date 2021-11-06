@@ -44,7 +44,7 @@ jobs:
 
       - name: Build testdata
         run: |
-          make testdata/docker
+          make testdata/docker/dev
         
         # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
