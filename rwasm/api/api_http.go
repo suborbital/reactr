@@ -19,7 +19,6 @@ const (
 	methodPatch
 	methodDelete
 )
-)
 
 const (
 	contentTypeJSON        = "application/json"
