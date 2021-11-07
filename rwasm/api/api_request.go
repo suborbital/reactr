@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/rwasm/runtime"
 )
 
@@ -23,16 +24,23 @@ func RequestGetFieldHandler() runtime.HostFn {
 func request_get_field(fieldType int32, keyPointer int32, keySize int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: invalid identifier used, potential malicious activity"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
 	keyBytes := inst.ReadMemory(keyPointer, keySize)
 	key := string(keyBytes)
 
+	// err gets used in SetFFIResult below rather than returned
 	val, err := inst.Ctx().RequestHandler.GetField(fieldType, key)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
+		if err == rcap.ErrKeyNotFound {
+			// treat this as an empty value rather than an actual error
+			val = []byte{}
+			err = nil
+		} else {
+			runtime.InternalLogger().Error(errors.Wrap(err, "failed to GetField"))
+		}
 	}
 
 	result, err := inst.Ctx().SetFFIResult(val, err)
@@ -64,7 +72,7 @@ func RequestSetFieldHandler() runtime.HostFn {
 func request_set_field(fieldType int32, keyPointer int32, keySize int32, valPointer int32, valSize int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: invalid identifier used, potential malicious activity"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
