@@ -7,12 +7,12 @@ import (
 
 // WasmEdgeRuntime is a WasmEdge implementation of the runtimeInstance interface
 type WasmEdgeRuntime struct {
-	store *wasmedge.Store
-	vm    *wasmedge.VM
+	store    *wasmedge.Store
+	executor *wasmedge.Executor
 }
 
 func (w *WasmEdgeRuntime) Call(fn string, args ...interface{}) (interface{}, error) {
-	wasmResult, wasmErr := w.vm.Execute(fn, args...)
+	wasmResult, wasmErr := w.executor.Invoke(w.store, fn, args...)
 	if wasmErr != nil {
 		return nil, errors.Wrap(wasmErr, "failed to execute wasm func")
 	}
@@ -75,5 +75,6 @@ func (w *WasmEdgeRuntime) Deallocate(pointer int32, length int) {
 
 // Close closes the instance
 func (w *WasmEdgeRuntime) Close() {
-	w.vm.Release()
+	w.executor.Release()
+	w.store.Release()
 }

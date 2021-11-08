@@ -12,6 +12,7 @@ type WasmEdgeBuilder struct {
 	ref     *moduleref.WasmModuleRef
 	hostFns []runtime.HostFn
 	imports *wasmedge.ImportObject
+	ast     *wasmedge.AST
 }
 
 // NewBuilder create a new WasmEdgeBuilder
@@ -24,55 +25,73 @@ func NewBuilder(ref *moduleref.WasmModuleRef, hostFns ...runtime.HostFn) runtime
 }
 
 func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
-	imports, _ := w.internals()
-
-	moduleBytes, err := w.ref.Bytes()
+	err := w.setupAST()
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get ref ModuleBytes")
+		return nil, err
 	}
-
-	// Create configure
-	conf := wasmedge.NewConfigure(wasmedge.WASI)
 
 	// Create store
 	store := wasmedge.NewStore()
-	
-	// Create VM by configure and external store
-	vm := wasmedge.NewVMWithConfigAndStore(conf, store)
+
+	// Create executor
+	executor := wasmedge.NewExecutor()
 
 	// Register import object
-	vm.RegisterImport(imports)
+	executor.RegisterImport(store, w.imports)
 
-	// Instantiate wasm
-	vm.LoadWasmBuffer(moduleBytes)
-	vm.Validate()
-	vm.Instantiate()
+	wasiImports := wasmedge.NewWasiImportObject(nil, nil, nil, nil)
+	executor.RegisterImport(store, wasiImports)
+
+	// Instantiate store
+	executor.Instantiate(store, w.ast)
 
 	wasiStart := store.FindFunction("_start")
 	if wasiStart != nil {
-		if _, err := vm.Execute("_start"); err != nil {
+		if _, err := executor.Invoke(store, "_start"); err != nil {
 			return nil, errors.Wrap(err, "failed to _start")
 		}
 	}
 	init := store.FindFunction("init")
 	if init != nil {
-		if _, err := vm.Execute("init"); err != nil {
+		if _, err := executor.Invoke(store, "init"); err != nil {
 			return nil, errors.Wrap(err, "failed to init")
 		}
 	}
 
 	inst := &WasmEdgeRuntime {
 		store: store,
-		vm: vm,
+		executor: executor,
 	}
 
 	return inst, nil
 }
 
-func (w *WasmEdgeBuilder) internals() (*wasmedge.ImportObject, error) {
-	if w.imports == nil {
+func (w *WasmEdgeBuilder) setupAST() error {
+	if w.ast == nil {
 		// Set not to print debug info
 		wasmedge.SetLogErrorLevel()
+
+		moduleBytes, err := w.ref.Bytes()
+		if err != nil {
+			return errors.Wrap(err, "failed to get ref ModuleBytes")
+		}
+
+		// Create Loader
+		loader := wasmedge.NewLoader()
+
+		// Create AST
+		ast, err := loader.LoadBuffer(moduleBytes)
+		if err != nil {
+			return errors.Wrap(err, "failed to create ast")
+		}
+
+		// Validate the ast
+		val := wasmedge.NewValidator()
+		err = val.Validate(ast)
+		if err != nil {
+			return errors.Wrap(err, "failed to validate ast")
+		}
+		defer val.Release()
 
 		// Create import object
 		imports := wasmedge.NewImportObject("env")
@@ -81,7 +100,8 @@ func (w *WasmEdgeBuilder) internals() (*wasmedge.ImportObject, error) {
 		addHostFns(imports, w.hostFns...)
 
 		w.imports = imports
+		w.ast = ast
 	}
 
-	return w.imports, nil
+	return nil
 }
