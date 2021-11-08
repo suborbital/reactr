@@ -1,7 +1,6 @@
 package rcap
 
 import (
-	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -152,8 +151,6 @@ func matchesDomain(pattern, domain string) bool {
 
 		p := patternParts[j]
 		d := domainParts[i]
-
-		fmt.Println("comparing:", p, d)
 
 		if p == "*" || p == d {
 			// do nothing, they match

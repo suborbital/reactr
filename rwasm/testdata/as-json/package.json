@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "test": "node tests",
-    "asbuild": "asc src/index.ts --transform ./node_modules/json-as/transform --target release --use abort=src/index/abort"
+    "asbuild": "./node_modules/assemblyscript/bin/asc src/index.ts --transform ./node_modules/json-as/transform --target release --use abort=src/index/abort"
   },
   "author": "",
   "license": "ISC",
