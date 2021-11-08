@@ -1,7 +1,8 @@
-pub use suborbital_macro::*;
+pub use suborbital_macro::Runnable;
 
 pub mod cache;
 pub mod db;
+pub mod errors;
 pub mod ffi;
 pub mod file;
 pub mod graphql;
@@ -10,6 +11,8 @@ pub mod log;
 pub mod req;
 pub mod resp;
 pub mod runnable;
+pub mod sys;
+pub use sys::env;
 pub mod util;
 
 /// This file represents the Rust "API" for Reactr Wasm runnables. The functions defined herein are used to exchange
@@ -26,4 +29,3 @@ static mut STATE: State = State {
 	ident: 0,
 	runnable: None,
 };
-

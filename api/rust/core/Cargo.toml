@@ -2,7 +2,7 @@
 name = "suborbital"
 version = "0.12.0"
 authors = ["cohix <connorjhicks@gmail.com>", "Florian Fromm <flrn.frmm@gmail.com>"]
-edition = "2018"
+edition = "2021"
 description = "Suborbital Wasm Runnable API"
 license = "Apache-2.0"
 repository = "https://github.com/suborbital/reactr"

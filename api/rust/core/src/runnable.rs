@@ -1,35 +1,16 @@
 use crate::STATE;
 use std::mem;
 
-extern "C" {
-	fn return_result(result_pointer: *const u8, result_size: i32, ident: i32);
-	fn return_error(code: i32, result_pointer: *const u8, result_size: i32, ident: i32);
+use crate::env;
+use crate::errors::RunErr;
+
+pub fn return_error(err: RunErr) {
+	let RunErr { code, message } = err;
+	env::return_error(code, message.as_ptr(), message.len() as i32)
 }
 
-pub struct RunErr {
-	pub code: i32,
-	pub message: String,
-}
-
-impl RunErr {
-	pub fn new(code: i32, msg: &str) -> Self {
-		RunErr {
-			code,
-			message: msg.into(),
-		}
-	}
-}
-
-pub struct HostErr {
-	pub message: String,
-}
-
-impl HostErr {
-	pub fn new(msg: &str) -> Self {
-		HostErr {
-			message: String::from(msg),
-		}
-	}
+pub fn return_result(result_data: Vec<u8>) {
+	env::return_result(result_data.as_ptr(), result_data.len() as i32)
 }
 
 pub trait Runnable {
@@ -59,7 +40,7 @@ pub unsafe extern "C" fn allocate(size: i32) -> *const u8 {
 
 /// # Safety
 #[no_mangle]
-pub unsafe extern fn deallocate(pointer: *mut u8, size: i32) {
+pub unsafe extern "C" fn deallocate(pointer: *mut u8, size: i32) {
 	drop(Vec::from_raw_parts(pointer, size as usize, size as usize))
 }
 
@@ -73,10 +54,10 @@ pub unsafe extern "C" fn run_e(pointer: *mut u8, size: i32, ident: i32) {
 
 	match execute_runnable(STATE.runnable, in_bytes) {
 		Ok(data) => {
-			return_result(data.as_ptr(), data.len() as i32, ident);
+			return_result(data);
 		}
-		Err(RunErr { code, message }) => {
-			return_error(code, message.as_ptr(), message.len() as i32, ident);
+		Err(err) => {
+			return_error(err);
 		}
 	}
 }

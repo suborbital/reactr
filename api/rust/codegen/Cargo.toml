@@ -13,5 +13,6 @@ homepage = "https://suborbital.dev"
 proc-macro = true
 
 [dependencies]
-syn = "1.0.80"
+syn = { version = "1.0.80", features = ["full"]}
 quote = "1.0.10"
+proc-macro2 = "1.0"

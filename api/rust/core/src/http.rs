@@ -1,22 +1,8 @@
+use std::collections::BTreeMap;
 pub mod method;
 
-use std::collections::BTreeMap;
-
-use crate::ffi;
-use crate::runnable::HostErr;
-use crate::STATE;
+use crate::{env, errors::HostErr, ffi};
 use method::Method;
-
-extern "C" {
-	fn fetch_url(
-		method: i32,
-		url_pointer: *const u8,
-		url_size: i32,
-		body_pointer: *const u8,
-		body_size: i32,
-		ident: i32,
-	) -> i32;
-}
 
 pub fn get(url: &str, headers: Option<BTreeMap<&str, &str>>) -> Result<Vec<u8>, HostErr> {
 	do_request(Method::GET.into(), url, None, headers)
@@ -77,16 +63,13 @@ fn do_request(
 		None => body_pointer = std::ptr::null::<u8>(),
 	}
 
-	let result_size = unsafe {
-		fetch_url(
-			method,
-			url_string.as_str().as_ptr(),
-			url_string.len() as i32,
-			body_pointer,
-			body_size,
-			STATE.ident,
-		)
-	};
+	let result_size = env::fetch_url(
+		method,
+		url_string.as_str().as_ptr(),
+		url_string.len() as i32,
+		body_pointer,
+		body_size,
+	);
 
 	ffi::result(result_size)
 }
