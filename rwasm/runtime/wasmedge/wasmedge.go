@@ -75,5 +75,5 @@ func (w *WasmEdgeRuntime) Deallocate(pointer int32, length int) {
 
 // Close closes the instance
 func (w *WasmEdgeRuntime) Close() {
-	w.vm.Delete()
+	w.vm.Release()
 }

@@ -75,7 +75,7 @@ func (w *WasmEdgeBuilder) internals() (*wasmedge.ImportObject, error) {
 		wasmedge.SetLogErrorLevel()
 
 		// Create import object
-		imports := wasmedge.NewImportObject("env", nil)
+		imports := wasmedge.NewImportObject("env")
 
 		// mount the Runnable API host functions to the module's imports
 		addHostFns(imports, w.hostFns...)
