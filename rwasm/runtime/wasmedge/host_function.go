@@ -34,7 +34,7 @@ func addHostFns(imports *wasmedge.ImportObject, fns ...runtime.HostFn) {
 		}
 		funcType := wasmedge.NewFunctionType(argsType, retType)
 
-		wasmEdgeHostFn := wasmedge.NewHostFunction(funcType, wasmHostFn, 0)
-		imports.AddHostFunction(fn.Name, wasmEdgeHostFn)
+		wasmEdgeHostFn := wasmedge.NewFunction(funcType, wasmHostFn, nil, 0)
+		imports.AddFunction(fn.Name, wasmEdgeHostFn)
 	}
 }
