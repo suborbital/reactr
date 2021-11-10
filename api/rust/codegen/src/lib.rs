@@ -15,7 +15,7 @@ pub fn derive_runnable(token_stream: TokenStream) -> TokenStream {
 
 		#[no_mangle]
 		pub extern fn init() {
-			suborbital::runnable::use_runnable(RUNNABLE);
+			suborbital::runnable::set_runnable(RUNNABLE);
 		}
 	};
 
@@ -30,7 +30,7 @@ fn create_function_wrapper(func: &ForeignItem) -> proc_macro2::TokenStream {
 			let attrs = proc_macro2::TokenStream::from_iter(func.attrs.iter().map(|attr| quote! {#attr}));
 			params.pop();
 			// // TODO: ensure error is returned
-			let ident = quote! {crate::STATE.ident};
+			let ident = quote! {crate::runnable::current_ident()};
 			let mut args_vec: Vec<proc_macro2::TokenStream> = params
 				.iter()
 				.map(|p| match p {

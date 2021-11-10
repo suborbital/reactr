@@ -13,3 +13,4 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 suborbital-macro = { path = "../codegen", version = "0.1.0" }
+once_cell = "1.8.0"
