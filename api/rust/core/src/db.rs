@@ -24,6 +24,20 @@ pub fn insert(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::Host
 	ffi::result(result_size)
 }
 
+// update executes the pre-loaded database query with the name <name>,
+// and passes the arguments defined by <args>
+//
+// the return value is number of rows affected by the query,
+// formatted as JSON with the key `rowsAffected`
+pub fn update(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::HostErr> {
+	args.iter().for_each(|arg| ffi::add_var(&arg.name, &arg.value));
+
+	let result_size = unsafe { db_exec(QueryType::UPDATE.into(), name.as_ptr(), name.len() as i32, STATE.ident) };
+
+	// retreive the result from the host and return it
+	ffi::result(result_size)
+}
+
 // insert executes the pre-loaded database query with the name <name>,
 // and passes the arguments defined by <args>
 //

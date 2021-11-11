@@ -15,6 +15,8 @@ impl QueryArg {
 pub enum QueryType {
 	SELECT,
 	INSERT,
+	UPDATE,
+	DELETE
 }
 
 impl From<QueryType> for i32 {
@@ -22,6 +24,8 @@ impl From<QueryType> for i32 {
 		match query_type {
 			QueryType::INSERT => 0,
 			QueryType::SELECT => 1,
+			QueryType::UPDATE => 2,
+			QueryType::DELETE => 3,
 		}
 	}
 }

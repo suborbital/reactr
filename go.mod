@@ -16,7 +16,7 @@ require (
 )
 
 require (
-	github.com/bytecodealliance/wasmtime-go v0.30.0
+	github.com/bytecodealliance/wasmtime-go v0.31.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/jmoiron/sqlx v1.3.4
