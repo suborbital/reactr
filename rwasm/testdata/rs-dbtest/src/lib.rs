@@ -25,20 +25,39 @@ impl Runnable for RsDbtest {
         let mut args2: Vec<query::QueryArg> = Vec::new();
         args2.push(query::QueryArg::new("uuid", uuid.as_str()));
 
-        match db::update("PGUpdateUserWithUUID", args2) {
+        match db::update("PGUpdateUserWithUUID", args2.clone()) {
             Ok(rows) => log::info(format!("update: {}", util::to_string(rows).as_str()).as_str()),
             Err(e) => {
                 return Err(RunErr::new(500, e.message.as_str()))
             }
         }
-        
-        let mut args3: Vec<query::QueryArg> = Vec::new();
-        args3.push(query::QueryArg::new("uuid", uuid.as_str()));
 
-        match db::select("PGSelectUserWithUUID", args3) {
-            Ok(result) => Ok(result),
+        match db::select("PGSelectUserWithUUID", args2.clone()) {
+            Ok(result) => log::info(format!("select: {}", util::to_string(result).as_str()).as_str()),
             Err(e) => {
-                Err(RunErr::new(500, e.message.as_str()))
+                return Err(RunErr::new(500, e.message.as_str()))
+            }
+        }
+
+        match db::delete("PGDeleteUserWithUUID", args2.clone()) {
+            Ok(rows) => log::info(format!("delete: {}", util::to_string(rows).as_str()).as_str()),
+            Err(e) => {
+                return Err(RunErr::new(500, e.message.as_str()))
+            }
+        }
+
+        // this one should fail
+        match db::select("PGSelectUserWithUUID", args2.clone()) {
+            Ok(result) => {
+                let result_str = util::to_string(result);
+                if result_str != "[]" {
+                    return Err(RunErr::new(500, format!("select should have returning nothing, but didn't, got: {}", result_str).as_str()));
+                }
+
+                return Ok(util::to_vec(String::from("all good!")))
+            },
+            Err(e) => {
+                Ok(util::to_vec(e.message))
             }
         }
     }

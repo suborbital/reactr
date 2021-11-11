@@ -1,3 +1,5 @@
+
+#[derive(Clone)]
 pub struct QueryArg {
 	pub name: String,
 	pub value: String,

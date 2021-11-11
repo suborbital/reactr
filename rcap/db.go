@@ -126,6 +126,8 @@ func (s *SqlDatabase) ExecQuery(queryType int32, name string, vars []interface{}
 		return s.execSelectQuery(name, vars)
 	case QueryTypeUpdate:
 		return s.execUpdateQuery(name, vars)
+	case QueryTypeDelete:
+		return s.execDeleteQuery(name, vars)
 	}
 
 	return nil, ErrQueryTypeInvalid
@@ -228,6 +230,49 @@ func (s *SqlDatabase) execUpdateQuery(name string, vars []interface{}) ([]byte, 
 	}
 
 	if query.Type != QueryTypeUpdate {
+		return nil, ErrQueryTypeMismatch
+	}
+
+	if query.stmt == nil {
+		return nil, ErrQueryNotPrepared
+	}
+
+	if query.VarCount != len(vars) {
+		return nil, errors.Wrapf(ErrQueryVarsMismatch, "expected %d variables, got %d", query.VarCount, len(vars))
+	}
+
+	result, err := query.stmt.Exec(vars...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Exec")
+	}
+
+	// no need to check error, if rowsAffected is 0, that's fine
+	rowsAffected, _ := result.RowsAffected()
+
+	updateResult := queryResult{
+		RowsAffected: rowsAffected,
+	}
+
+	resultJSON, err := json.Marshal(updateResult)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Marshal result")
+	}
+
+	return resultJSON, nil
+}
+
+// execDeleteQuery executes a prepared Delete query
+func (s *SqlDatabase) execDeleteQuery(name string, vars []interface{}) ([]byte, error) {
+	if !s.config.Enabled {
+		return nil, ErrCapabilityNotEnabled
+	}
+
+	query, exists := s.queries[name]
+	if !exists {
+		return nil, ErrQueryNotFound
+	}
+
+	if query.Type != QueryTypeDelete {
 		return nil, ErrQueryTypeMismatch
 	}
 
