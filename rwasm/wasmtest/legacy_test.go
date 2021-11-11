@@ -1,4 +1,5 @@
-//go:build !wasmtime
+//go:build !wasmtime && !wasmedge
+// +build !wasmtime,!wasmedge
 
 // these tests are skipped with the wasmtime runtime, since it did not inherit the legacy baggage
 package wasmtest

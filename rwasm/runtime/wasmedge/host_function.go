@@ -1,6 +1,8 @@
 package runtimewasmedge
 
 import (
+	"fmt"
+
 	"github.com/suborbital/reactr/rwasm/runtime"
 	"github.com/second-state/WasmEdge-go/wasmedge"
 )
@@ -36,5 +38,11 @@ func addHostFns(imports *wasmedge.ImportObject, fns ...runtime.HostFn) {
 
 		wasmEdgeHostFn := wasmedge.NewFunction(funcType, wasmHostFn, nil, 0)
 		imports.AddFunction(fn.Name, wasmEdgeHostFn)
+
+		swiftArgsType := append(argsType, wasmedge.ValType_I32, wasmedge.ValType_I32)
+		swiftFuncType := wasmedge.NewFunctionType(swiftArgsType, retType)
+		swiftWasmEdgeHostFn := wasmedge.NewFunction(swiftFuncType, wasmHostFn, nil, 0)
+		swiftFuncName := fmt.Sprintf("%s_swift", fn.Name)
+		imports.AddFunction(swiftFuncName, swiftWasmEdgeHostFn)
 	}
 }
