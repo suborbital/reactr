@@ -1,4 +1,4 @@
-name: tinygo-hello-echo
+name: tinygo-cache
 namespace: default
 lang: tinygo
 apiVersion: 0.12.0

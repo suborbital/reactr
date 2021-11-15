@@ -11,9 +11,10 @@ func CacheGet(key string) ([]byte, error) {
 	return result(C.cache_get(ptr, size, ident()))
 }
 
-func CacheSet(key, val string, ttl int) ([]byte, error) {
+func CacheSet(key, val string, ttl int) {
 	keyPtr, keySize := rawSlicePointer([]byte(key))
 	valPtr, valSize := rawSlicePointer([]byte(val))
 
-	return result(C.cache_set(keyPtr, keySize, valPtr, valSize, int32(ttl), ident()))
+	C.cache_set(keyPtr, keySize, valPtr, valSize, int32(ttl), ident())
+	return
 }

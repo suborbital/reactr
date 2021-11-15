@@ -1,4 +1,4 @@
-module vendor.suborbital.dev/default/tinygo-hello-echo
+module vendor.suborbital.dev/default/tinygo-cache
 
 replace github.com/suborbital/runnable => ../../../api/tinygo
 
