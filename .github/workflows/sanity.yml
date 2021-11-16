@@ -25,7 +25,7 @@ jobs:
         run: |
           gh repo clone suborbital/subo
           cd subo
-          gh branch checkout oscar/grain-build
+          gh pr checkout 120
           make subo
           cd ../
           rm -rf subo
