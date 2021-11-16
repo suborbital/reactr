@@ -5,5 +5,8 @@ import Request from "suborbital/request"
 export let run = input => {
   let input = Bytes.toString(input)
   let hello = Request.state("hello")
-  Ok(Bytes.concat(Bytes.fromString("hello "), hello))
+  match (hello) {
+    Ok(bytes) => Ok(Bytes.concat(Bytes.fromString("hello "), bytes)),
+    Err(err) => Err((1l, Bytes.toString(err))),
+  }
 }
