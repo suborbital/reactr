@@ -3,12 +3,11 @@ name: Testapalooza
 on: pull_request
 
 jobs:
-
   build:
     strategy:
-        matrix:
-          os: [ubuntu-latest]
-          golang: [1.17]
+      matrix:
+        os: [ubuntu-latest]
+        golang: [1.17]
 
     name: Test
     runs-on: ${{ matrix.os }}
@@ -26,7 +25,7 @@ jobs:
         run: |
           gh repo clone suborbital/subo
           cd subo
-          gh pr checkout 116
+          gh branch checkout oscar/grain-build
           make subo
           cd ../
           rm -rf subo
@@ -41,13 +40,13 @@ jobs:
       - name: Build testdata
         run: |
           make testdata/docker/dev
-        
+
         # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v ./...
-      
+
       - name: Run test with Wasmtime
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
