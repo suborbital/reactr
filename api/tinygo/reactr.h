@@ -15,3 +15,5 @@ void log_msg(void *ptr, i32 size, i32 level, i32 ident);
 
 i32 request_get_field(i32 field_type, void* key_ptr, i32 key_size, i32 ident);
 i32 request_set_field(i32 field_type, void *key_ptr, i32 key_size, void *value_ptr, i32 value_size, i32 ident);
+
+i32 fetch_url(i32 method, void *url_ptr, i32 url_size, void *body_ptr, i32 body_size, i32 ident);
