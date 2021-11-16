@@ -1,3 +1,3 @@
-module github.com/suborbital/runnable
+module go.suborbital.dev/runnable
 
 go 1.17
