@@ -13,3 +13,5 @@ int32_t cache_get(void* key_ptr, int32_t key_size, int32_t ident);
 
 void log_msg(void *ptr, i32 size, i32 level, i32 ident);
 
+i32 request_get_field(i32 field_type, void* key_ptr, i32 key_size, i32 ident);
+i32 request_set_field(i32 field_type, void *key_ptr, i32 key_size, void *value_ptr, i32 value_size, i32 ident);
