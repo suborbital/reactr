@@ -3,7 +3,7 @@ package runnable
 // #include "reactr.h"
 import "C"
 import (
-	"go.suborbital.dev/runnable/method"
+	"github.com/suborbital/reactr/api/tinygo/runnable/method"
 )
 
 func GET(url string, headers map[string]string) ([]byte, error) {

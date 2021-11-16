@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go.suborbital.dev/runnable"
+	"github.com/suborbital/reactr/api/tinygo/runnable"
 )
 
 type TinygoReq struct{}

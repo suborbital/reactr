@@ -1,9 +1,9 @@
 module vendor.suborbital.network/tinygo-http-get
 
-replace go.suborbital.dev/runnable => /root/reactr/api/tinygo
+replace github.com/suborbital/reactr/api/tinygo/runnable => ../../../api/tinygo/runnable
 
 require (
-	go.suborbital.dev/runnable v1.0.0
+	github.com/suborbital/reactr/api/tinygo/runnable v1.0.0
 )
 
 go 1.17

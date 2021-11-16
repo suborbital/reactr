@@ -1,9 +1,9 @@
 module vendor.suborbital.dev/default/tinygo-cache
 
-replace go.suborbital.dev/runnable => /root/reactr/api/tinygo
+replace github.com/suborbital/reactr => ../../../
 
 require (
-	go.suborbital.dev/runnable v1.0.0
+	github.com/suborbital/reactr v1.0.0
 )
 
 go 1.17
