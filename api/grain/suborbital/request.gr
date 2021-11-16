@@ -25,12 +25,12 @@ export let id = () => {
 }
 
 export let body = () => {
-  Result.unwrap(getField(Env.FieldTypeMeta, "body"))
+  getField(Env.FieldTypeMeta, "body")
 }
 
 export let bodyField = key => {
   let result = getField(Env.FieldTypeBody, key)
-  Result.unwrap(result)
+  Bytes.toString(Result.unwrap(result))
 }
 
 export let header = key => {
@@ -44,5 +44,5 @@ export let urlParam = key => {
 }
 
 export let state = key => {
-  Result.unwrap(getField(Env.FieldTypeState, key))
+  getField(Env.FieldTypeState, key)
 }
