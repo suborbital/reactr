@@ -1,8 +1,6 @@
 package runnable
 
-// #include <stdint.h>
-// void return_result(void* rawdata, int32_t size, int32_t ident);
-// void return_error(int32_t code, void* rawdata, int32_t size, int32_t ident);
+// #include "reactr.h"
 import "C"
 import (
 	"reflect"
