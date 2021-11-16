@@ -44,7 +44,8 @@ export let run_e = (ptr, size, ident) => {
     },
   }
 
-  ignore(Memory.decRef(WasmI32.fromGrain(result)))
+  Memory.decRef(WasmI32.fromGrain(result))
+  void
 }
 
 @disableGC
