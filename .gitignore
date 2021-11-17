@@ -34,3 +34,5 @@ runnables.wasm.zip
 node_modules
 api/assemblyscript/build
 *.wasm.map
+
+.vscode
