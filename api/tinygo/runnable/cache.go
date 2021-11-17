@@ -1,7 +1,8 @@
+//go:build tinygo.wasm
+
 package runnable
 
-// #include "reactr.h"
-
+// #include <reactr.h>
 import "C"
 
 func CacheGet(key string) ([]byte, error) {

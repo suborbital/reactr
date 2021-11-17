@@ -1,3 +1,5 @@
+//go:build tinygo.wasm
+
 package runnable
 
 // The Runnable interface is all that needs to be implemented by a Reactr runnable.

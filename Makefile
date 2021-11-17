@@ -1,8 +1,10 @@
+packages = $(shell go list ./... | grep -v github.com/suborbital/reactr/api/tinygo/runnable)
+
 test:
-	go test -v --count=1 -p=1 ./...
+	go test -v --count=1 -p=1 $(packages)
 
 test/multi: test
-	go test --tags wasmtime -v --count=1 -p=1 ./...
+	go test --tags wasmtime -v --count=1 -p=1 $(packages)
 
 testdata:
 	subo build ./rwasm/testdata/ --native

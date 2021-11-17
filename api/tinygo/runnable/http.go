@@ -1,6 +1,8 @@
+//go:build tinygo.wasm
+
 package runnable
 
-// #include "reactr.h"
+// #include <reactr.h>
 import "C"
 import (
 	"github.com/suborbital/reactr/api/tinygo/runnable/method"

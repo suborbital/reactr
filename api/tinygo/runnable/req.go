@@ -1,6 +1,8 @@
+//go:build tinygo.wasm
+
 package runnable
 
-// #include "reactr.h"
+// #include <reactr.h>
 import "C"
 
 type FieldType int32
