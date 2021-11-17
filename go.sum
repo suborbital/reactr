@@ -340,8 +340,6 @@ github.com/suborbital/vektor v0.3.0/go.mod h1:3xIK+UsDed8llTgfMs8aw7GvghYhmaQnCA
 github.com/suborbital/vektor v0.4.0/go.mod h1:3xIK+UsDed8llTgfMs8aw7GvghYhmaQnCAC3b4Oslog=
 github.com/suborbital/vektor v0.4.1-0.20210528122244-4c6599246636/go.mod h1:3xIK+UsDed8llTgfMs8aw7GvghYhmaQnCAC3b4Oslog=
 github.com/suborbital/vektor v0.4.1/go.mod h1:3xIK+UsDed8llTgfMs8aw7GvghYhmaQnCAC3b4Oslog=
-github.com/suborbital/vektor v0.5.0 h1:E5PPiBYboarFoprUmjjG/ieVCeIUpD/1F2MnVa/iaDs=
-github.com/suborbital/vektor v0.5.0/go.mod h1:iNMR6/alEK1D7fbupwIlGlK5LajngEvq/N+RGVWaqNw=
 github.com/suborbital/vektor v0.5.1-0.20211112160641-0b7e68b46795 h1:kLkb/MUisfzG7ryvCeJyDWZFgHyEr/y66CxUObvvcQQ=
 github.com/suborbital/vektor v0.5.1-0.20211112160641-0b7e68b46795/go.mod h1:116rovoAiwxaOzrTf849x54mlaec41qvB1d/9UeA+xk=
 github.com/suborbital/wasmtime-go v0.31.0-subo h1:RRtQK/Japgqi6cAi3XBPmYF9laqW7hzYHN/DGQJjgAc=
@@ -388,7 +386,6 @@ golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670/go.mod h1:T9bdIzuCu7OtxOm
 golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a/go.mod h1:P+XmwS30IXTQdn5tA2iutPOUgjI07+tq3H3K9MVA1s8=
 golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
-golang.org/x/crypto v0.0.0-20210817164053-32db794688a5/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa h1:idItI2DDfCokpg0N51B2VtiLdJ4vAuXC9fnCb2gACo4=
 golang.org/x/crypto v0.0.0-20211108221036-ceb1ce70b4fa/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
 golang.org/x/exp v0.0.0-20190121172915-509febef88a4/go.mod h1:CJ0aWSM057203Lf6IL+f9T1iT9GByDxfZKAQTCR3kQA=
@@ -442,7 +439,6 @@ golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4/go.mod h1:RBQZq4jEuRlivfhVLd
 golang.org/x/net v0.0.0-20210428140749-89ef3d95e781/go.mod h1:OJAsFXCWl8Ukc7SiCT/9KSuxbyM7479/AVlXFRxuMCk=
 golang.org/x/net v0.0.0-20210520170846-37e1c6afe023/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
-golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/net v0.0.0-20211111160137-58aab5ef257a h1:c83jeVQW0KGKNaKBRfelNYNHaev+qawl9yaA825s8XE=
 golang.org/x/net v0.0.0-20211111160137-58aab5ef257a/go.mod h1:9nx3DQGgdP8bBQD5qxJ1jj9UTztislL4KSBs9R2vV5Y=
 golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be/go.mod h1:N/0e6XlmueqKjAGxoOufVs8QHGRruUQn6yWY3a++T0U=

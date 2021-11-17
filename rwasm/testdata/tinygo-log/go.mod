@@ -1,9 +1,9 @@
 module vendor.suborbital.network/tinygo-log
 
-replace github.com/suborbital/reactr/api/tinygo/runnable => ../../../api/tinygo/runnable
+replace github.com/suborbital/reactr => ../../../
 
 require (
-	github.com/suborbital/reactr/api/tinygo/runnable v1.0.0
+	github.com/suborbital/reactr v0.12.0
 )
 
 go 1.17

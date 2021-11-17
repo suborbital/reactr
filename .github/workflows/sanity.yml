@@ -31,12 +31,12 @@ jobs:
           cd ../
           rm -rf subo
 
-      - name: Check out code into the Go module directory
+      - name: Check out code
         uses: actions/checkout@v2
 
       - name: Get dependencies
         run: |
-          go get ./...
+          go mod download
 
       - name: Build testdata
         run: |
