@@ -4,7 +4,6 @@ dotVersionFiles:
   - api/assemblyscript/package.json
 
 preMakeTargets:
-  - test
   - crate/check
 
 postMakeTargets:
