@@ -1,0 +1,6 @@
+name: grain-echo
+namespace: default
+lang: grain
+version: ""
+apiVersion: 0.12.0
+fqfnUri: ""

@@ -16,7 +16,7 @@
     "@assemblyscript/loader": "^0.19",
     "@suborbital/suborbital": "file:../../../api/assemblyscript",
     "as-string-sink": "^0.4.2",
-    "json-as": "0.1.4",
+    "json-as": "^0.2.6",
     "visitor-as": "^0.6.0"
   }
 }

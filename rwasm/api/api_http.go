@@ -11,10 +11,13 @@ import (
 )
 
 const (
-	methodGet    = int32(1)
-	methodPost   = int32(2)
-	methodPatch  = int32(3)
-	methodDelete = int32(4)
+	methodGet int32 = iota
+	methodHead
+	methodOptions
+	methodPost
+	methodPut
+	methodPatch
+	methodDelete
 )
 
 const (
@@ -24,10 +27,13 @@ const (
 )
 
 var methodValToMethod = map[int32]string{
-	methodGet:    http.MethodGet,
-	methodPost:   http.MethodPost,
-	methodPatch:  http.MethodPatch,
-	methodDelete: http.MethodDelete,
+	methodGet:     http.MethodGet,
+	methodHead:    http.MethodHead,
+	methodOptions: http.MethodOptions,
+	methodPost:    http.MethodPost,
+	methodPut:     http.MethodPut,
+	methodPatch:   http.MethodPatch,
+	methodDelete:  http.MethodDelete,
 }
 
 func FetchURLHandler() runtime.HostFn {
@@ -52,7 +58,7 @@ func fetch_url(method int32, urlPointer int32, urlSize int32, bodyPointer int32,
 	// fetch writes the http response body into memory starting at returnBodyPointer, and the return value is a pointer to that memory
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: invalid identifier used, potential malicious activity"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 

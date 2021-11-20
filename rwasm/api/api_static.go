@@ -22,7 +22,7 @@ func GetStaticFileHandler() runtime.HostFn {
 func get_static_file(namePtr int32, nameSize int32, ident int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(ident, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: invalid identifier used, potential malicious activity"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
