@@ -1,4 +1,4 @@
-packages = $(shell go list ./... | grep -v github.com/suborbital/reactr/api/tinygo/runnable/runnable)
+packages = $(shell go list ./... | grep -v github.com/suborbital/reactr/api/tinygo/runnable)
 
 test:
 	go test -v --count=1 -p=1 $(packages)
