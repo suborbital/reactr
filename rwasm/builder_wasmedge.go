@@ -10,6 +10,10 @@ import (
 	runtimewasmedge "github.com/suborbital/reactr/rwasm/runtime/wasmedge"
 )
 
+func RuntimeName() string {
+	return "wasmedge"
+}
+
 func runtimeBuilder(ref *moduleref.WasmModuleRef) runtime.RuntimeBuilder {
 	return runtimewasmedge.NewBuilder(ref, api.API()...)
 }
