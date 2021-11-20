@@ -1,5 +1,5 @@
 name: tinygo-cache
 namespace: default
 lang: tinygo
-apiVersion: 0.12.0
+apiVersion: 0.13.0
 

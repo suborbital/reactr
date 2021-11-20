@@ -1,6 +1,6 @@
 //go:build tinygo.wasm
 
-package runnable
+package ffi
 
 import (
 	"reflect"

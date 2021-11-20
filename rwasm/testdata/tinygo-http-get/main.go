@@ -1,6 +1,10 @@
 package main
 
-import "github.com/suborbital/reactr/api/tinygo/runnable"
+import (
+	"github.com/suborbital/reactr/api/tinygo/runnable"
+	"github.com/suborbital/reactr/api/tinygo/runnable/http"
+	"github.com/suborbital/reactr/api/tinygo/runnable/log"
+)
 
 type TinygoHttpGet struct{}
 
@@ -8,12 +12,12 @@ func (h TinygoHttpGet) Run(input []byte) ([]byte, error) {
 	headers := map[string]string{}
 	headers["foo"] = "bar"
 
-	res, err := runnable.POST(string(input), []byte("foobar"), headers)
+	res, err := http.POST(string(input), []byte("foobar"), headers)
 	if err != nil {
 		return nil, err
 	}
 
-	runnable.Info(string(res))
+	log.Info(string(res))
 
 	return res, nil
 }

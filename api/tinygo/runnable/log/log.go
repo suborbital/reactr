@@ -1,20 +1,18 @@
 //go:build tinygo.wasm
 
-package runnable
+package log
 
-// #include <reactr.h>
-import "C"
 import (
 	"fmt"
+
+	"github.com/suborbital/reactr/api/tinygo/runnable/internal/ffi"
 )
 
-func logAtLevel(message string, level LogLevel) {
-	msgPtr, size := rawSlicePointer([]byte(message))
-
-	C.log_msg(msgPtr, size, int32(level), ident())
-}
-
 type LogLevel int32
+
+func logAtLevel(message string, level LogLevel) {
+	ffi.LogAtLevel(message, int32(level))
+}
 
 const (
 	LogLevelError LogLevel = iota + 1

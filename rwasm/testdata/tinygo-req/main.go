@@ -2,17 +2,19 @@ package main
 
 import (
 	"github.com/suborbital/reactr/api/tinygo/runnable"
+	"github.com/suborbital/reactr/api/tinygo/runnable/log"
+	"github.com/suborbital/reactr/api/tinygo/runnable/req"
 )
 
 type TinygoReq struct{}
 
 func (h TinygoReq) Run(input []byte) ([]byte, error) {
-	method := runnable.Method()
-	url := runnable.URL()
+	method := req.Method()
+	url := req.URL()
 
-	param := runnable.URLParam("foobar")
+	param := req.URLParam("foobar")
 
-	runnable.Infof("%s: %s?%s", method, url, param)
+	log.Infof("%s: %s?%s", method, url, param)
 	return []byte("Success"), nil
 }
 
