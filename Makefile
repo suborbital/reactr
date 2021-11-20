@@ -16,10 +16,12 @@ testdata/docker/dev:
 	subo build ./rwasm/testdata/ --builder-tag dev --mountpath $(PWD)
 
 crate/check:
-	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi --dry-run
+	cargo publish --manifest-path ./api/rust/codegen/Cargo.toml --target=wasm32-wasi --dry-run
+	cargo publish --manifest-path ./api/rust/core/Cargo.toml --target=wasm32-wasi --dry-run
 
 crate/publish:
-	cargo publish --manifest-path ./api/rust/suborbital/Cargo.toml --target=wasm32-wasi
+	cargo publish --manifest-path ./api/rust/codegen/Cargo.toml --target=wasm32-wasi
+	cargo publish --manifest-path ./api/rust/core/Cargo.toml --target=wasm32-wasi
 
 npm/publish:
 	npm publish ./api/assemblyscript
