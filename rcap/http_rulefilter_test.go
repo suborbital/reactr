@@ -35,21 +35,13 @@ func TestDefaultRules(t *testing.T) {
 
 func TestAllowedDomains(t *testing.T) {
 	rules := defaultHTTPRules()
-	rules.AllowedDomains = []string{"example.com", "another.com", "*.hello.com", "tomorrow.*", "100.*.12.13", "example.com:8080"}
+	rules.AllowedDomains = []string{"example.com", "another.com", "*.hello.com", "tomorrow.*", "100.*.12.13"}
 
 	t.Run("example.com:8080 allowed", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8080", nil)
 
 		if err := rules.requestIsAllowed(req); err != nil {
 			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("example.com:8081 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8081", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
 		}
 	})
 
