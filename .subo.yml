@@ -5,7 +5,6 @@ dotVersionFiles:
 
 preMakeTargets:
   - test
-  - crate/check
 
 postMakeTargets:
   - crate/publish
