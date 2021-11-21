@@ -36,3 +36,5 @@ api/assemblyscript/build
 *.wasm.map
 
 .vscode
+
+_lib

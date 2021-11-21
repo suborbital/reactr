@@ -1,5 +1,6 @@
 dotVersionFiles:
-  - api/rust/suborbital/Cargo.toml
+  - api/rust/core/Cargo.toml
+  - api/rust/codegen/Cargo.toml
   - api/assemblyscript/package.json
 
 preMakeTargets:
