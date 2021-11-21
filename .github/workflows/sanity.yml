@@ -45,9 +45,9 @@ jobs:
       - name: Run test
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          go test -v ./...
+          make test
 
       - name: Run test with Wasmtime
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          go test -v --tags wasmtime ./...
+          make test/multi
