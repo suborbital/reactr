@@ -25,7 +25,6 @@ jobs:
         run: |
           gh repo clone suborbital/subo
           cd subo
-          gh pr checkout 120
           make subo
           cd ../
           rm -rf subo

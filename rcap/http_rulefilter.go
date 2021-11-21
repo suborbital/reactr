@@ -26,10 +26,8 @@ type HTTPRules struct {
 
 // requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed
 func (h HTTPRules) requestIsAllowed(req *http.Request) error {
-	// remove square brackets from raw IPv6 host
-	cleanHost := strings.TrimSuffix(strings.TrimPrefix(req.URL.Host, "["), "]")
-
-	hosts := []string{cleanHost}
+	// Hostname removes port numbers as well as IPv6 [ and ]
+	hosts := []string{req.URL.Hostname()}
 
 	if !h.AllowHTTP {
 		if req.URL.Scheme == "http" {
@@ -38,7 +36,7 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	}
 
 	// determine if the passed-in host is an IP address
-	isRawIP := net.ParseIP(cleanHost) != nil
+	isRawIP := net.ParseIP(req.URL.Hostname()) != nil
 	if !h.AllowIPs && isRawIP {
 		return ErrIPsDisallowed
 	}
