@@ -321,6 +321,14 @@ func TestDisallowedLocal(t *testing.T) {
 		}
 	})
 
+	t.Run("Resolves to Private (with port) disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://local.suborbital.network:8081", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
 	t.Run("Private disallowed", func(t *testing.T) {
 		req, _ := http.NewRequest(http.MethodGet, "http://localhost", nil)
 
