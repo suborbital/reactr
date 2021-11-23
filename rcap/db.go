@@ -43,6 +43,8 @@ type QueryType int32
 const (
 	QueryTypeInsert QueryType = QueryType(0)
 	QueryTypeSelect QueryType = QueryType(1)
+	QueryTypeUpdate QueryType = QueryType(2)
+	QueryTypeDelete QueryType = QueryType(3)
 )
 
 type Query struct {
@@ -62,21 +64,24 @@ type SqlDatabase struct {
 	queries map[string]*Query
 }
 
-type insertQueryResult struct {
+type queryResult struct {
 	LastInsertID int64 `json:"lastInsertID"`
+	RowsAffected int64 `json:"rowsAffected"`
 }
 
 // NewSqlDatabase creates a new SQL database
 func NewSqlDatabase(config *DatabaseConfig) (DatabaseCapability, error) {
 	if !config.Enabled || config.ConnectionString == "" {
-		return nil, nil
+		return &SqlDatabase{config: config}, nil
 	}
 
 	if config.DBType != DBTypeMySQL && config.DBType != DBTypePostgres {
 		return nil, ErrDatabaseTypeInvalid
 	}
 
-	db, err := sqlx.Connect(config.DBType, config.ConnectionString)
+	augmentedConnString := AugmentedValFromEnv(config.ConnectionString)
+
+	db, err := sqlx.Connect(config.DBType, augmentedConnString)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Connect")
 	}
@@ -119,6 +124,10 @@ func (s *SqlDatabase) ExecQuery(queryType int32, name string, vars []interface{}
 		return s.execInsertQuery(name, vars)
 	case QueryTypeSelect:
 		return s.execSelectQuery(name, vars)
+	case QueryTypeUpdate:
+		return s.execUpdateQuery(name, vars)
+	case QueryTypeDelete:
+		return s.execDeleteQuery(name, vars)
 	}
 
 	return nil, ErrQueryTypeInvalid
@@ -155,7 +164,7 @@ func (s *SqlDatabase) execInsertQuery(name string, vars []interface{}) ([]byte, 
 	// no need to check error, if insertID is 0, that's fine
 	insertID, _ := result.LastInsertId()
 
-	insertResult := insertQueryResult{
+	insertResult := queryResult{
 		LastInsertID: insertID,
 	}
 
@@ -204,6 +213,92 @@ func (s *SqlDatabase) execSelectQuery(name string, vars []interface{}) ([]byte, 
 	resultJSON, err := json.Marshal(result)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to Marshal query result")
+	}
+
+	return resultJSON, nil
+}
+
+// execUpdateQuery executes a prepared Update query
+func (s *SqlDatabase) execUpdateQuery(name string, vars []interface{}) ([]byte, error) {
+	if !s.config.Enabled {
+		return nil, ErrCapabilityNotEnabled
+	}
+
+	query, exists := s.queries[name]
+	if !exists {
+		return nil, ErrQueryNotFound
+	}
+
+	if query.Type != QueryTypeUpdate {
+		return nil, ErrQueryTypeMismatch
+	}
+
+	if query.stmt == nil {
+		return nil, ErrQueryNotPrepared
+	}
+
+	if query.VarCount != len(vars) {
+		return nil, errors.Wrapf(ErrQueryVarsMismatch, "expected %d variables, got %d", query.VarCount, len(vars))
+	}
+
+	result, err := query.stmt.Exec(vars...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Exec")
+	}
+
+	// no need to check error, if rowsAffected is 0, that's fine
+	rowsAffected, _ := result.RowsAffected()
+
+	updateResult := queryResult{
+		RowsAffected: rowsAffected,
+	}
+
+	resultJSON, err := json.Marshal(updateResult)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Marshal result")
+	}
+
+	return resultJSON, nil
+}
+
+// execDeleteQuery executes a prepared Delete query
+func (s *SqlDatabase) execDeleteQuery(name string, vars []interface{}) ([]byte, error) {
+	if !s.config.Enabled {
+		return nil, ErrCapabilityNotEnabled
+	}
+
+	query, exists := s.queries[name]
+	if !exists {
+		return nil, ErrQueryNotFound
+	}
+
+	if query.Type != QueryTypeDelete {
+		return nil, ErrQueryTypeMismatch
+	}
+
+	if query.stmt == nil {
+		return nil, ErrQueryNotPrepared
+	}
+
+	if query.VarCount != len(vars) {
+		return nil, errors.Wrapf(ErrQueryVarsMismatch, "expected %d variables, got %d", query.VarCount, len(vars))
+	}
+
+	result, err := query.stmt.Exec(vars...)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Exec")
+	}
+
+	// no need to check error, if rowsAffected is 0, that's fine
+	rowsAffected, _ := result.RowsAffected()
+
+	updateResult := queryResult{
+		RowsAffected: rowsAffected,
+	}
+
+	resultJSON, err := json.Marshal(updateResult)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Marshal result")
 	}
 
 	return resultJSON, nil

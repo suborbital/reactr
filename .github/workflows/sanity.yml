@@ -1,42 +1,51 @@
 name: Testapalooza
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ "*" ]
+on: pull_request
 
 jobs:
-
   build:
     strategy:
-        matrix:
-          os: [ubuntu-latest, macos-latest]
-          golang: [1.17]
+      matrix:
+        os: [ubuntu-latest]
+        golang: [1.17]
 
     name: Test
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v2
         with:
           go-version: ${{ matrix.golang }}
         id: go
 
-      - name: Check out code into the Go module directory
+      - name: Install Subo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh repo clone suborbital/subo
+          cd subo
+          make subo
+          cd ../
+          rm -rf subo
+
+      - name: Check out code
         uses: actions/checkout@v2
 
       - name: Get dependencies
         run: |
-          go get ./...
-        
+          go mod download
+
+      - name: Build testdata
+        run: |
+          make testdata/docker/dev
+
         # Test first with default (Wasmer) runtime, and then again with Wasmtime runtime
       - name: Run test
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           go test -v ./...
-      
+
       - name: Run test with Wasmtime
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}

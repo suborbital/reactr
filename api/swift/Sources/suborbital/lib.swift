@@ -44,17 +44,32 @@ public func Set(runnable: Runnable) {
     RUNNABLE = runnable
 }
 
-let httpMethodGet = Int32(1)
-let httpMethodPost = Int32(2)
-let httpMethodPatch = Int32(3)
-let httpMethodDelete = Int32(4)
+let httpMethodGet = Int32(0)
+let httpMethodHead = Int32(1)
+let httpMethodOptions = Int32(2)
+let httpMethodPost = Int32(3)
+let httpMethodPut = Int32(4)
+let httpMethodPatch = Int32(5)
+let httpMethodDelete = Int32(6)
 
 public func HttpGet(url: String) -> String {
     return fetch(method: httpMethodGet, url: url, body: "")
 }
 
+public func HttpHead(url: String) -> String {
+    return fetch(method: httpMethodHead, url: url, body: "")
+}
+
+public func HttpOptions(url: String) -> String {
+    return fetch(method: httpMethodOptions, url: url, body: "")
+}
+
 public func HttpPost(url: String, body: String) -> String {
     return fetch(method: httpMethodPost, url: url, body: body)
+}
+
+public func HttpPut(url: String, body: String) -> String {
+    return fetch(method: httpMethodPut, url: url, body: body)
 }
 
 public func HttpPatch(url: String, body: String) -> String {

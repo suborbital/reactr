@@ -1,7 +1,6 @@
 package wasmtest
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -29,14 +28,30 @@ func TestPGDBQueries(t *testing.T) {
 
 	q2 := rcap.Query{
 		Type:     rcap.QueryTypeSelect,
-		Name:     "PGSelectUserWithEmail",
+		Name:     "PGSelectUserWithUUID",
 		VarCount: 1,
 		Query: `
 		SELECT * FROM users
-		WHERE email = $1`,
+		WHERE uuid = $1`,
 	}
 
-	config := rcap.DefaultConfigWithDB(vlog.Default(), rcap.DBTypePostgres, dbConnString, []rcap.Query{q1, q2})
+	q3 := rcap.Query{
+		Type:     rcap.QueryTypeUpdate,
+		Name:     "PGUpdateUserWithUUID",
+		VarCount: 1,
+		Query: `
+		UPDATE users SET state='B' WHERE uuid = $1`,
+	}
+
+	q4 := rcap.Query{
+		Type:     rcap.QueryTypeDelete,
+		Name:     "PGDeleteUserWithUUID",
+		VarCount: 1,
+		Query: `
+		DELETE FROM users WHERE uuid = $1`,
+	}
+
+	config := rcap.DefaultConfigWithDB(vlog.Default(), rcap.DBTypePostgres, dbConnString, []rcap.Query{q1, q2, q3, q4})
 
 	r, err := rt.NewWithConfig(config)
 	if err != nil {
@@ -52,5 +67,7 @@ func TestPGDBQueries(t *testing.T) {
 		return
 	}
 
-	fmt.Println("RESULT:", string(res.([]byte)))
+	if string(res.([]byte)) != "all good!" {
+		t.Error("something went wrong...")
+	}
 }

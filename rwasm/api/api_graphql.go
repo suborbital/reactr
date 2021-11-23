@@ -26,7 +26,7 @@ func GraphQLQueryHandler() runtime.HostFn {
 func graphql_query(endpointPointer int32, endpointSize int32, queryPointer int32, querySize int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: invalid identifier used, potential malicious activity"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
