@@ -84,6 +84,7 @@ func (w *WasmEdgeBuilder) setupAST() error {
 		if err != nil {
 			return errors.Wrap(err, "failed to create ast")
 		}
+		loader.Release()
 
 		// Validate the ast
 		val := wasmedge.NewValidator()
