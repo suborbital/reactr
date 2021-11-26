@@ -15,22 +15,6 @@ To get started with Wasm Runnables, install Reactr's WebAssembly package `rwasm`
 go get github.com/suborbital/reactr/rwasm
 ```
 
-Install [WasmEdge](https://github.com/WasmEdge/WasmEdge/blob/master/docs/install.md) for using WasmEdge runtime.
-```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.0-rc.2
-source $HOME/.wasmedge/env
-```
-
-For now, WasmEdge runtime has not been merged into main repo, so we should replace it with your local repo in the `go.mod`, something like:
-```
-replace github.com/suborbital/reactr v0.12.0 => ../second-state/reactr
-```
-
-And the latest release of [WasmEdge-go](https://github.com/second-state/WasmEdge-go) has an issue for loading wasm from buffer, so update the dependency to the resolved commit:
-```bash
-go get github.com/second-state/WasmEdge-go@v0.9.0-rc3
-```
-
 ```golang
 r := rt.New()
 
@@ -44,6 +28,13 @@ if err != nil {
 fmt.Println(string(res.([]byte)))
 ```
 
-By default, Reactr uses the Wasmer runtime internally, but supports the Wasmtime and WasmEdge runtime as well. Pass `-tags wasmtime` to any `go` command to use Wasmtime. Wasmtime is not yet supported on ARM. Pass `-tags wasmedge` to any `go` command to use WasmEdge.
+By default, Reactr uses the Wasmer runtime internally, but supports the Wasmtime and WasmEdge runtime as well. Pass `-tags wasmtime` to any `go` command to use Wasmtime. Wasmtime is not yet supported on ARM.
+
+Pass `-tags wasmedge` to any `go` command to use WasmEdge.
+You need to [install WasmEdge's shared libraries](https://github.com/WasmEdge/WasmEdge/blob/master/docs/install.md) to use it.
+```bash
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.0-rc.4
+source $HOME/.wasmedge/env
+```
 
 And that's it! You can schedule Wasm jobs as normal, and Wasm environments will be managed automatically to run your jobs.

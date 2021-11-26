@@ -8,7 +8,7 @@ require (
 	github.com/jackc/pgx/v4 v4.13.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/pkg/errors v0.9.1
-	github.com/second-state/WasmEdge-go v0.9.0-rc3.0.20211118175305-d40b88ba25d5
+	github.com/second-state/WasmEdge-go v0.9.0-rc4
 	github.com/suborbital/atmo v0.3.1-0.20210811161300-cf9b7d3fbb19
 	github.com/suborbital/grav v0.4.1
 	github.com/suborbital/vektor v0.5.1-0.20211112160641-0b7e68b46795
@@ -21,8 +21,6 @@ require (
 require (
 	github.com/bytecodealliance/wasmtime-go v0.31.0
 	github.com/go-sql-driver/mysql v1.6.0
-	github.com/jackc/pgx/v4 v4.13.0
-	github.com/jmoiron/sqlx v1.3.4
 )
 
 require (

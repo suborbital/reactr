@@ -262,15 +262,8 @@ func TestWasmRunnerGroup(t *testing.T) {
 
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
-	// There are some thread safety issues in WasmEdge mode now
-	// So reduce loop times in that condition
-	loopTimes := 50000
-	if (rwasm.RuntimeName() == "wasmedge") {
-		loopTimes = 1000
-	}
-
 	grp := rt.NewGroup()
-	for i := 0; i < loopTimes; i++ {
+	for i := 0; i < 50000; i++ {
 		grp.Add(doWasm([]byte(fmt.Sprintf("world %d", i))))
 	}
 
@@ -317,15 +310,8 @@ func TestWasmLargeDataGroup(t *testing.T) {
 
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
-	// There are some thread safety issues in WasmEdge mode now
-	// So reduce loop times in that condition
-	loopTimes := 5000
-	if (rwasm.RuntimeName() == "wasmedge") {
-		loopTimes = 50
-	}
-
 	grp := rt.NewGroup()
-	for i := 0; i < loopTimes; i++ {
+	for i := 0; i < 5000; i++ {
 		grp.Add(doWasm([]byte(largeInput)))
 	}
 
@@ -340,15 +326,8 @@ func TestWasmLargeDataGroupWithPool(t *testing.T) {
 
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"), rt.PoolSize(5))
 
-	// There are some thread safety issues in WasmEdge mode now
-	// So reduce loop times in that condition
-	loopTimes := 5000
-	if (rwasm.RuntimeName() == "wasmedge") {
-		loopTimes = 50
-	}
-
 	grp := rt.NewGroup()
-	for i := 0; i < loopTimes; i++ {
+	for i := 0; i < 5000; i++ {
 		grp.Add(doWasm([]byte(largeInput)))
 	}
 

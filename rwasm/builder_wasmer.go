@@ -10,10 +10,6 @@ import (
 	runtimewasmer "github.com/suborbital/reactr/rwasm/runtime/wasmer"
 )
 
-func RuntimeName() string {
-	return "wasmer"
-}
-
 func runtimeBuilder(ref *moduleref.WasmModuleRef) runtime.RuntimeBuilder {
 	return runtimewasmer.NewBuilder(ref, api.API()...)
 }
