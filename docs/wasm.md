@@ -33,8 +33,13 @@ By default, Reactr uses the Wasmer runtime internally, but supports the Wasmtime
 Pass `-tags wasmedge` to any `go` command to use WasmEdge.
 You need to [install WasmEdge's shared libraries](https://github.com/WasmEdge/WasmEdge/blob/master/docs/install.md) to use it.
 ```bash
-wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.0-rc.4
+wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.0-rc.5
 source $HOME/.wasmedge/env
+```
+If you are using MacOS, either with Intel processors or Apple M1, you need to install llvm. And call `go test` with `-exec` argument to pass shared library path to go process.
+```
+brew install llvm
+go test -exec "env DYLD_LIBRARY_PATH=/path/to/.wasmedge/lib" -tags wasmedge
 ```
 
 And that's it! You can schedule Wasm jobs as normal, and Wasm environments will be managed automatically to run your jobs.
