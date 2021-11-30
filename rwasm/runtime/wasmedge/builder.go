@@ -2,9 +2,9 @@ package runtimewasmedge
 
 import (
 	"github.com/pkg/errors"
+	"github.com/second-state/WasmEdge-go/wasmedge"
 	"github.com/suborbital/reactr/rwasm/moduleref"
 	"github.com/suborbital/reactr/rwasm/runtime"
-	"github.com/second-state/WasmEdge-go/wasmedge"
 )
 
 // WasmEdgeBuilder is a WasmEdge implementation of the instanceBuilder interface
@@ -17,7 +17,7 @@ type WasmEdgeBuilder struct {
 
 // NewBuilder create a new WasmEdgeBuilder
 func NewBuilder(ref *moduleref.WasmModuleRef, hostFns ...runtime.HostFn) runtime.RuntimeBuilder {
-	w := &WasmEdgeBuilder {
+	w := &WasmEdgeBuilder{
 		ref:     ref,
 		hostFns: hostFns,
 	}
@@ -39,7 +39,7 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 	// Register import object
 	executor.RegisterImport(store, w.imports)
 
-	wasiImports := wasmedge.NewWasiImportObject(nil, nil, nil, nil)
+	wasiImports := wasmedge.NewWasiImportObject(nil, nil, nil)
 	executor.RegisterImport(store, wasiImports)
 
 	// Instantiate store
@@ -58,8 +58,8 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 		}
 	}
 
-	inst := &WasmEdgeRuntime {
-		store: store,
+	inst := &WasmEdgeRuntime{
+		store:    store,
 		executor: executor,
 	}
 
