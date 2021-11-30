@@ -25,4 +25,7 @@ npm/publish:
 deps:
 	go get -u -d ./...
 
+mod/replace/atmo:
+	go mod edit -replace github.com/suborbital/atmo=$(HOME)/Workspaces/suborbital/atmo
+
 .PHONY: test testdata crate/check crate/publish deps

@@ -8,25 +8,33 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/suborbital/atmo/directive/executable"
 	"github.com/suborbital/vektor/vk"
+)
+
+const (
+	atmoHeadlessStateHeader  = "X-Atmo-State"
+	atmoHeadlessParamsHeader = "X-Atmo-Params"
+	atmoRequestIDHeader      = "X-Atmo-RequestID"
 )
 
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
 // and is serializable to facilitate interoperation with Wasm Runnables and transmissible over the wire
 type CoordinatedRequest struct {
-	Method      string            `json:"method"`
-	URL         string            `json:"url"`
-	ID          string            `json:"request_id"`
-	Body        []byte            `json:"body"`
-	Headers     map[string]string `json:"headers"`
-	RespHeaders map[string]string `json:"resp_headers"`
-	Params      map[string]string `json:"params"`
-	State       map[string][]byte `json:"state"`
+	Method      string                  `json:"method"`
+	URL         string                  `json:"url"`
+	ID          string                  `json:"request_id"`
+	Body        []byte                  `json:"body"`
+	Headers     map[string]string       `json:"headers"`
+	RespHeaders map[string]string       `json:"resp_headers"`
+	Params      map[string]string       `json:"params"`
+	State       map[string][]byte       `json:"state"`
+	Sequence    []executable.Executable `json:"sequence,omitempty"`
 
 	bodyValues map[string]interface{} `json:"-"`
 }
 
-// FromVKRequest creates a CoordinatedRequest from an http.Request
+// FromVKRequest creates a CoordinatedRequest from an VK request handler
 func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 	reqBody, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -58,6 +66,41 @@ func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 	}
 
 	return req, nil
+}
+
+func (c *CoordinatedRequest) UseHeadlessHeaders(r *http.Request, ctx *vk.Ctx) error {
+	// fill in initial state from the state header
+	if stateJSON := r.Header.Get(atmoHeadlessStateHeader); stateJSON != "" {
+		state := map[string]string{}
+		byteState := map[string][]byte{}
+
+		if err := json.Unmarshal([]byte(stateJSON), &state); err != nil {
+			return errors.Wrap(err, "failed to Unmarshal X-Atmo-State header")
+		} else {
+			// iterate over the state and convert each field to bytes
+			for k, v := range state {
+				byteState[k] = []byte(v)
+			}
+		}
+
+		c.State = byteState
+	}
+
+	// fill in the URL params from the Params header
+	if paramsJSON := r.Header.Get(atmoHeadlessParamsHeader); paramsJSON != "" {
+		params := map[string]string{}
+
+		if err := json.Unmarshal([]byte(paramsJSON), &params); err != nil {
+			return errors.Wrap(err, "failed to Unmarshal X-Atmo-Params header")
+		} else {
+			c.Params = params
+		}
+	}
+
+	// add the request ID as a response header
+	ctx.RespHeaders.Add(atmoRequestIDHeader, ctx.RequestID())
+
+	return nil
 }
 
 // BodyField returns a field from the request body as a string
