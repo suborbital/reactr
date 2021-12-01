@@ -3,8 +3,12 @@ module github.com/suborbital/reactr
 go 1.17
 
 require (
+	github.com/bytecodealliance/wasmtime-go v0.31.0
 	github.com/go-redis/redis/v8 v8.11.4
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.3.0
+	github.com/jackc/pgx/v4 v4.14.0
+	github.com/jmoiron/sqlx v1.3.4
 	github.com/pkg/errors v0.9.1
 	github.com/suborbital/atmo v0.4.2-0.20211130173256-b0154e497fd0
 	github.com/suborbital/grav v0.4.2
@@ -13,13 +17,6 @@ require (
 	golang.org/x/crypto v0.0.0-20211117183948-ae814b36b871
 	golang.org/x/net v0.0.0-20211123203042-d83791d6bcd9 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-)
-
-require (
-	github.com/bytecodealliance/wasmtime-go v0.31.0
-	github.com/go-sql-driver/mysql v1.6.0
-	github.com/jackc/pgx/v4 v4.14.0
-	github.com/jmoiron/sqlx v1.3.4
 )
 
 require (
