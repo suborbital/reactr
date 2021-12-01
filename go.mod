@@ -42,5 +42,3 @@ require (
 )
 
 replace github.com/bytecodealliance/wasmtime-go => github.com/suborbital/wasmtime-go v0.31.0-subo
-
-replace github.com/suborbital/atmo => /Users/cohix-14/Workspaces/suborbital/atmo
