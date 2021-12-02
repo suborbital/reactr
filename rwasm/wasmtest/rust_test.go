@@ -72,9 +72,12 @@ func TestGraphQLRunner(t *testing.T) {
 }
 
 func TestWasmRunnerReturnError(t *testing.T) {
+	r := rt.New()
+	r.Register("return-err", rwasm.NewRunner("../testdata/return-err/return-err.wasm"))
+
 	job := rt.NewJob("return-err", "asdf")
 
-	_, err := sharedRT.Do(job).Then()
+	_, err := r.Do(job).Then()
 	if err == nil {
 		t.Error("expected error, got none")
 		return
@@ -224,9 +227,12 @@ func TestContentType(t *testing.T) {
 		t.Error("failed to ToJSON", err)
 	}
 
+	r := rt.New()
+	r.Register("content-type", rwasm.NewRunner("../testdata/content-type/content-type.wasm"))
+
 	job := rt.NewJob("content-type", reqJSON)
 
-	res, err := sharedRT.Do(job).Then()
+	res, err := r.Do(job).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
@@ -273,7 +279,10 @@ func TestWasmRunnerGroup(t *testing.T) {
 }
 
 func TestWasmBundle(t *testing.T) {
-	res, err := sharedRT.Do(rt.NewJob("hello-echo", []byte("wasmWorker!"))).Then()
+	r := rt.New()
+	r.Register("hello-echo", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
+
+	res, err := r.Do(rt.NewJob("hello-echo", []byte("wasmWorker!"))).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "Then returned error"))
 		return
@@ -336,15 +345,18 @@ func TestWasmLargeDataGroupWithPool(t *testing.T) {
 }
 
 func TestWasmFileGetStatic(t *testing.T) {
+	r := rt.New()
+	r.Register("get-static", rwasm.NewRunner("../testdata/get-static/get-static.wasm"))
+
 	getJob := rt.NewJob("get-static", "important.md")
 
-	r, err := sharedRT.Do(getJob).Then()
+	res, err := r.Do(getJob).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Do get-static job"))
 		return
 	}
 
-	result := string(r.([]byte))
+	result := string(res.([]byte))
 
 	expected := "# Hello, World\n\nContents are very important"
 

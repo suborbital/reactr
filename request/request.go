@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/suborbital/atmo/directive/executable"
 	"github.com/suborbital/vektor/vk"
 )
 
@@ -21,15 +20,15 @@ const (
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
 // and is serializable to facilitate interoperation with Wasm Runnables and transmissible over the wire
 type CoordinatedRequest struct {
-	Method      string                  `json:"method"`
-	URL         string                  `json:"url"`
-	ID          string                  `json:"request_id"`
-	Body        []byte                  `json:"body"`
-	Headers     map[string]string       `json:"headers"`
-	RespHeaders map[string]string       `json:"resp_headers"`
-	Params      map[string]string       `json:"params"`
-	State       map[string][]byte       `json:"state"`
-	Sequence    []executable.Executable `json:"sequence,omitempty"`
+	Method       string            `json:"method"`
+	URL          string            `json:"url"`
+	ID           string            `json:"request_id"`
+	Body         []byte            `json:"body"`
+	Headers      map[string]string `json:"headers"`
+	RespHeaders  map[string]string `json:"resp_headers"`
+	Params       map[string]string `json:"params"`
+	State        map[string][]byte `json:"state"`
+	SequenceJSON []byte            `json:"sequence_json,omitempty"`
 
 	bodyValues map[string]interface{} `json:"-"`
 }

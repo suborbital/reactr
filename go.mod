@@ -10,7 +10,6 @@ require (
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/pkg/errors v0.9.1
-	github.com/suborbital/atmo v0.4.2-0.20211201232940-868a22596cc1
 	github.com/suborbital/grav v0.4.2
 	github.com/suborbital/vektor v0.5.1
 	github.com/wasmerio/wasmer-go v1.0.4
@@ -31,10 +30,8 @@ require (
 	github.com/jackc/pgtype v1.9.1 // indirect
 	github.com/julienschmidt/httprouter v1.3.0 // indirect
 	github.com/sethvargo/go-envconfig v0.4.0 // indirect
-	golang.org/x/mod v0.5.1 // indirect
+	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )
 

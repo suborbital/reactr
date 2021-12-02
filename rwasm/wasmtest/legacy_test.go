@@ -9,12 +9,16 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/rt"
+	"github.com/suborbital/reactr/rwasm"
 )
 
 func TestWasmLegacyInit(t *testing.T) {
+	r := rt.New()
+	r.Register("legacy", rwasm.NewRunner("../testdata/legacy/legacy.wasm"))
+
 	job := rt.NewJob("legacy", "Connor")
 
-	res, err := sharedRT.Do(job).Then()
+	res, err := r.Do(job).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
