@@ -14,8 +14,6 @@ import (
 type WasmEdgeBuilder struct {
 	ref     *moduleref.WasmModuleRef
 	hostFns []runtime.HostFn
-	imports *wasmedge.ImportObject
-	ast     *wasmedge.AST
 }
 
 // NewBuilder create a new WasmEdgeBuilder
@@ -28,7 +26,7 @@ func NewBuilder(ref *moduleref.WasmModuleRef, hostFns ...runtime.HostFn) runtime
 }
 
 func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
-	err := w.setupAST()
+	imports, ast, err := w.setupAST()
 	if err != nil {
 		return nil, err
 	}
@@ -40,13 +38,13 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 	executor := wasmedge.NewExecutor()
 
 	// Register import object
-	executor.RegisterImport(store, w.imports)
+	executor.RegisterImport(store, imports)
 
 	wasiImports := wasmedge.NewWasiImportObject(nil, nil, nil)
 	executor.RegisterImport(store, wasiImports)
 
 	// Instantiate store
-	executor.Instantiate(store, w.ast)
+	executor.Instantiate(store, ast)
 
 	wasiStart := store.FindFunction("_start")
 	if wasiStart != nil {
@@ -62,6 +60,8 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 	}
 
 	inst := &WasmEdgeRuntime{
+		ast:      ast,
+		imports:  imports,
 		store:    store,
 		executor: executor,
 	}
@@ -69,43 +69,38 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 	return inst, nil
 }
 
-func (w *WasmEdgeBuilder) setupAST() error {
-	if w.ast == nil {
-		// Set not to print debug info
-		wasmedge.SetLogErrorLevel()
+func (w *WasmEdgeBuilder) setupAST() (*wasmedge.ImportObject, *wasmedge.AST, error) {
+	// Set not to print debug info
+	wasmedge.SetLogErrorLevel()
 
-		moduleBytes, err := w.ref.Bytes()
-		if err != nil {
-			return errors.Wrap(err, "failed to get ref ModuleBytes")
-		}
-
-		// Create Loader
-		loader := wasmedge.NewLoader()
-
-		// Create AST
-		ast, err := loader.LoadBuffer(moduleBytes)
-		if err != nil {
-			return errors.Wrap(err, "failed to create ast")
-		}
-		loader.Release()
-
-		// Validate the ast
-		val := wasmedge.NewValidator()
-		err = val.Validate(ast)
-		if err != nil {
-			return errors.Wrap(err, "failed to validate ast")
-		}
-		defer val.Release()
-
-		// Create import object
-		imports := wasmedge.NewImportObject("env")
-
-		// mount the Runnable API host functions to the module's imports
-		addHostFns(imports, w.hostFns...)
-
-		w.imports = imports
-		w.ast = ast
+	moduleBytes, err := w.ref.Bytes()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to get ref ModuleBytes")
 	}
 
-	return nil
+	// Create Loader
+	loader := wasmedge.NewLoader()
+
+	// Create AST
+	ast, err := loader.LoadBuffer(moduleBytes)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to create ast")
+	}
+	loader.Release()
+
+	// Validate the ast
+	val := wasmedge.NewValidator()
+	err = val.Validate(ast)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "failed to validate ast")
+	}
+	val.Release()
+
+	// Create import object
+	imports := wasmedge.NewImportObject("env")
+
+	// mount the Runnable API host functions to the module's imports
+	addHostFns(imports, w.hostFns...)
+
+	return imports, ast, nil
 }
