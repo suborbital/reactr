@@ -12,9 +12,12 @@ import (
 )
 
 const (
-	atmoHeadlessStateHeader  = "X-Atmo-State"
-	atmoHeadlessParamsHeader = "X-Atmo-Params"
-	atmoRequestIDHeader      = "X-Atmo-RequestID"
+	suborbitalHeadlessStateHeader  = "X-Suborbital-State"
+	suborbitalHeadlessParamsHeader = "X-Suborbital-Params"
+	suborbitalRequestIDHeader      = "X-Suborbital-RequestID"
+	atmoHeadlessStateHeader        = "X-Atmo-State"     // deprecated
+	atmoHeadlessParamsHeader       = "X-Atmo-Params"    // deprecated
+	atmoRequestIDHeader            = "X-Atmo-RequestID" // deprecated
 )
 
 // CoordinatedRequest represents a request whose fulfillment can be coordinated across multiple hosts
@@ -67,37 +70,33 @@ func FromVKRequest(r *http.Request, ctx *vk.Ctx) (*CoordinatedRequest, error) {
 	return req, nil
 }
 
+// UseHeadlessHeaders adds the values in the state and params headers JSON to the CoordinatedRequest's State and Params
 func (c *CoordinatedRequest) UseHeadlessHeaders(r *http.Request, ctx *vk.Ctx) error {
 	// fill in initial state from the state header
-	if stateJSON := r.Header.Get(atmoHeadlessStateHeader); stateJSON != "" {
-		state := map[string]string{}
-		byteState := map[string][]byte{}
+	stateJSON := r.Header.Get(atmoHeadlessStateHeader)
+	if err := c.addState(stateJSON); err != nil {
+		return err
+	}
 
-		if err := json.Unmarshal([]byte(stateJSON), &state); err != nil {
-			return errors.Wrap(err, "failed to Unmarshal X-Atmo-State header")
-		} else {
-			// iterate over the state and convert each field to bytes
-			for k, v := range state {
-				byteState[k] = []byte(v)
-			}
-		}
-
-		c.State = byteState
+	stateJSON = r.Header.Get(suborbitalHeadlessStateHeader)
+	if err := c.addState(stateJSON); err != nil {
+		return err
 	}
 
 	// fill in the URL params from the Params header
-	if paramsJSON := r.Header.Get(atmoHeadlessParamsHeader); paramsJSON != "" {
-		params := map[string]string{}
-
-		if err := json.Unmarshal([]byte(paramsJSON), &params); err != nil {
-			return errors.Wrap(err, "failed to Unmarshal X-Atmo-Params header")
-		} else {
-			c.Params = params
-		}
+	paramsJSON := r.Header.Get(atmoHeadlessParamsHeader)
+	if err := c.addParams(paramsJSON); err != nil {
+		return err
 	}
 
-	// add the request ID as a response header
+	paramsJSON = r.Header.Get(suborbitalHeadlessParamsHeader)
+	if err := c.addParams(paramsJSON); err != nil {
+		return err
+	}
+
+	// add the request ID as response header(s)
 	ctx.RespHeaders.Add(atmoRequestIDHeader, ctx.RequestID())
+	ctx.RespHeaders.Add(suborbitalRequestIDHeader, ctx.RequestID())
 
 	return nil
 }
@@ -178,4 +177,50 @@ func FromJSON(jsonBytes []byte) (*CoordinatedRequest, error) {
 // ToJSON returns a JSON representation of a CoordinatedRequest
 func (c *CoordinatedRequest) ToJSON() ([]byte, error) {
 	return json.Marshal(c)
+}
+
+func (c *CoordinatedRequest) addState(stateJSON string) error {
+	if stateJSON == "" {
+		return nil
+	}
+
+	if c.State == nil {
+		c.State = map[string][]byte{}
+	}
+
+	state := map[string]string{}
+
+	if err := json.Unmarshal([]byte(stateJSON), &state); err != nil {
+		return errors.Wrap(err, "failed to Unmarshal state header")
+	} else {
+		// iterate over the state and convert each field to bytes
+		for k, v := range state {
+			c.State[k] = []byte(v)
+		}
+	}
+
+	return nil
+}
+
+func (c *CoordinatedRequest) addParams(paramsJSON string) error {
+	if paramsJSON == "" {
+		return nil
+	}
+
+	if c.Params == nil {
+		c.Params = map[string]string{}
+	}
+
+	state := map[string]string{}
+
+	if err := json.Unmarshal([]byte(paramsJSON), &state); err != nil {
+		return errors.Wrap(err, "failed to Unmarshal params header")
+	} else {
+		// iterate over the state and convert each field to bytes
+		for k, v := range state {
+			c.Params[k] = v
+		}
+	}
+
+	return nil
 }
