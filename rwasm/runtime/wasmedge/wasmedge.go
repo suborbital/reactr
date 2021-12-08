@@ -11,7 +11,6 @@ import (
 // WasmEdgeRuntime is a WasmEdge implementation of the runtimeInstance interface
 type WasmEdgeRuntime struct {
 	imports *wasmedge.ImportObject
-	ast     *wasmedge.AST
 	store    *wasmedge.Store
 	executor *wasmedge.Executor
 }
@@ -82,6 +81,5 @@ func (w *WasmEdgeRuntime) Deallocate(pointer int32, length int) {
 func (w *WasmEdgeRuntime) Close() {
 	w.executor.Release()
 	w.store.Release()
-	w.ast.Release()
 	w.imports.Release()
 }

@@ -45,6 +45,7 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 
 	// Instantiate store
 	executor.Instantiate(store, ast)
+	ast.Release()
 
 	wasiStart := store.FindFunction("_start")
 	if wasiStart != nil {
@@ -60,7 +61,6 @@ func (w *WasmEdgeBuilder) New() (runtime.RuntimeInstance, error) {
 	}
 
 	inst := &WasmEdgeRuntime{
-		ast:      ast,
 		imports:  imports,
 		store:    store,
 		executor: executor,
