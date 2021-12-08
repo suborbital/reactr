@@ -1,5 +1,5 @@
-//go:build !wasmtime && !wasmedge
-// +build !wasmtime,!wasmedge
+//go:build wasmedge
+// +build wasmedge
 
 package rwasm
 
@@ -7,9 +7,9 @@ import (
 	"github.com/suborbital/reactr/rwasm/api"
 	"github.com/suborbital/reactr/rwasm/moduleref"
 	"github.com/suborbital/reactr/rwasm/runtime"
-	runtimewasmer "github.com/suborbital/reactr/rwasm/runtime/wasmer"
+	runtimewasmedge "github.com/suborbital/reactr/rwasm/runtime/wasmedge"
 )
 
 func runtimeBuilder(ref *moduleref.WasmModuleRef) runtime.RuntimeBuilder {
-	return runtimewasmer.NewBuilder(ref, api.API()...)
+	return runtimewasmedge.NewBuilder(ref, api.API()...)
 }

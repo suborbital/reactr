@@ -330,6 +330,7 @@ func TestWasmLargeDataGroup(t *testing.T) {
 }
 
 func TestWasmLargeDataGroupWithPool(t *testing.T) {
+
 	r := rt.New()
 
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"), rt.PoolSize(5))

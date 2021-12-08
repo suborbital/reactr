@@ -25,7 +25,7 @@ npm/publish:
 deps:
 	go get -u -d ./...
 
-mod/replace/atmo:
-	go mod edit -replace github.com/suborbital/atmo=$(HOME)/Workspaces/suborbital/atmo
+deps/wasmedge:
+	wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.0-rc.5
 
 .PHONY: test testdata crate/check crate/publish deps
