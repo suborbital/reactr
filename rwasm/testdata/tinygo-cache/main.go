@@ -5,9 +5,9 @@ import "github.com/suborbital/reactr/api/tinygo/runnable"
 type Cache struct{}
 
 func (h Cache) Run(input []byte) ([]byte, error) {
-	runnable.CacheSet(string(input), "hello world", 0)
+	runnable.CacheSet("name", string(input), 0)
 
-	return runnable.CacheGet(string(input))
+	return runnable.CacheGet("name")
 }
 
 func main() {

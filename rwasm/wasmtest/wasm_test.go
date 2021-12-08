@@ -1,11 +1,7 @@
 package wasmtest
 
 import (
-	"fmt"
-
-	"github.com/pkg/errors"
-	"github.com/suborbital/atmo/bundle/load"
-	"github.com/suborbital/reactr/rt"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/rwasm/runtime"
 	"github.com/suborbital/vektor/vlog"
 )
@@ -14,21 +10,20 @@ type testBody struct {
 	Username string `json:"username"`
 }
 
-var sharedRT *rt.Reactr
-
 func init() {
 	// set a logger for rwasm to use
 	runtime.UseInternalLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
+}
 
-	// create a shared instance for some tests to use
-	sharedRT = rt.New()
+var fileConfig = &rcap.FileConfig{
+	Enabled: true,
+	FileFunc: func(string) ([]byte, error) {
+		contents := []byte("# Hello, World\n\nContents are very important")
 
-	if err := load.BundleFromPath(sharedRT, "../testdata/runnables.wasm.zip"); err != nil {
-		fmt.Println(errors.Wrap(err, "failed to AtHandleBundleAtPath"))
-		return
-	}
+		return contents, nil
+	},
 }
 
 const largeInput = `

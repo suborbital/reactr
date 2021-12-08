@@ -108,16 +108,9 @@ func (r *Reactr) DeRegister(jobType string) error {
 // The job's result is then emitted as a message. If an error occurs, it is logged and an error is sent.
 // If the result is nil, nothing is sent.
 func (r *Reactr) Listen(pod *grav.Pod, msgType string) {
-	helper := func(data interface{}) *Result {
-		job := NewJob(msgType, data)
-
-		return r.Do(job)
-	}
-
-	pod.OnType(msgType, func(msg grav.Message) error {
+	r.ListenAndRun(pod, msgType, func(msg grav.Message, result interface{}, err error) {
 		var replyMsg grav.Message
 
-		result, err := helper(msg.Data()).Then()
 		if err != nil {
 			r.log.Error(errors.Wrapf(err, "job from message %s returned error result", msg.UUID()))
 
@@ -155,6 +148,23 @@ func (r *Reactr) Listen(pod *grav.Pod, msgType string) {
 		}
 
 		pod.ReplyTo(msg, replyMsg)
+	})
+}
+
+// ListenAndRun subscribes Reactr to a messageType and calls `run` for each job result
+func (r *Reactr) ListenAndRun(pod *grav.Pod, msgType string, run func(grav.Message, interface{}, error)) {
+	helper := func(data interface{}) *Result {
+		job := NewJob(msgType, data)
+
+		return r.Do(job)
+	}
+
+	// each time a message is received with the associated type,
+	// execute the associated job and pass the result to `run`
+	pod.OnType(msgType, func(msg grav.Message) error {
+		result, err := helper(msg.Data()).Then()
+
+		run(msg, result, err)
 
 		return nil
 	})
