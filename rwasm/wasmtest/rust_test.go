@@ -345,7 +345,10 @@ func TestWasmLargeDataGroupWithPool(t *testing.T) {
 }
 
 func TestWasmFileGetStatic(t *testing.T) {
-	r := rt.New()
+	config := rcap.DefaultCapabilityConfig()
+	config.File = fileConfig
+
+	r, _ := rt.NewWithConfig(config)
 	r.Register("get-static", rwasm.NewRunner("../testdata/get-static/get-static.wasm"))
 
 	getJob := rt.NewJob("get-static", "important.md")

@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
@@ -90,7 +91,10 @@ func TestWasmRunnerSwift(t *testing.T) {
 }
 
 func TestWasmFileGetStaticSwift(t *testing.T) {
-	r := rt.New()
+	config := rcap.DefaultCapabilityConfig()
+	config.File = fileConfig
+
+	r, _ := rt.NewWithConfig(config)
 	r.Register("get-static-swift", rwasm.NewRunner("../testdata/get-static-swift/get-static-swift.wasm"))
 
 	getJob := rt.NewJob("get-static-swift", "")

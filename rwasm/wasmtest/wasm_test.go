@@ -1,6 +1,7 @@
 package wasmtest
 
 import (
+	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/rwasm/runtime"
 	"github.com/suborbital/vektor/vlog"
 )
@@ -14,6 +15,15 @@ func init() {
 	runtime.UseInternalLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
+}
+
+var fileConfig = &rcap.FileConfig{
+	Enabled: true,
+	FileFunc: func(string) ([]byte, error) {
+		contents := []byte("# Hello, World\n\nContents are very important")
+
+		return contents, nil
+	},
 }
 
 const largeInput = `
