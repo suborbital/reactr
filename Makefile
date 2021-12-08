@@ -7,7 +7,7 @@ test/wasmtime:
 	go test --tags wasmtime -v --count=1 -p=1 $(packages)
 
 test/wasmedge:
-    go test --tags wasmedge -v -count=1 -p=1 $(packages)
+	go test --tags wasmedge -v -count=1 -p=1 $(packages)
 
 test/multi: test test/wasmtime test/wasmedge
 
