@@ -88,7 +88,7 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 	}
 
 	if runErr != nil {
-		return nil, errors.Wrap(runErr, "failed to execute Wasm Runnable")
+		return nil, runErr
 	}
 
 	if req != nil {
