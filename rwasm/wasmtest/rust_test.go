@@ -83,8 +83,7 @@ func TestWasmRunnerReturnError(t *testing.T) {
 		return
 	}
 
-	runErr := &rt.RunErr{}
-	if !errors.As(err, runErr) || runErr.Error() != `{"code":400,"message":"job failed"}` {
+	if runErr, ok := err.(rt.RunErr); !ok || runErr.Error() != `{"code":400,"message":"job failed"}` {
 		t.Error("expected RunErr JSON, got", err.Error())
 	}
 }
