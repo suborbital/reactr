@@ -1,13 +1,16 @@
 package main
 
-import "github.com/suborbital/reactr/api/tinygo/runnable"
+import (
+	"github.com/suborbital/reactr/api/tinygo/runnable"
+	"github.com/suborbital/reactr/api/tinygo/runnable/cache"
+)
 
 type Cache struct{}
 
 func (h Cache) Run(input []byte) ([]byte, error) {
-	runnable.CacheSet("name", string(input), 0)
+	cache.Set("name", string(input), 0)
 
-	return runnable.CacheGet("name")
+	return cache.Get("name")
 }
 
 func main() {

@@ -1,9 +1,10 @@
 //go:build tinygo.wasm
 
-package runnable
+package req
 
-// #include <reactr.h>
-import "C"
+import (
+	"github.com/suborbital/reactr/api/tinygo/runnable/internal/ffi"
+)
 
 type FieldType int32
 
@@ -16,20 +17,11 @@ const (
 )
 
 func getField(fieldType FieldType, key string) []byte {
-	ptr, size := rawSlicePointer([]byte(key))
-
-	res, err := result(C.request_get_field(int32(fieldType), ptr, size, ident()))
-	if err != nil {
-		return []byte{}
-	}
-	return res
+	return ffi.ReqGetField(int32(fieldType), key)
 }
 
 func setField(fieldType FieldType, key string, value string) ([]byte, error) {
-	keyPtr, keySize := rawSlicePointer([]byte(key))
-	valPtr, valSize := rawSlicePointer([]byte(value))
-
-	return result(C.request_set_field(int32(fieldType), keyPtr, keySize, valPtr, valSize, ident()))
+	return ffi.ReqSetField(int32(fieldType), key, value)
 }
 
 func Method() string {
