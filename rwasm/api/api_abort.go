@@ -39,7 +39,7 @@ func return_abort(msgPtr int32, msgSize int32, filePtr int32, fileSize int32, li
 	errMsg := fmt.Sprintf("runnable abort: %s; file: %s, line: %d, col: %d", msg, fileName, lineNum, columnNum)
 	runtime.InternalLogger().ErrorString(errMsg)
 
-	inst.SendExecutionResult(nil, &rt.RunErr{Code: -1, Message: errMsg})
+	inst.SendExecutionResult(nil, rt.RunErr{Code: -1, Message: errMsg})
 
 	return 0
 }

@@ -14,7 +14,7 @@ type WasmInstance struct {
 	ctx *rt.Ctx
 
 	resultChan chan []byte
-	errChan    chan rt.RunErr
+	errChan    chan error
 }
 
 // RuntimeBuilder is a factory-style interface that can build Wasm runtimes
@@ -65,9 +65,9 @@ func (w *WasmInstance) ExecutionResult() ([]byte, error) {
 }
 
 // SendExecutionResult allows FFI functions to send the run result
-func (w *WasmInstance) SendExecutionResult(result []byte, runErr *rt.RunErr) {
+func (w *WasmInstance) SendExecutionResult(result []byte, runErr error) {
 	if runErr != nil {
-		w.errChan <- *runErr
+		w.errChan <- runErr
 	} else if result != nil {
 		w.resultChan <- result
 	}

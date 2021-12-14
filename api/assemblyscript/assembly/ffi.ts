@@ -46,10 +46,12 @@ export function ffi_result(size: i32): Result {
 
 	let code = get_ffi_result(result_ptr, current_ident)
 	if (code != 0) {
+		heap.free(result_ptr)
 		return unknownRes
 	}
 
 	let data = fromFFI(result_ptr, allocSize)
+	heap.free(result_ptr)
 
 	if (size < 0) {
 		return new Result(new ArrayBuffer(0), new Error(String.UTF8.decode(data)))

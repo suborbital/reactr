@@ -60,7 +60,7 @@ func (w *WasmEnvironment) AddInstance() error {
 	instance := &WasmInstance{
 		runtime:    inst,
 		resultChan: make(chan []byte, 1),
-		errChan:    make(chan rt.RunErr, 1),
+		errChan:    make(chan error, 1),
 	}
 
 	w.availableInstances <- instance

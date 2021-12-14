@@ -8,9 +8,9 @@ import (
 type Cache struct{}
 
 func (h Cache) Run(input []byte) ([]byte, error) {
-	cache.Set(string(input), "hello world", 0)
+	cache.Set("name", string(input), 0)
 
-	return cache.Get(string(input))
+	return cache.Get("name")
 }
 
 func main() {

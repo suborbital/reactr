@@ -56,7 +56,7 @@ func return_error(code int32, pointer int32, size int32, identifier int32) {
 
 	result := inst.ReadMemory(pointer, size)
 
-	runErr := &rt.RunErr{Code: int(code), Message: string(result)}
+	runErr := rt.RunErr{Code: int(code), Message: string(result)}
 
 	inst.SendExecutionResult(nil, runErr)
 }

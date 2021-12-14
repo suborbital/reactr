@@ -1,5 +1,5 @@
-//go:build !wasmtime
-// +build !wasmtime
+//go:build !wasmtime && !wasmedge
+// +build !wasmtime,!wasmedge
 
 package rwasm
 
