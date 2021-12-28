@@ -1,4 +1,4 @@
-//go:build !go1.18
+//go:build go1.18
 
 package rt
 
@@ -26,7 +26,7 @@ type WorkerMetrics struct {
 }
 
 type scaler struct {
-	workers map[string]*worker
+	workers map[string]*worker[Input, Output]
 
 	log       *vlog.Logger
 	lock      *sync.RWMutex
@@ -35,7 +35,7 @@ type scaler struct {
 
 func newScaler(log *vlog.Logger) *scaler {
 	s := &scaler{
-		workers:   map[string]*worker{},
+		workers:   map[string]*worker[Input, Output]{},
 		log:       log,
 		lock:      &sync.RWMutex{},
 		startOnce: &sync.Once{},
@@ -79,7 +79,7 @@ func (s *scaler) startAutoscaler() {
 	})
 }
 
-func (s *scaler) addWorker(jobType string, wk *worker) {
+func (s *scaler) addWorker(jobType string, wk *worker[Input, Output]) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
@@ -111,7 +111,7 @@ func (s *scaler) removeWorker(jobType string) error {
 	return nil
 }
 
-func (s *scaler) findWorker(jobType string) *worker {
+func (s *scaler) findWorker(jobType string) *worker[Input, Output] {
 	s.lock.RLock()
 	defer s.lock.RUnlock()
 

@@ -1,4 +1,4 @@
-//go:build !go1.18
+//go:build go1.18
 
 package rt
 
@@ -12,16 +12,16 @@ import (
 // watcher holds a set of schedules and "watches"
 // them for new jobs to send to the scheduler
 type watcher struct {
-	schedules    map[string]Schedule
-	scheduleFunc func(*Job) *Result
+	schedules    map[string]Schedule[Input, Output]
+	scheduleFunc func(*Job[Input, Output]) *Result[Output]
 
 	lock      sync.RWMutex
 	startOnce sync.Once
 }
 
-func newWatcher(scheduleFunc func(*Job) *Result) *watcher {
+func newWatcher(scheduleFunc func(*Job[Input, Output]) *Result[Output]) *watcher {
 	w := &watcher{
-		schedules:    map[string]Schedule{},
+		schedules:    map[string]Schedule[Input, Output]{},
 		scheduleFunc: scheduleFunc,
 		lock:         sync.RWMutex{},
 		startOnce:    sync.Once{},
@@ -30,7 +30,7 @@ func newWatcher(scheduleFunc func(*Job) *Result) *watcher {
 	return w
 }
 
-func (w *watcher) watch(sched Schedule) {
+func (w *watcher) watch(sched Schedule[Input, Output]) {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 

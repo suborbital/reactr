@@ -1,5 +1,4 @@
-//go:build !go1.18
-
+//go:build go1.18
 package rt
 
 import (
@@ -20,15 +19,15 @@ var (
 	ErrJobTimeout = errors.New("job timeout")
 )
 
-type worker struct {
-	runner   Runnable
-	workChan chan *Job
+type worker[T any, R any] struct {
+	runner   Runnable[T, R]
+	workChan chan *Job[T, R]
 	options  workerOpts
 
 	defaultCaps Capabilities
 
 	targetThreadCount int
-	threads           []*workThread
+	threads           []*workThread[T, R]
 
 	lock      *sync.RWMutex
 	reconcile *singleflight.Group
@@ -36,14 +35,14 @@ type worker struct {
 }
 
 // newWorker creates a new goWorker
-func newWorker(runner Runnable, caps Capabilities, opts workerOpts) *worker {
-	w := &worker{
+func newWorker[T any, R any](runner Runnable[T, R], caps Capabilities, opts workerOpts) *worker[T, R] {
+	w := &worker[T, R]{
 		runner:            runner,
-		workChan:          make(chan *Job, defaultChanSize),
+		workChan:          make(chan *Job[T, R], defaultChanSize),
 		options:           opts,
 		defaultCaps:       caps,
 		targetThreadCount: opts.poolSize,
-		threads:           []*workThread{},
+		threads:           []*workThread[T, R]{},
 		lock:              &sync.RWMutex{},
 		reconcile:         &singleflight.Group{},
 		rate:              newRateTracker(),
@@ -52,7 +51,7 @@ func newWorker(runner Runnable, caps Capabilities, opts workerOpts) *worker {
 	return w
 }
 
-func (w *worker) schedule(job *Job) {
+func (w *worker[T, R]) schedule(job *Job[T, R]) {
 	if job.caps == nil {
 		// make a copy so internals of the Capabilites aren't shared
 		caps := w.defaultCaps
@@ -71,7 +70,7 @@ func (w *worker) schedule(job *Job) {
 }
 
 // start ensures the worker is ready to receive jobs
-func (w *worker) start() error {
+func (w *worker[T, R]) start() error {
 	if w.options.preWarm {
 		if err := w.reconcilePoolSize(); err != nil {
 			return errors.Wrap(err, "failed to reconcilePoolSize")
@@ -81,12 +80,12 @@ func (w *worker) start() error {
 	return nil
 }
 
-func (w *worker) stop() error {
+func (w *worker[T, R]) stop() error {
 	// set the poolsize to 0 and give the workers a chance to wind down
 	return w.setThreadCount(0)
 }
 
-func (w *worker) setThreadCount(size int) error {
+func (w *worker[T, R]) setThreadCount(size int) error {
 	w.targetThreadCount = size
 
 	if err := w.reconcilePoolSize(); err != nil {
@@ -97,7 +96,7 @@ func (w *worker) setThreadCount(size int) error {
 }
 
 // reconcilePoolSize starts and stops runners until `poolSize` are active
-func (w *worker) reconcilePoolSize() error {
+func (w *worker[T, R]) reconcilePoolSize() error {
 	attempts := 0
 
 	shouldReturn := func() bool {
@@ -147,7 +146,7 @@ func (w *worker) reconcilePoolSize() error {
 }
 
 // addThread starts a new thread and adds it to the thread pool
-func (w *worker) addThread() error {
+func (w *worker[T, R]) addThread() error {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
@@ -166,7 +165,7 @@ func (w *worker) addThread() error {
 }
 
 // removeThread removes a thread and terminates it
-func (w *worker) removeThread() error {
+func (w *worker[T, R]) removeThread() error {
 	w.lock.Lock()
 	defer w.lock.Unlock()
 
@@ -183,7 +182,7 @@ func (w *worker) removeThread() error {
 	return nil
 }
 
-func (w *worker) metrics() WorkerMetrics {
+func (w *worker[T, R]) metrics() WorkerMetrics {
 	w.lock.RLock()
 	defer w.lock.RUnlock()
 

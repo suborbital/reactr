@@ -1,4 +1,4 @@
-//go:build !go1.18
+//go:build go1.18
 
 package rt
 
@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-type workThread struct {
-	runner         Runnable
-	workChan       chan *Job
+type workThread[T any, R any] struct {
+	runner         Runnable[T, R]
+	workChan       chan *Job[T, R]
 	timeoutSeconds int
 	context        context.Context
 	cancelFunc     context.CancelFunc
 }
 
-func newWorkThread(runner Runnable, workChan chan *Job, timeoutSeconds int) *workThread {
+func newWorkThread[T any, R any](runner Runnable[T, R], workChan chan *Job[T, R], timeoutSeconds int) *workThread[T, R] {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 
-	wt := &workThread{
+	wt := &workThread[T, R]{
 		runner:         runner,
 		workChan:       workChan,
 		timeoutSeconds: timeoutSeconds,
@@ -29,7 +29,7 @@ func newWorkThread(runner Runnable, workChan chan *Job, timeoutSeconds int) *wor
 	return wt
 }
 
-func (wt *workThread) run() {
+func (wt *workThread[T, R]) run() {
 	go func() {
 		for {
 			// die if the context has been cancelled
@@ -43,7 +43,7 @@ func (wt *workThread) run() {
 
 			ctx := newCtx(job.caps)
 
-			var result interface{}
+			var result R
 
 			if wt.timeoutSeconds == 0 {
 				// we pass in a dereferenced job so that the Runner cannot modify it
@@ -62,8 +62,8 @@ func (wt *workThread) run() {
 	}()
 }
 
-func (wt *workThread) runWithTimeout(job *Job, ctx *Ctx) (interface{}, error) {
-	resultChan := make(chan interface{})
+func (wt *workThread[T, R]) runWithTimeout(job *Job[T, R], ctx *Ctx) (R, error) {
+	resultChan := make(chan R)
 	errChan := make(chan error)
 
 	go func() {
@@ -76,16 +76,19 @@ func (wt *workThread) runWithTimeout(job *Job, ctx *Ctx) (interface{}, error) {
 		}
 	}()
 
+	var empty R
+
 	select {
 	case result := <-resultChan:
 		return result, nil
 	case err := <-errChan:
-		return nil, err
+		// TODO: figure out how to return nil instead of result
+		return empty, err
 	case <-time.After(time.Duration(time.Second * time.Duration(wt.timeoutSeconds))):
-		return nil, ErrJobTimeout
+		return empty, ErrJobTimeout
 	}
 }
 
-func (wt *workThread) Stop() {
+func (wt *workThread[T, R]) Stop() {
 	wt.cancelFunc()
 }

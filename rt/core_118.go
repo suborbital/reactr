@@ -1,5 +1,4 @@
-//go:build !go1.18
-
+//go:build go1.18
 package rt
 
 import (
@@ -12,7 +11,7 @@ import (
 
 // coreDoFunc is an internal version of DoFunc that takes a
 // Job pointer instead of a Job value for the best memory usage
-type coreDoFunc func(job *Job) *Result
+type coreDoFunc[T Input, R Output] func(job *Job[Input, Output]) *Result[Output]
 
 // core is the 'core scheduler' for reactr, handling execution of
 // Tasks, Jobs, and Schedules
@@ -38,8 +37,8 @@ func newCore(log *vlog.Logger) *core {
 	return c
 }
 
-func (c *core) do(job *Job) *Result {
-	result := newResult(job.UUID())
+func (c *core) do(job *Job[Input, Output]) *Result[Output] {
+	result := newResult[Output](job.UUID())
 
 	worker := c.scaler.findWorker(job.jobType)
 	if worker == nil {
@@ -57,7 +56,7 @@ func (c *core) do(job *Job) *Result {
 }
 
 // register adds a handler
-func (c *core) register(jobType string, runnable Runnable, caps Capabilities, options ...Option) {
+func (c *core) register(jobType string, runnable Runnable[Input, Output], caps Capabilities, options ...Option) {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
@@ -91,7 +90,7 @@ func (c *core) hasWorker(jobType string) bool {
 	return w != nil
 }
 
-func (c *core) watch(sched Schedule) {
+func (c *core) watch(sched Schedule[Input, Output]) {
 	c.watcher.watch(sched)
 }
 

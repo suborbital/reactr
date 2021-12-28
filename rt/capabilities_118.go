@@ -1,4 +1,4 @@
-//go:build !go1.18
+//go:build go1.18
 
 package rt
 
@@ -27,7 +27,7 @@ type Capabilities struct {
 	// so they cannot be swapped out for a different implementation.
 	RequestConfig  *rcap.RequestHandlerConfig
 	RequestHandler rcap.RequestHandlerCapability
-	doFunc         coreDoFunc
+	doFunc         coreDoFunc[Input, Output]
 }
 
 // DefaultCapabilities returns the default capabilities with the provided Logger

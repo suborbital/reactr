@@ -1,4 +1,4 @@
-//go:build !go1.18
+//go:build go1.18
 
 package rt
 
@@ -39,9 +39,9 @@ func newCtx(caps *Capabilities) *Ctx {
 }
 
 // Do runs a new job
-func (c *Ctx) Do(job Job) *Result {
+func (c *Ctx) Do(job Job[Input, Output]) *Result[Output] {
 	if c.doFunc == nil {
-		r := newResult(job.UUID())
+		r := newResult[Output](job.UUID())
 		r.sendErr(ErrCapabilityNotAvailable)
 		return r
 	}
