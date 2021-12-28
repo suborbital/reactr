@@ -1,20 +1,15 @@
 //go:build tinygo.wasm
 
-package runnable
+package ffi
 
 // #include <reactr.h>
 import "C"
 import (
 	"reflect"
 	"unsafe"
+
+	"github.com/suborbital/reactr/api/tinygo/runnable/runnable"
 )
-
-var runnable_ Runnable
-var ident_ int32
-
-func ident() int32 {
-	return ident_
-}
 
 //export run_e
 func run_e(rawdata uintptr, size int32, ident int32) {
@@ -47,7 +42,7 @@ func returnError(err error, ident int32) {
 	}
 
 	switch e := err.(type) {
-	case RunErr:
+	case runnable.RunErr:
 		code = int32(e.Code)
 	}
 

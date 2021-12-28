@@ -1,18 +1,21 @@
 package main
 
-import "github.com/suborbital/reactr/api/tinygo/runnable"
+import (
+	"github.com/suborbital/reactr/api/tinygo/runnable"
+	"github.com/suborbital/reactr/api/tinygo/runnable/log"
+)
 
 type TinygoLog struct{}
 
 func (h TinygoLog) Run(input []byte) ([]byte, error) {
-	runnable.Info(string(input))
-	runnable.Info("info log")
-	runnable.Error("some error")
+	log.Info(string(input))
+	log.Info("info log")
+	log.Error("some error")
 
 	warnMsg := "warning message"
-	runnable.Warnf("some %s", warnMsg)
+	log.Warnf("some %s", warnMsg)
 
-	runnable.Debug("debug message")
+	log.Debug("debug message")
 
 	return []byte(""), nil
 }
