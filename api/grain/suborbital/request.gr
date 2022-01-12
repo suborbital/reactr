@@ -46,3 +46,8 @@ export let urlParam = key => {
 export let state = key => {
   getField(Env.FieldTypeState, key)
 }
+
+export let queryParam = key => {
+  let result = getField(Env.FieldTypeQuery, key)
+  Bytes.toString(Result.unwrap(result))
+}
