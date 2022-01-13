@@ -142,6 +142,7 @@ let fieldTypeBody = Int32(1)
 let fieldTypeHeader = Int32(2)
 let fieldTypeParams = Int32(3)
 let fieldTypeState = Int32(4)
+let fieldTypeQuery = Int32(5)
 
 public func ReqMethod() -> String {
     return requestGetField(fieldType: fieldTypeMeta, key: "method")
@@ -169,6 +170,10 @@ public func ReqHeader(key: String) -> String {
 
 public func ReqParam(key: String) -> String {
     return requestGetField(fieldType: fieldTypeParams, key: key)
+}
+
+public func ReqQuery(key: String) -> String {
+    return requestGetField(fieldType: fieldTypeQuery, key: key)
 }
 
 public func State(key: String) -> String {

@@ -4,6 +4,7 @@ pub enum FieldType {
 	Header,
 	Params,
 	State,
+	Query,
 }
 
 impl From<FieldType> for i32 {
@@ -14,6 +15,7 @@ impl From<FieldType> for i32 {
 			FieldType::Header => 2,
 			FieldType::Params => 3,
 			FieldType::State => 4,
+			FieldType::Query => 5,
 		}
 	}
 }
