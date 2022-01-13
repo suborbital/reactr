@@ -14,6 +14,7 @@ const (
 	FieldHeader
 	FieldParams
 	FieldState
+	FieldQuery
 )
 
 func getField(fieldType FieldType, key string) []byte {
@@ -97,4 +98,8 @@ func State(key string) []byte {
 func SetState(key, value string) error {
 	_, err := setField(FieldState, key, value)
 	return err
+}
+
+func QueryParam(key string) string {
+	return string(getField(FieldQuery, key))
 }

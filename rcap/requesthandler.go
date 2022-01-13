@@ -1,6 +1,7 @@
 package rcap
 
 import (
+	"net/url"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -13,6 +14,7 @@ const (
 	RequestFieldTypeHeader = int32(2)
 	RequestFieldTypeParams = int32(3)
 	RequestFieldTypeState  = int32(4)
+	RequestFieldTypeQuery  = int32(5)
 )
 
 var (
@@ -108,6 +110,13 @@ func (r *requestHandler) GetField(fieldType int32, key string) ([]byte, error) {
 		} else {
 			return nil, ErrKeyNotFound
 		}
+	case RequestFieldTypeQuery:
+		url, err := url.Parse(r.req.URL)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to url.Parse")
+		}
+
+		val = url.Query().Get(key)
 	default:
 		return nil, errors.Wrapf(ErrInvalidFieldType, "module requested field type %d", fieldType)
 	}

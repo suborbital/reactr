@@ -126,6 +126,35 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	}
 }
 
+func TestRustURLQuery(t *testing.T) {
+	r := rt.New()
+
+	// using a Rust module
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/rust-urlquery/rust-urlquery.wasm"))
+
+	req := &request.CoordinatedRequest{
+		Method: "GET",
+		URL:    "/hello/world?message=whatsup",
+		ID:     uuid.New().String(),
+		Body:   []byte{},
+	}
+
+	res, err := doWasm(req).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if string(resp.Output) != "hello whatsup" {
+		t.Error(fmt.Errorf("expected 'hello whatsup', got %s", string(resp.Output)))
+	}
+}
+
 func TestWasmRunnerSetRequest(t *testing.T) {
 	r := rt.New()
 

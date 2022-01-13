@@ -81,6 +81,10 @@ pub fn state_raw(key: &str) -> Option<Vec<u8>> {
 	get_field(FieldType::State.into(), key)
 }
 
+pub fn query_param(key: &str) -> String {
+	get_field(FieldType::Query.into(), key).map_or("".into(), util::to_string)
+}
+
 /// Executes the request via FFI
 ///
 /// Then retreives the result from the host and returns it

@@ -1,10 +1,14 @@
 package wasmtest
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/rcap"
+	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/rt"
 	"github.com/suborbital/reactr/rwasm"
 )
@@ -47,5 +51,34 @@ func TestWasmFileGetStaticTinyGo(t *testing.T) {
 
 	if result != expected {
 		t.Error("failed, got:\n", result, "\nexpected:\n", expected)
+	}
+}
+
+func TestGoURLQuery(t *testing.T) {
+	r := rt.New()
+
+	// using a Rust module
+	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/tinygo-urlquery/tinygo-urlquery.wasm"))
+
+	req := &request.CoordinatedRequest{
+		Method: "GET",
+		URL:    "/hello/world?message=whatsup",
+		ID:     uuid.New().String(),
+		Body:   []byte{},
+	}
+
+	res, err := doWasm(req).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := &request.CoordinatedResponse{}
+	if err := json.Unmarshal(res.([]byte), resp); err != nil {
+		t.Error("failed to Unmarshal response")
+	}
+
+	if string(resp.Output) != "hello whatsup" {
+		t.Error(fmt.Errorf("expected 'hello whatsup', got %s", string(resp.Output)))
 	}
 }
