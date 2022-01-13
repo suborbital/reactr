@@ -49,10 +49,7 @@ jobs:
       - name: Run test with Wasmtime
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-<<<<<<< HEAD
-          make test/multi
-=======
-          go test -v --tags wasmtime ./...
+          make test/wasmtime
 
       - name: Install WasmEdge
         run: |
@@ -62,5 +59,4 @@ jobs:
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           source $HOME/.wasmedge/env
-          go test -v --tags wasmedge ./...
->>>>>>> origin
+          make test/wasmedge
