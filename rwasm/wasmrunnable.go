@@ -99,12 +99,7 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 			RespHeaders: req.RespHeaders,
 		}
 
-		respBytes, err := resp.ToJSON()
-		if err != nil {
-			return nil, errors.Wrap(err, "failed to resp.ToJSON")
-		}
-
-		output = respBytes
+		return resp, nil
 	}
 
 	return output, nil

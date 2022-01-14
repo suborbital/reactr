@@ -149,10 +149,7 @@ func TestASRunnerWithRequest(t *testing.T) {
 		return
 	}
 
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
-	}
+	resp := res.(*request.CoordinatedResponse)
 
 	if string(resp.Output) != "hello what is up" {
 		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))

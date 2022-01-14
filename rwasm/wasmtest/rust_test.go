@@ -116,10 +116,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 		return
 	}
 
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
-	}
+	resp := res.(*request.CoordinatedResponse)
 
 	if string(resp.Output) != "hello what is up" {
 		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(res.([]byte))))
@@ -145,10 +142,7 @@ func TestRustURLQuery(t *testing.T) {
 		return
 	}
 
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
-	}
+	resp := res.(*request.CoordinatedResponse)
 
 	if string(resp.Output) != "hello whatsup" {
 		t.Error(fmt.Errorf("expected 'hello whatsup', got %s", string(resp.Output)))
@@ -178,15 +172,10 @@ func TestWasmRunnerSetRequest(t *testing.T) {
 		Headers: map[string]string{},
 	}
 
-	res, err := doWasm(req).Then()
+	_, err := doWasm(req).Then()
 	if err != nil {
 		t.Error(errors.Wrap(err, "failed to Then"))
 		return
-	}
-
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
 	}
 
 	if val, ok := req.Headers["X-REACTR-TEST"]; !ok {
@@ -223,10 +212,7 @@ func TestEmptyRequestBodyJSON(t *testing.T) {
 		return
 	}
 
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
-	}
+	resp := res.(*request.CoordinatedResponse)
 
 	if string(resp.Output) != "hello what is up" {
 		t.Error(fmt.Errorf("expected 'hello, what is up', got %s", string(resp.Output)))
@@ -266,10 +252,7 @@ func TestContentType(t *testing.T) {
 		return
 	}
 
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
-	}
+	resp := res.(*request.CoordinatedResponse)
 
 	if resp.RespHeaders["Content-Type"] != "application/json" {
 		t.Error("unexpected ctype, actually is", resp.RespHeaders["Content-Type"])
