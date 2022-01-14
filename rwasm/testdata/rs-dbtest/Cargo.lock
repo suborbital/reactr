@@ -53,14 +53,14 @@ dependencies = [
 
 [[package]]
 name = "suborbital"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "suborbital-macro",
 ]
 
 [[package]]
 name = "suborbital-macro"
-version = "0.13.1"
+version = "0.14.0"
 dependencies = [
  "quote",
  "syn",
