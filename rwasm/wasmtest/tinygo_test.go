@@ -1,7 +1,6 @@
 package wasmtest
 
 import (
-	"encoding/json"
 	"fmt"
 	"testing"
 
@@ -73,10 +72,7 @@ func TestGoURLQuery(t *testing.T) {
 		return
 	}
 
-	resp := &request.CoordinatedResponse{}
-	if err := json.Unmarshal(res.([]byte), resp); err != nil {
-		t.Error("failed to Unmarshal response")
-	}
+	resp := res.(*request.CoordinatedResponse)
 
 	if string(resp.Output) != "hello whatsup" {
 		t.Error(fmt.Errorf("expected 'hello whatsup', got %s", string(resp.Output)))
