@@ -1,6 +1,6 @@
 {
   "name": "@suborbital/suborbital",
-  "version": "0.13.1",
+  "version": "0.14.0",
   "types": "assembly/index.ts",
   "description": "Suborbital's Runnable API for AssemblyScript",
   "main": "assembly/index.ts",
