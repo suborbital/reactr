@@ -66,6 +66,7 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 
 	var output []byte
 	var runErr error
+	var callErr error
 
 	if err := w.env.UseInstance(ctx, func(instance *runtime.WasmInstance, ident int32) {
 		inPointer, writeErr := instance.WriteMemory(jobBytes)
@@ -75,8 +76,8 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 		}
 
 		// execute the Runnable's Run function, passing the input data and ident
-		// set runErr but don't return because the ExecutionResult error should override the Call error
-		_, runErr = instance.Call("run_e", inPointer, int32(len(jobBytes)), ident)
+		// set runErr but don't return because the ExecutionResult error should also be grabbed
+		_, callErr = instance.Call("run_e", inPointer, int32(len(jobBytes)), ident)
 
 		// get the results from the instance
 		output, runErr = instance.ExecutionResult()
@@ -91,6 +92,13 @@ func (w *Runner) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
 		// we do not wrap the error here as we want to
 		// propogate its exact type to the caller (specifically rt.RunErr)
 		return nil, runErr
+	}
+
+	if callErr != nil {
+		// if the runnable didn't return an explicit runErr, still check to see if there was an
+		// error executing the module in the first place. It's posslble for both to be non-nil
+		// in which case returning the runErr takes precedence, which is why it's checked first.
+		return nil, errors.Wrap(callErr, "wasm execution error")
 	}
 
 	if req != nil {
