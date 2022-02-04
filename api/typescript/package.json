@@ -1,0 +1,18 @@
+{
+  "name": "@suborbital/js",
+  "version": "0.1.0",
+  "description": "Suborbital's Runnable API for JavaScript/TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc --project .",
+    "format": "prettier . --write",
+    "check-format": "prettier . --check",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "team@suborbital.dev",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "prettier": "^2.5.1",
+    "typescript": "^4.5.5"
+  }
+}
