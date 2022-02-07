@@ -26,6 +26,7 @@ crate/publish:
 
 npm/publish:
 	npm publish ./api/assemblyscript
+	npm publish ./api/typescript
 
 deps:
 	go get -u -d ./...
