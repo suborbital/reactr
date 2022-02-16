@@ -1,6 +1,6 @@
 [package]
 name = "suborbital"
-version = "0.14.0"
+version = "0.15.0"
 authors = ["cohix <connorjhicks@gmail.com>", "Florian Fromm <flrn.frmm@gmail.com>"]
 edition = "2018"
 description = "Suborbital Wasm Runnable API"
@@ -12,4 +12,4 @@ homepage = "https://suborbital.dev"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-suborbital-macro = { path = "../codegen", version = "0.14.0" }
+suborbital-macro = { path = "../codegen", version = "0.15.0" }
