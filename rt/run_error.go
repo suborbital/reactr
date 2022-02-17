@@ -9,8 +9,8 @@ import (
 // RunErr represents an error returned from a Wasm Runnable
 // it lives in the rt package to avoid import cycles
 type RunErr struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code,omitempty"`
+	Message string `json:"message,omitempty"`
 }
 
 // Error returns the stringified JSON representation of the error
