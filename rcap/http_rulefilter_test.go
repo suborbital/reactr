@@ -187,6 +187,89 @@ func TestBlockedDomains(t *testing.T) {
 	})
 }
 
+func TestAllowedPorts(t *testing.T) {
+	rules := defaultHTTPRules()
+	rules.AllowedPorts = []int{8080}
+
+	t.Run("standard http port allowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+
+		if err := rules.requestIsAllowed(req); err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+
+	t.Run("standard https port allowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
+
+		if err := rules.requestIsAllowed(req); err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+
+	t.Run("port 8080 allowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8080", nil)
+
+		if err := rules.requestIsAllowed(req); err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+
+	t.Run("port 8088 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8088", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+}
+
+func TestBlockedPorts(t *testing.T) {
+	rules := defaultHTTPRules()
+	rules.AllowedPorts = []int{8081, 8082}
+	rules.BlockedPorts = []int{80, 443, 8080, 8081}
+
+	t.Run("standard HTTP port disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("standard HTTPS port disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("port 8080 disallowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("blocked list takes precedence over allow list", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8081", nil)
+
+		if err := rules.requestIsAllowed(req); err == nil {
+			t.Error("error did not occur, should have")
+		}
+	})
+
+	t.Run("port 8082 allowed", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8082", nil)
+
+		if err := rules.requestIsAllowed(req); err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+}
+
 func TestBlockedWithCNAME(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.BlockedDomains = []string{"hosting.gitbook.io"}

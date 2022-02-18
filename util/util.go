@@ -20,3 +20,13 @@ func GenerateResultID() string {
 
 	return id
 }
+
+// ContainsInt returns true if value present in int slice
+func ContainsInt(value int, values []int) bool {
+	for _, p := range values {
+		if p == value {
+			return true
+		}
+	}
+	return false
+}

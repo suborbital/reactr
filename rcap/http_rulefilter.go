@@ -3,9 +3,13 @@ package rcap
 import (
 	"net"
 	"net/http"
+	"net/url"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
+
+	"github.com/suborbital/reactr/util"
 )
 
 var (
@@ -13,16 +17,21 @@ var (
 	ErrIPsDisallowed     = errors.New("requests to IP addresses are disallowed")
 	ErrPrivateDisallowed = errors.New("requests to private IP address ranges are disallowed")
 	ErrDomainDisallowed  = errors.New("requests to this domain are disallowed")
+	ErrPortDisallowed    = errors.New("requests to this port are disallowed")
 )
 
 // HTTPRules is a set of rules that governs use of the HTTP capability
 type HTTPRules struct {
 	AllowedDomains []string `json:"allowedDomains" yaml:"allowedDomains"`
 	BlockedDomains []string `json:"blockedDomains" yaml:"blockedDomains"`
+	AllowedPorts   []int    `json:"allowedPorts" yaml:"allowedPorts"`
+	BlockedPorts   []int    `json:"blockedPorts" yaml:"blockedPorts"`
 	AllowIPs       bool     `json:"allowIPs" yaml:"allowIPs"`
 	AllowPrivate   bool     `json:"allowPrivate" yaml:"allowPrivate"`
 	AllowHTTP      bool     `json:"allowHTTP" yaml:"allowHTTP"`
 }
+
+var standardPorts = []int{80, 443}
 
 // requestIsAllowed returns a non-nil error if the provided request is not allowed to proceed
 func (h HTTPRules) requestIsAllowed(req *http.Request) error {
@@ -33,6 +42,11 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 		if req.URL.Scheme == "http" {
 			return ErrHttpDisallowed
 		}
+	}
+
+	// Evaluate port access rules
+	if err := h.portAllowed(req.URL); err != nil {
+		return err
 	}
 
 	// determine if the passed-in host is an IP address
@@ -88,6 +102,44 @@ func (h HTTPRules) requestIsAllowed(req *http.Request) error {
 	}
 
 	return nil
+}
+
+// portAllowed evaluates port allowance rules
+func (h HTTPRules) portAllowed(url *url.URL) error {
+	// Backward Compatibility:
+	// Allow all ports if no allow/block list has been configured
+	if len(h.AllowedPorts)+len(h.BlockedPorts) == 0 {
+		return nil
+	}
+
+	port, err := readPort(url)
+	if err != nil {
+		return ErrPortDisallowed
+	}
+
+	if util.ContainsInt(port, h.BlockedPorts) {
+		return ErrPortDisallowed
+	}
+
+	for _, p := range append(standardPorts, h.AllowedPorts...) {
+		if p == port {
+			return nil
+		}
+	}
+
+	return ErrPortDisallowed
+}
+
+// readPort returns normalized URL port
+func readPort(url *url.URL) (int, error) {
+	if url.Port() == "" {
+		if url.Scheme == "https" {
+			return 443, nil
+		}
+		return 80, nil
+	}
+
+	return strconv.Atoi(url.Port())
 }
 
 // returns nil if the host does not resolve to an IP in a private range
