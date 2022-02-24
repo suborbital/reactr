@@ -80,9 +80,9 @@ func (w *WasmtimeInstance) Deallocate(pointer int32, length int) {
 
 // Close closes the instance
 func (w *WasmtimeInstance) Close() {
-	// wasmtime relies on golang garbage collector to clean up cgo allocations
-	// This makes the API simpler as you don't need to explicitly cloe anything
+	// Wasmtime relies on golang garbage collector to clean up cgo allocations.
+	// This makes the API simpler as you don't need to explicitly close anything.
 	//
-	// See also
+	// See also:
 	// https://github.com/bytecodealliance/wasmtime-go/blob/main/ffi.go
 }
