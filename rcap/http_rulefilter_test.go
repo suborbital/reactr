@@ -272,10 +272,10 @@ func TestBlockedPorts(t *testing.T) {
 
 func TestBlockedWithCNAME(t *testing.T) {
 	rules := defaultHTTPRules()
-	rules.BlockedDomains = []string{"hosting.gitbook.io"}
+	rules.BlockedDomains = []string{"suborbital.network"}
 
 	t.Run("Resolved CNAME blocked", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://atmo.suborbital.dev", nil)
+		req, _ := http.NewRequest(http.MethodGet, "https://test.suborbital.dev", nil)
 
 		if err := rules.requestIsAllowed(req); err == nil {
 			t.Error("error did not occur, should have")
