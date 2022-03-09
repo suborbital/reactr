@@ -10,7 +10,7 @@ require (
 	github.com/jackc/pgx/v4 v4.15.0
 	github.com/jmoiron/sqlx v1.3.4
 	github.com/pkg/errors v0.9.1
-	github.com/second-state/WasmEdge-go v0.9.2
+	github.com/second-state/WasmEdge-go v0.9.0-rc5
 	github.com/suborbital/grav v0.5.0
 	github.com/suborbital/vektor v0.5.2
 	github.com/wasmerio/wasmer-go v1.0.4
