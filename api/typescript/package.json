@@ -1,6 +1,6 @@
 {
   "name": "@suborbital/runnable",
-  "version": "0.15.0",
+  "version": "0.15.1",
   "description": "Suborbital's Runnable API for JavaScript/TypeScript",
   "main": "dist/index.js",
   "scripts": {
