@@ -1,6 +1,7 @@
 package rt
 
 import (
+	"context"
 	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/rcap"
 	"github.com/suborbital/reactr/request"
@@ -9,7 +10,7 @@ import (
 // Ctx is a Job context
 type Ctx struct {
 	*Capabilities
-
+	Context   context.Context
 	ffiResult *FFIResult
 	ffiVars   []FFIVariable
 }
@@ -31,6 +32,7 @@ func newCtx(caps *Capabilities) *Ctx {
 	c := &Ctx{
 		Capabilities: caps,
 		ffiVars:      []FFIVariable{},
+		Context:      context.Background(),
 	}
 
 	return c
