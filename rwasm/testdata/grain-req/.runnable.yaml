@@ -2,5 +2,5 @@ name: grain-req
 namespace: default
 lang: grain
 version: ""
-apiVersion: 0.12.0
+apiVersion: 0.15.1
 fqfnUri: ""
