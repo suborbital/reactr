@@ -1,6 +1,6 @@
 module github.com/suborbital/reactr
 
-go 1.17
+go 1.18
 
 require (
 	github.com/bytecodealliance/wasmtime-go v0.35.0

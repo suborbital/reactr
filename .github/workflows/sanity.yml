@@ -1,23 +1,32 @@
 name: Testapalooza
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        golang: [1.17]
-
     name: Test
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: ${{ matrix.golang }}
-        id: go
+          go-version: 1.18
+
+      - name: Cache Go mods
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('./go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - run: go mod download
 
       - name: Install Subo
         env:
@@ -28,13 +37,6 @@ jobs:
           make subo
           cd ../
           rm -rf subo
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Get dependencies
-        run: |
-          go mod download
 
       - name: Build testdata
         run: |
