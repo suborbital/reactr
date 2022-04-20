@@ -14,7 +14,7 @@ require (
 	github.com/suborbital/grav v0.5.0
 	github.com/suborbital/vektor v0.5.2
 	github.com/wasmerio/wasmer-go v1.0.4
-	golang.org/x/crypto v0.0.0-20220307211146-efcb8507fb70
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
