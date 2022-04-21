@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/bytecodealliance/wasmtime-go v0.35.0
-	github.com/go-redis/redis/v8 v8.11.4
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.15.0
