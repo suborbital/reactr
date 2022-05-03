@@ -1,3 +1,5 @@
+//go:build tinygo.wasm
+
 package method
 
 type MethodType int32
