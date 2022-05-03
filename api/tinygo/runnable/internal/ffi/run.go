@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"unsafe"
 
-	"github.com/suborbital/reactr/api/tinygo/runnable/runnable"
+	"github.com/suborbital/reactr/api/tinygo/runnable/errors"
 )
 
 //export run_e
@@ -42,7 +42,7 @@ func returnError(err error, ident int32) {
 	}
 
 	switch e := err.(type) {
-	case runnable.RunErr:
+	case errors.RunErr:
 		code = int32(e.Code)
 	}
 

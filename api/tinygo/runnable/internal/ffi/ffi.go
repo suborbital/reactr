@@ -32,3 +32,10 @@ func result(size int32) ([]byte, runnable.HostErr) {
 
 	return result, nil
 }
+
+func addVar(name, value string) {
+	namePtr, nameSize := rawSlicePointer([]byte(name))
+	valuePtr, valueSize := rawSlicePointer([]byte(value))
+
+	C.add_ffi_var(namePtr, nameSize, valuePtr, valueSize, Ident())
+}

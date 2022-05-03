@@ -2,11 +2,12 @@ package runnable
 
 import "errors"
 
-// NewError creates a new RunErr, which is a normal Go error plus an error code
+// Deprecated: Please use "github.com/suborbital/reactr/api/tinygo/runnable/errors" instead.
 func NewError(code int, message string) RunErr {
 	return RunErr{errors.New(message), code}
 }
 
+// Deprecated: Please use "github.com/suborbital/reactr/api/tinygo/runnable/errors" instead.
 func NewHostError(message string) HostErr {
 	return errors.New(message).(HostErr)
 }

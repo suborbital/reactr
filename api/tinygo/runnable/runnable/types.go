@@ -5,10 +5,11 @@ type Runnable interface {
 	Run(input []byte) ([]byte, error)
 }
 
-// RunErr adds a status code for use in FFI calls to return_result()
+// Deprecated: Please use "github.com/suborbital/reactr/api/tinygo/runnable/errors" instead.
 type RunErr struct {
 	error
 	Code int
 }
 
+// Deprecated: Please use "github.com/suborbital/reactr/api/tinygo/runnable/errors" instead.
 type HostErr error
