@@ -12,14 +12,9 @@ type RunErr struct {
 	Code int
 }
 
-type HostErr error
-
-func NewError(code int, message string) RunErr {
+// New creates a new RunErr
+func New(message string, code int) RunErr {
 	return RunErr{errors.New(message), code}
-}
-
-func NewHostError(message string) HostErr {
-	return errors.New(message).(HostErr)
 }
 
 // WithCode creates a new RunErr from an existing error and a status code

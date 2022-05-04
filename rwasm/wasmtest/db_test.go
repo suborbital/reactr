@@ -18,7 +18,6 @@ import (
 
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	// "github.com/testcontainers/testcontainers-go/wait"
 )
 
 func setupPostgresContainer(ctx context.Context, schema string) (testcontainers.Container, string, error) {
