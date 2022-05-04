@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 
-	"github.com/google/uuid"
-
 	"github.com/suborbital/reactr/api/tinygo/runnable"
 	"github.com/suborbital/reactr/api/tinygo/runnable/db"
 	"github.com/suborbital/reactr/api/tinygo/runnable/db/query"
@@ -15,7 +13,9 @@ import (
 type TinygoDb struct{}
 
 func (h TinygoDb) Run(input []byte) ([]byte, error) {
-	uuidArg := query.NewArgument("uuid", uuid.New().String())
+	// `uuid.Generate().String()` doesn't work in old versions of TinyGo so
+	// this will have to do: https://xkcd.com/221/
+	uuidArg := query.NewArgument("uuid", "d7e00ff6-1b30-48e9-aa7d-dd3db34cb8b5")
 
 	_, err := db.Insert("PGInsertUser",
 		uuidArg,
