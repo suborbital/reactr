@@ -15,8 +15,8 @@ impl QueryArg {
 }
 
 pub enum QueryType {
-	SELECT,
 	INSERT,
+	SELECT,
 	UPDATE,
 	DELETE
 }

@@ -38,7 +38,7 @@ pub fn update(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::Host
 	ffi::result(result_size)
 }
 
-// update executes the pre-loaded database query with the name <name>,
+// delete executes the pre-loaded database query with the name <name>,
 // and passes the arguments defined by <args>
 //
 // the return value is number of rows affected by the query,
@@ -52,7 +52,7 @@ pub fn delete(name: &str, args: Vec<QueryArg>) -> Result<Vec<u8>, runnable::Host
 	ffi::result(result_size)
 }
 
-// insert executes the pre-loaded database query with the name <name>,
+// select executes the pre-loaded database query with the name <name>,
 // and passes the arguments defined by <args>
 //
 // the return value is the query result formatted as JSON, with each column name as a top-level key

@@ -17,3 +17,5 @@ int32_t request_set_field(int32_t field_type, void *key_ptr, int32_t key_size, v
 int32_t fetch_url(int32_t method, void *url_ptr, int32_t url_size, void *body_ptr, int32_t body_size, int32_t ident);
 
 int32_t get_static_file(void* name_ptr, int32_t name_size, int32_t ident);
+
+int32_t db_exec(int32_t query_type, const void *name_ptr, int32_t name_size, int32_t ident);
