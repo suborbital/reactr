@@ -56,7 +56,7 @@ func TestWasmFileGetStaticTinyGo(t *testing.T) {
 func TestGoURLQuery(t *testing.T) {
 	r := rt.New()
 
-	// using a Rust module
+	// using a TinyGo module
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/tinygo-urlquery/tinygo-urlquery.wasm"))
 
 	req := &request.CoordinatedRequest{
@@ -76,5 +76,40 @@ func TestGoURLQuery(t *testing.T) {
 
 	if string(resp.Output) != "hello whatsup" {
 		t.Error(fmt.Errorf("expected 'hello whatsup', got %s", string(resp.Output)))
+	}
+}
+
+func TestGoContentType(t *testing.T) {
+	req := &request.CoordinatedRequest{
+		Method: "POST",
+		URL:    "/hello/world",
+		ID:     uuid.New().String(),
+		Body:   []byte("world"),
+	}
+
+	reqJSON, err := req.ToJSON()
+	if err != nil {
+		t.Error("failed to ToJSON", err)
+	}
+
+	r := rt.New()
+	r.Register("content-type", rwasm.NewRunner("../testdata/tinygo-resp/tinygo-resp.wasm"))
+
+	job := rt.NewJob("content-type", reqJSON)
+
+	res, err := r.Do(job).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	resp := res.(*request.CoordinatedResponse)
+
+	if resp.RespHeaders["Content-Type"] != "application/json" {
+		t.Error(fmt.Errorf("expected 'Content-Type: application/json', got %s", resp.RespHeaders["Content-Type"]))
+	}
+
+	if resp.RespHeaders["X-Reactr"] != string(req.Body) {
+		t.Error(fmt.Errorf("expected 'X-Reactr: %s', got %s", string(req.Body), string(req.Body)))
 	}
 }
