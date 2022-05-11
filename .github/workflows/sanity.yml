@@ -48,7 +48,7 @@ jobs:
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           make test
 
-      - name: Run test with Wasmtime
+      - name: Run test with Wasmer
         run: |
           export GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           make test/wasmtime

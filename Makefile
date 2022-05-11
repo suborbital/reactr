@@ -3,8 +3,8 @@ packages = $(shell go list ./... | grep -v github.com/suborbital/reactr/api/tiny
 test:
 	go test -v --count=1 -p=1 $(packages)
 
-test/wasmtime:
-	go test --tags wasmtime -v --count=1 -p=1 $(packages)
+test/wasmer:
+	go test --tags wasmer -v --count=1 -p=1 $(packages)
 
 test/wasmedge:
 	go test --tags wasmedge -v -count=1 -p=1 $(packages)
