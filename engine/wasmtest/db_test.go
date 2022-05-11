@@ -9,8 +9,8 @@ import (
 
 	"github.com/docker/go-connections/nat"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine"
-	"github.com/suborbital/reactr/engine/api"
 	"github.com/suborbital/reactr/engine/capabilities"
 	"github.com/suborbital/vektor/vlog"
 

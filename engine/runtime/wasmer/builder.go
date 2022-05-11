@@ -2,7 +2,7 @@ package runtimewasmer
 
 import (
 	"github.com/pkg/errors"
-	"github.com/suborbital/reactr/engine/api"
+	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine/moduleref"
 	"github.com/suborbital/reactr/engine/runtime"
 	"github.com/wasmerio/wasmer-go/wasmer"

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine"
-	"github.com/suborbital/reactr/engine/api"
 	"github.com/suborbital/reactr/engine/capabilities"
 	"github.com/suborbital/reactr/scheduler"
 )

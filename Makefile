@@ -12,10 +12,10 @@ test/wasmedge:
 test/multi: test test/wasmtime test/wasmedge
 
 testdata:
-	subo build ./rwasm/testdata/ --native
+	subo build ./engine/testdata/ --native
 
 testdata/docker:
-	subo build ./rwasm/testdata/
+	subo build ./engine/testdata/
 
 testdata/docker/dev:
 	subo build ./engine/testdata/ --builder-tag dev --mountpath $(PWD)

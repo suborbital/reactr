@@ -7,8 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine"
-	"github.com/suborbital/reactr/engine/api"
 	"github.com/suborbital/reactr/engine/capabilities"
 	"github.com/suborbital/reactr/request"
 	"github.com/suborbital/reactr/scheduler"

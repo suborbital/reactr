@@ -4,7 +4,7 @@
 package engine
 
 import (
-	"github.com/suborbital/reactr/engine/api"
+	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine/moduleref"
 	"github.com/suborbital/reactr/engine/runtime"
 	runtimewasmedge "github.com/suborbital/reactr/engine/runtime/wasmedge"

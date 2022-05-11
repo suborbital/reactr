@@ -3,7 +3,7 @@ package runtimewasmedge
 import (
 	"github.com/pkg/errors"
 	"github.com/second-state/WasmEdge-go/wasmedge"
-	"github.com/suborbital/reactr/engine/api"
+	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine/moduleref"
 	"github.com/suborbital/reactr/engine/runtime"
 )
