@@ -51,23 +51,6 @@ func TestASFetch(t *testing.T) {
 	}
 }
 
-func TestASJSON(t *testing.T) {
-	e := engine.New()
-
-	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("as-json", "../testdata/as-json/as-json.wasm")
-
-	res, err := doWasm("").Then()
-	if err != nil {
-		t.Error(errors.Wrap(err, "failed to Then"))
-		return
-	}
-
-	if string(res.([]byte)) != `{"firstName":"Connor","lastName":"Hicks","age":26,"meta":{"country":"Canada","province":"Ontario","isAwesome":true},"tags":["hello","world"]}` {
-		t.Error("as-json failed, got:", string(res.([]byte)))
-	}
-}
-
 func TestASGraphql(t *testing.T) {
 	// bail out if GitHub auth is not set up (i.e. in Travis)
 	if _, ok := os.LookupEnv("GITHUB_TOKEN"); !ok {
