@@ -1,3 +1,8 @@
+//go:build wasmedge
+// +build wasmedge
+
+// we compile-exclude wasmedge by default as tests will fail unless WasmEdge is installed
+
 package runtimewasmedge
 
 import (
