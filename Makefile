@@ -32,6 +32,6 @@ deps:
 	go get -u -d ./...
 
 deps/wasmedge:
-	wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.0-rc.5
+	wget -qO- https://raw.githubusercontent.com/WasmEdge/WasmEdge/master/utils/install.sh | bash -s -- -v 0.9.1
 
 .PHONY: test test/wasmtime test/wasmedge test/multi testdata crate/publish deps deps/wasmedge

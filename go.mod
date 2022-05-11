@@ -12,7 +12,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.6
 	github.com/pkg/errors v0.9.1
-	github.com/second-state/WasmEdge-go v0.9.2
+	github.com/second-state/WasmEdge-go v0.9.1
 	github.com/suborbital/grav v0.5.0
 	github.com/suborbital/vektor v0.6.0
 	github.com/testcontainers/testcontainers-go v0.13.0
