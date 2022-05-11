@@ -21,13 +21,13 @@ func (d *defaultAPI) GetFFIResultHandler() runtime.HostFn {
 func (d *defaultAPI) getFfiResult(pointer int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to instanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] failed to instanceForIdentifier"))
 		return -1
 	}
 
 	result, err := inst.Ctx().UseFFIResult()
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to useFFIResult"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] failed to useFFIResult"))
 		return -1
 	}
 

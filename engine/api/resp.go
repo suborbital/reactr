@@ -25,7 +25,7 @@ func (d *defaultAPI) RespSetHeaderHandler() runtime.HostFn {
 func (d *defaultAPI) responseSetHeader(keyPointer int32, keySize int32, valPointer int32, valSize int32, ident int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(ident, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
@@ -44,7 +44,7 @@ func (d *defaultAPI) responseSetHeader(keyPointer int32, keySize int32, valPoint
 	handler := capabilities.NewRequestHandler(*d.capabilities.RequestConfig, req)
 
 	if err := handler.SetResponseHeader(key, val); err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to SetResponseHeader"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] failed to SetResponseHeader"))
 
 		if err == capabilities.ErrReqNotSet {
 			return -2

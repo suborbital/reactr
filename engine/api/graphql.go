@@ -26,7 +26,7 @@ func (d *defaultAPI) GraphQLQueryHandler() runtime.HostFn {
 func (d *defaultAPI) graphqlQuery(endpointPointer int32, endpointSize int32, queryPointer int32, querySize int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
@@ -46,7 +46,7 @@ func (d *defaultAPI) graphqlQuery(endpointPointer int32, endpointSize int32, que
 
 		respBytes, err := json.Marshal(resp)
 		if err != nil {
-			runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to Marshal"))
+			runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to Marshal"))
 			return nil, err
 		}
 
@@ -55,7 +55,7 @@ func (d *defaultAPI) graphqlQuery(endpointPointer int32, endpointSize int32, que
 
 	result, err := inst.Ctx().SetFFIResult(resp, err)
 	if err != nil {
-		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		runtime.InternalLogger().ErrorString("[engine] failed to SetFFIResult", err.Error())
 		return -1
 	}
 

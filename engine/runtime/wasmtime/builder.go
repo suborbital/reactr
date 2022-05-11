@@ -3,6 +3,7 @@ package runtimewasmtime
 import (
 	"github.com/bytecodealliance/wasmtime-go"
 	"github.com/pkg/errors"
+	"github.com/suborbital/reactr/engine/api"
 	"github.com/suborbital/reactr/engine/moduleref"
 	"github.com/suborbital/reactr/engine/runtime"
 )
@@ -17,10 +18,10 @@ type WasmtimeBuilder struct {
 }
 
 // NewBuilder creates a new WasmtimeBuilder
-func NewBuilder(ref *moduleref.WasmModuleRef, hostFns ...runtime.HostFn) runtime.RuntimeBuilder {
+func NewBuilder(ref *moduleref.WasmModuleRef, api api.HostAPI) runtime.RuntimeBuilder {
 	w := &WasmtimeBuilder{
 		ref:     ref,
-		hostFns: hostFns,
+		hostFns: api.HostFunctions(),
 	}
 
 	return w

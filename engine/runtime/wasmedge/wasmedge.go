@@ -1,6 +1,3 @@
-//go:build wasmedge
-// +build wasmedge
-
 package runtimewasmedge
 
 import (
@@ -10,7 +7,7 @@ import (
 
 // WasmEdgeRuntime is a WasmEdge implementation of the runtimeInstance interface
 type WasmEdgeRuntime struct {
-	imports *wasmedge.ImportObject
+	imports  *wasmedge.ImportObject
 	store    *wasmedge.Store
 	executor *wasmedge.Executor
 }

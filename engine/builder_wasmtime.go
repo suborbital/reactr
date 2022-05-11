@@ -1,6 +1,3 @@
-//go:build wasmtime
-// +build wasmtime
-
 package engine
 
 import (
@@ -10,6 +7,6 @@ import (
 	runtimewasmtime "github.com/suborbital/reactr/engine/runtime/wasmtime"
 )
 
-func runtimeBuilder(ref *moduleref.WasmModuleRef) runtime.RuntimeBuilder {
-	return runtimewasmtime.NewBuilder(ref, api.API()...)
+func runtimeBuilder(ref *moduleref.WasmModuleRef, api api.HostAPI) runtime.RuntimeBuilder {
+	return runtimewasmtime.NewBuilder(ref, api)
 }

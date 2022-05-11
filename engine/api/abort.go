@@ -29,7 +29,7 @@ func (d *defaultAPI) AbortHandler() runtime.HostFn {
 func (d *defaultAPI) returnAbort(msgPtr int32, msgSize int32, filePtr int32, fileSize int32, lineNum int32, columnNum int32, ident int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(ident, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 

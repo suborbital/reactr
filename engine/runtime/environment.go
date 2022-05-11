@@ -10,15 +10,15 @@ import (
 )
 
 /*
- In order to allow "easy" communication of data across the FFI barrier (outbound Go -> WASM and inbound WASM -> Go), rwasm provides
+ In order to allow "easy" communication of data across the FFI barrier (outbound Go -> WASM and inbound WASM -> Go), engine provides
  an FFI API. Functions exported from a WASM module can be easily called by Go code via the Wasmer instance exports, but returning data
  to the host Go code is not quite as straightforward.
 
- In order to accomplish this, rwasm creates 'WasmEnvironments' which represent a single instantiated module. Each environment contains a pool of
+ In order to accomplish this, engine creates 'WasmEnvironments' which represent a single instantiated module. Each environment contains a pool of
  'wasmInstances', which are provided for use on a rotating basis. Instances can be added and removed from the pool as needed by the `wasmRunner`.
 
  When a WASM function calls one of the FFI API functions, it includes the `ident` value that was provided at the beginning
- of job execution, which allows rwasm to look up the wasmInstance from the global `instanceMapper` and send the result on
+ of job execution, which allows engine to look up the wasmInstance from the global `instanceMapper` and send the result on
  the appropriate result channel. This is needed due to the way Go makes functions available to the FFI.
 */
 

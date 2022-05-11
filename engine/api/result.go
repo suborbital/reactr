@@ -23,7 +23,7 @@ func (d *defaultAPI) ReturnResultHandler() runtime.HostFn {
 func (d *defaultAPI) returnResult(pointer int32, size int32, identifier int32) {
 	inst, err := runtime.InstanceForIdentifier(identifier, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return
 	}
 
@@ -50,7 +50,7 @@ func (d *defaultAPI) ReturnErrorHandler() runtime.HostFn {
 func (d *defaultAPI) returnError(code int32, pointer int32, size int32, identifier int32) {
 	inst, err := runtime.InstanceForIdentifier(identifier, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return
 	}
 

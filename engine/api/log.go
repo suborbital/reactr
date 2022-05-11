@@ -29,7 +29,7 @@ func (d *defaultAPI) LogMsgHandler() runtime.HostFn {
 func (d *defaultAPI) logMsg(pointer int32, size int32, level int32, identifier int32) {
 	inst, err := runtime.InstanceForIdentifier(identifier, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return
 	}
 

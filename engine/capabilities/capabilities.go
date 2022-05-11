@@ -48,9 +48,6 @@ func NewWithConfig(config CapabilityConfig) (*Capabilities, error) {
 		Cache:         SetupCache(*config.Cache),
 		FileSource:    DefaultFileSource(*config.File),
 		Database:      database,
-
-		// RequestHandler and doFunc don't get set here since they are set by
-		// the rt and rwasm internals; a better solution for this should probably be found
 		RequestConfig: config.Request,
 	}
 

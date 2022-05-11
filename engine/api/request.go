@@ -24,7 +24,7 @@ func (d *defaultAPI) RequestGetFieldHandler() runtime.HostFn {
 func (d *defaultAPI) requestGetField(fieldType int32, keyPointer int32, keySize int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
@@ -54,7 +54,7 @@ func (d *defaultAPI) requestGetField(fieldType int32, keyPointer int32, keySize 
 
 	result, err := inst.Ctx().SetFFIResult(val, err)
 	if err != nil {
-		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		runtime.InternalLogger().ErrorString("[engine] failed to SetFFIResult", err.Error())
 		return -1
 	}
 
@@ -81,7 +81,7 @@ func (d *defaultAPI) RequestSetFieldHandler() runtime.HostFn {
 func (d *defaultAPI) requestSetField(fieldType int32, keyPointer int32, keySize int32, valPointer int32, valSize int32, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
@@ -105,7 +105,7 @@ func (d *defaultAPI) requestSetField(fieldType int32, keyPointer int32, keySize 
 
 	result, err := inst.Ctx().SetFFIResult(nil, err)
 	if err != nil {
-		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		runtime.InternalLogger().ErrorString("[engine] failed to SetFFIResult", err.Error())
 		return -1
 	}
 

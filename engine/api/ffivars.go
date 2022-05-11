@@ -24,7 +24,7 @@ func (d *defaultAPI) AddFFIVariableHandler() runtime.HostFn {
 func (d *defaultAPI) addFfiVar(namePtr, nameLen, valPtr, valLen, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to instanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] failed to instanceForIdentifier"))
 		return -1
 	}
 

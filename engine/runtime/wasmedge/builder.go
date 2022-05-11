@@ -1,11 +1,9 @@
-//go:build wasmedge
-// +build wasmedge
-
 package runtimewasmedge
 
 import (
 	"github.com/pkg/errors"
 	"github.com/second-state/WasmEdge-go/wasmedge"
+	"github.com/suborbital/reactr/engine/api"
 	"github.com/suborbital/reactr/engine/moduleref"
 	"github.com/suborbital/reactr/engine/runtime"
 )
@@ -17,10 +15,10 @@ type WasmEdgeBuilder struct {
 }
 
 // NewBuilder create a new WasmEdgeBuilder
-func NewBuilder(ref *moduleref.WasmModuleRef, hostFns ...runtime.HostFn) runtime.RuntimeBuilder {
+func NewBuilder(ref *moduleref.WasmModuleRef, hostAPI api.HostAPI) runtime.RuntimeBuilder {
 	w := &WasmEdgeBuilder{
 		ref:     ref,
-		hostFns: hostFns,
+		hostFns: hostAPI.HostFunctions(),
 	}
 	return w
 }

@@ -10,6 +10,6 @@ import (
 	runtimewasmedge "github.com/suborbital/reactr/engine/runtime/wasmedge"
 )
 
-func runtimeBuilder(ref *moduleref.WasmModuleRef) runtime.RuntimeBuilder {
-	return runtimewasmedge.NewBuilder(ref, api.API()...)
+func runtimeBuilder(ref *moduleref.WasmModuleRef, api api.HostAPI) runtime.RuntimeBuilder {
+	return runtimewasmedge.NewBuilder(ref, api)
 }

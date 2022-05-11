@@ -1,6 +1,3 @@
-//go:build wasmedge
-// +build wasmedge
-
 package runtimewasmedge
 
 import (

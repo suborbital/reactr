@@ -58,7 +58,7 @@ func (d *defaultAPI) fetchUrl(method int32, urlPointer int32, urlSize int32, bod
 	// fetch writes the http response body into memory starting at returnBodyPointer, and the return value is a pointer to that memory
 	inst, err := runtime.InstanceForIdentifier(identifier, true)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
@@ -114,7 +114,7 @@ func (d *defaultAPI) fetchUrl(method int32, urlPointer int32, urlSize int32, bod
 
 	result, err := inst.Ctx().SetFFIResult(resp, err)
 	if err != nil {
-		runtime.InternalLogger().ErrorString("[rwasm] failed to SetFFIResult", err.Error())
+		runtime.InternalLogger().ErrorString("[engine] failed to SetFFIResult", err.Error())
 		return -1
 	}
 

@@ -24,7 +24,7 @@ func (d *defaultAPI) DBExecHandler() runtime.HostFn {
 func (d *defaultAPI) dbExec(queryType, namePointer, nameSize, identifier int32) int32 {
 	inst, err := runtime.InstanceForIdentifier(identifier, false)
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] alert: failed to InstanceForIdentifier"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] alert: failed to InstanceForIdentifier"))
 		return -1
 	}
 
@@ -33,12 +33,12 @@ func (d *defaultAPI) dbExec(queryType, namePointer, nameSize, identifier int32) 
 
 	vars, err := inst.Ctx().UseVars()
 	if err != nil {
-		runtime.InternalLogger().Error(errors.Wrap(err, "[rwasm] failed to UseVars"))
+		runtime.InternalLogger().Error(errors.Wrap(err, "[engine] failed to UseVars"))
 	}
 
 	queryResult, err := d.capabilities.Database.ExecQuery(queryType, name, varsToInterface(vars))
 	if err != nil {
-		runtime.InternalLogger().ErrorString("[rwasm] failed to ExecQuery", name, err.Error())
+		runtime.InternalLogger().ErrorString("[engine] failed to ExecQuery", name, err.Error())
 
 		res, _ := inst.Ctx().SetFFIResult(nil, err)
 		return res.FFISize()

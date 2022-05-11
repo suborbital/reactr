@@ -11,7 +11,7 @@ type testBody struct {
 }
 
 func init() {
-	// set a logger for rwasm to use
+	// set a logger for engine to use
 	runtime.UseInternalLogger(vlog.Default(
 		vlog.Level(vlog.LogLevelDebug),
 	))
