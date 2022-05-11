@@ -1,3 +1,6 @@
+//go:build !wasmer && !wasmedge
+// +build !wasmer,!wasmedge
+
 package engine
 
 import (
