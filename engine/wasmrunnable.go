@@ -2,6 +2,7 @@ package engine
 
 import (
 	"encoding/json"
+	"os"
 
 	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine/moduleref"
@@ -18,12 +19,17 @@ type wasmRunner struct {
 }
 
 // newRunnerFromFile returns a new *wasmRunner
-func newRunnerFromFile(filepath string, api api.HostAPI) *wasmRunner {
-	ref := &moduleref.WasmModuleRef{
-		Filepath: filepath,
+func newRunnerFromFile(filepath string, api api.HostAPI) (*wasmRunner, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to Open")
 	}
 
-	return newRunnerFromRef(ref, api)
+	ref := moduleref.RefWithReader("", "", file)
+
+	runner := newRunnerFromRef(ref, api)
+
+	return runner, nil
 }
 
 // newRunnerFromRef creates a wasmRunner from a moduleRef

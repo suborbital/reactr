@@ -19,7 +19,7 @@ func TestWasmRunnerWithFetch(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("wasm", "../testdata/fetch/fetch.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/fetch/fetch.wasm")
 
 	res, err := doWasm("https://1password.com").Then()
 	if err != nil {
@@ -91,7 +91,7 @@ func TestWasmRunnerWithRequest(t *testing.T) {
 	e := engine.New()
 
 	// using a Rust module
-	doWasm := e.RegisterFromFile("wasm", "../testdata/log/log.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/log/log.wasm")
 
 	body := testBody{
 		Username: "cohix",
@@ -126,7 +126,7 @@ func TestRustURLQuery(t *testing.T) {
 	e := engine.New()
 
 	// using a Rust module
-	doWasm := e.RegisterFromFile("wasm", "../testdata/rust-urlquery/rust-urlquery.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/rust-urlquery/rust-urlquery.wasm")
 
 	req := &request.CoordinatedRequest{
 		Method: "GET",
@@ -152,7 +152,7 @@ func TestWasmRunnerSetRequest(t *testing.T) {
 	e := engine.New()
 
 	// using a Rust module
-	doWasm := e.RegisterFromFile("wasm", "../testdata/rs-reqset/rs-reqset.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/rs-reqset/rs-reqset.wasm")
 
 	body := testBody{
 		Username: "cohix",
@@ -188,7 +188,7 @@ func TestEmptyRequestBodyJSON(t *testing.T) {
 	e := engine.New()
 
 	// using a Rust module
-	doWasm := e.RegisterFromFile("wasm", "../testdata/log/log.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/log/log.wasm")
 
 	req := &request.CoordinatedRequest{
 		Method: "GET",
@@ -261,7 +261,7 @@ func TestContentType(t *testing.T) {
 func TestWasmRunnerDataConversion(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
 
 	res, err := doWasm("my name is joe").Then()
 	if err != nil {
@@ -276,7 +276,7 @@ func TestWasmRunnerDataConversion(t *testing.T) {
 func TestWasmRunnerGroup(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
 
 	grp := scheduler.NewGroup()
 	for i := 0; i < 50000; i++ {
@@ -306,7 +306,7 @@ func TestWasmBundle(t *testing.T) {
 func TestWasmLargeData(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
 
 	res := doWasm([]byte(largeInput))
 
@@ -327,7 +327,7 @@ func TestWasmLargeData(t *testing.T) {
 func TestWasmLargeDataGroup(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm")
 
 	grp := scheduler.NewGroup()
 	for i := 0; i < 5000; i++ {
@@ -342,7 +342,7 @@ func TestWasmLargeDataGroup(t *testing.T) {
 func TestWasmLargeDataGroupWithPool(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm", scheduler.PoolSize(5))
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/hello-echo/hello-echo.wasm", scheduler.PoolSize(5))
 
 	grp := scheduler.NewGroup()
 	for i := 0; i < 5000; i++ {

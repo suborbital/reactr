@@ -10,7 +10,7 @@ import (
 func BenchmarkRunnable(b *testing.B) {
 	e := New()
 
-	doWasm := e.RegisterFromFile("wasm", "./testdata/hello-echo/hello-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "./testdata/hello-echo/hello-echo.wasm")
 
 	for n := 0; n < b.N; n++ {
 		res, err := doWasm("my name is joe").Then()
@@ -27,7 +27,7 @@ func BenchmarkRunnable(b *testing.B) {
 func BenchmarkSwiftRunnable(b *testing.B) {
 	e := New()
 
-	doWasm := e.RegisterFromFile("wasm", "./testdata/hello-swift/hello-swift.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "./testdata/hello-swift/hello-swift.wasm")
 
 	for n := 0; n < b.N; n++ {
 		res, err := doWasm("my name is joe").Then()

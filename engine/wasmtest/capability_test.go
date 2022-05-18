@@ -19,7 +19,7 @@ func TestDisabledHTTP(t *testing.T) {
 	e := engine.NewWithAPI(api)
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("wasm", "../testdata/fetch/fetch.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/fetch/fetch.wasm")
 
 	_, err := doWasm("https://1password.com").Then()
 	if err != nil {

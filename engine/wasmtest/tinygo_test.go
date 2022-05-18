@@ -17,7 +17,7 @@ func TestWasmRunnerTinyGo(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("wasm", "../testdata/tinygo-hello-echo/tinygo-hello-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/tinygo-hello-echo/tinygo-hello-echo.wasm")
 
 	res, err := doWasm("world").Then()
 	if err != nil {
@@ -61,7 +61,7 @@ func TestGoURLQuery(t *testing.T) {
 	e := engine.New()
 
 	// using a Rust module
-	doWasm := e.RegisterFromFile("wasm", "../testdata/tinygo-urlquery/tinygo-urlquery.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/tinygo-urlquery/tinygo-urlquery.wasm")
 
 	req := &request.CoordinatedRequest{
 		Method: "GET",

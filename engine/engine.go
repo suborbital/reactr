@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"github.com/pkg/errors"
 	"github.com/suborbital/reactr/api"
 	"github.com/suborbital/reactr/engine/moduleref"
 	"github.com/suborbital/reactr/scheduler"
@@ -35,8 +36,13 @@ func (e *Engine) Register(name string, ref *moduleref.WasmModuleRef, opts ...sch
 }
 
 // RegisterFromFile registers a Wasm module by reference
-func (e *Engine) RegisterFromFile(name, filename string, opts ...scheduler.Option) scheduler.JobFunc {
-	runner := newRunnerFromFile(filename, e.api)
+func (e *Engine) RegisterFromFile(name, filename string, opts ...scheduler.Option) (scheduler.JobFunc, error) {
+	runner, err := newRunnerFromFile(filename, e.api)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to newRunnerFromFile")
+	}
 
-	return e.Scheduler.Register(name, runner)
+	jobFunc := e.Scheduler.Register(name, runner)
+
+	return jobFunc, nil
 }

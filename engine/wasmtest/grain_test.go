@@ -19,7 +19,7 @@ func TestGrainEcho(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("grain-echo", "../testdata/grain-echo/grain-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("grain-echo", "../testdata/grain-echo/grain-echo.wasm")
 
 	res, err := doWasm("from Grain!").Then()
 	if err != nil {
@@ -38,7 +38,7 @@ func TestGrainFetch(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("grain-fetch", "../testdata/grain-fetch/grain-fetch.wasm")
+	doWasm, _ := e.RegisterFromFile("grain-fetch", "../testdata/grain-fetch/grain-fetch.wasm")
 
 	res, err := doWasm("https://1password.com").Then()
 	if err != nil {
@@ -90,7 +90,7 @@ func TestGrainLargeData(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("grain-echo", "../testdata/grain-echo/grain-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("grain-echo", "../testdata/grain-echo/grain-echo.wasm")
 
 	res, err := doWasm(largeInput).Then()
 	if err != nil {
@@ -106,7 +106,7 @@ func TestGrainLargeData(t *testing.T) {
 func TestGrainRunnerWithRequest(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/grain-req/grain-req.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/grain-req/grain-req.wasm")
 
 	body := testBody{
 		Username: "cohix",

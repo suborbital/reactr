@@ -19,7 +19,7 @@ func TestASEcho(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("as-echo", "../testdata/as-echo/as-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("as-echo", "../testdata/as-echo/as-echo.wasm")
 
 	res, err := doWasm("from AssemblyScript!").Then()
 	if err != nil {
@@ -38,7 +38,7 @@ func TestASFetch(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("as-fetch", "../testdata/as-fetch/as-fetch.wasm")
+	doWasm, _ := e.RegisterFromFile("as-fetch", "../testdata/as-fetch/as-fetch.wasm")
 
 	res, err := doWasm("https://1password.com").Then()
 	if err != nil {
@@ -90,7 +90,7 @@ func TestASLargeData(t *testing.T) {
 	e := engine.New()
 
 	// test a WASM module that is loaded directly instead of through the bundle
-	doWasm := e.RegisterFromFile("as-echo", "../testdata/as-echo/as-echo.wasm")
+	doWasm, _ := e.RegisterFromFile("as-echo", "../testdata/as-echo/as-echo.wasm")
 
 	res, err := doWasm(largeInput).Then()
 	if err != nil {
@@ -106,7 +106,7 @@ func TestASLargeData(t *testing.T) {
 func TestASRunnerWithRequest(t *testing.T) {
 	e := engine.New()
 
-	doWasm := e.RegisterFromFile("wasm", "../testdata/as-req/as-req.wasm")
+	doWasm, _ := e.RegisterFromFile("wasm", "../testdata/as-req/as-req.wasm")
 
 	body := testBody{
 		Username: "cohix",

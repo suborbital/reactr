@@ -140,7 +140,7 @@ func TestPGDBQueries(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.jobtype, func(t *testing.T) {
-			doWasm := e.RegisterFromFile(test.jobtype, test.filepath)
+			doWasm, _ := e.RegisterFromFile(test.jobtype, test.filepath)
 
 			res, err := doWasm(nil).Then()
 			if err != nil {
