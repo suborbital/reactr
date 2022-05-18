@@ -5,223 +5,106 @@ import (
 	"testing"
 )
 
+func testRequestIsAllowed(t *testing.T, name string, rules HTTPRules, url string, shouldError bool) {
+	t.Run(name, func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodGet, url, nil)
+
+		err := rules.requestIsAllowed(req)
+
+		if shouldError && err == nil {
+			t.Error("error did not occur, should have")
+		} else if !shouldError && err != nil {
+			t.Error("error occurred, should not have:", err)
+		}
+	})
+}
+
 func TestDefaultRules(t *testing.T) {
 	rules := defaultHTTPRules()
 
-	t.Run("http allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	tests := []struct {
+		name string
+		url  string
+	}{
+		{"http allowed", "http://example.com"},
+		{"https allowed", "https://example.com"},
+		{"IP allowed", "http://100.11.12.13"},
+	}
 
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("https allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("IP allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://100.11.12.13", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, false)
+	}
 }
 
 func TestAllowedDomains(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.AllowedDomains = []string{"example.com", "another.com", "*.hello.com", "tomorrow.*", "100.*.12.13"}
 
-	t.Run("example.com:8080 allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8080", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"example.com:8080 allowed", "http://example.com:8080", false},
+		{"example.com allowed", "http://example.com", false},
+		{"another.com allowed", "http://another.com", false},
+		{"wildcard allowed", "http://goodbye.hello.com", false},
+		{"double wildcard allowed", "http://goodmorning.goodbye.hello.com", false},
+		{"end wildcard allowed", "http://tomorrow.eu", false},
+		{"double end wildcard disallowed", "http://tomorrow.co.uk", true},
+		{"athird.com disallowed", "http://athird.com", true},
+		{"wildcard IP allowed", "http://100.11.12.13", false},
+		{"IP disallowed", "http://101.12.13.14", true},
+	}
 
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("example.com allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("another.com allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://another.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("wildcard allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://goodbye.hello.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("double wildcard allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://goodmorning.goodbye.hello.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("end wildcard allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://tomorrow.eu", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("double end wildcard disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://tomorrow.co.uk", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("athird.com disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://athird.com", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("wildcard IP allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://100.11.12.13", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("IP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://101.12.13.14", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
 
 func TestBlockedDomains(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.BlockedDomains = []string{"example.com", "another.com", "*.hello.com", "tomorrow.*"}
 
-	t.Run("example.com disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"example.com disallowed", "http://example.com", true},
+		{"another.com disallowed", "http://another.com", true},
+		{"wildcard disallowed", "http://goodbye.hello.com", true},
+		{"double wildcard disallowed", "http://goodnight.goodbye.hello.com", true},
+		{"end wildcard disallowed", "http://tomorrow.eu", true},
+		{"double end wildcard allowed", "http://tomorrow.co.uk", false},
+		{"athird.com allowed", "http://athird.com", false},
+		{"IP allowed", "http://100.11.12.13", false},
+	}
 
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("another.com disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://another.com", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("wildcard disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://goodbye.hello.com", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("double wildcard disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://goodnight.goodbye.hello.com", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("end wildcard disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://tomorrow.eu", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("double end wildcard allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://tomorrow.co.uk", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("athird.com allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://athird.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("IP allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://100.11.12.13", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
 
 func TestAllowedPorts(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.AllowedPorts = []int{8080}
 
-	t.Run("standard http port allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"standard http port allowed", "http://example.com", false},
+		{"standard https port allowed", "https://example.com", false},
+		{"port 8080 allowed", "http://example.com:8080", false},
+		{"port 8088 disallowed", "http://example.com:8088", true},
+		{},
+	}
 
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("standard https port allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("port 8080 allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8080", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("port 8088 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8088", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
 
 func TestBlockedPorts(t *testing.T) {
@@ -229,231 +112,103 @@ func TestBlockedPorts(t *testing.T) {
 	rules.AllowedPorts = []int{8081, 8082}
 	rules.BlockedPorts = []int{80, 443, 8080, 8081}
 
-	t.Run("standard HTTP port disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"standard HTTP port disallowed", "http://example.com", true},
+		{"standard HTTPS port disallowed", "https://example.com", true},
+		{"port 8080 disallowed", "http://example.com", true},
+		{"blocked list takes precedence over allow list", "http://example.com:8081", true},
+		{"port 8082 allowed", "http://example.com:8082", false},
+	}
 
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("standard HTTPS port disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://example.com", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("port 8080 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("blocked list takes precedence over allow list", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8081", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("port 8082 allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com:8082", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
 
 func TestBlockedWithCNAME(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.BlockedDomains = []string{"suborbital.network"}
 
-	t.Run("Resolved CNAME blocked", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://test.suborbital.dev", nil)
+	tests := []struct {
+		name string
+		url  string
+	}{
+		{"Resolved CNAME blocked", "https://test.suborbital.dev"},
+	}
 
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, true)
+	}
 }
 
 func TestDisallowedIPs(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.AllowIPs = false
 
-	t.Run("IP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://100.11.12.13", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"IP disallowed", "http://100.11.12.13", true},
+		{"Localhost IP disallowed", "http://127.0.0.1", true},
+		{"Private IP disallowed", "http://192.168.0.11", true},
+		{"Loopback IPv6 disallowed", "http://[::1]", true},
+		{"Localhost IPv6 disallowed", "http://[fe80::1]", true},
+		{"Private IPv6 disallowed", "http://[fd00::2f00]", true},
+		{"Public IPv6 disallowed", "http://[2604:a880:cad:d0::dff:7001]", true},
+		{"domain allowed", "http://friday.com", false},
+		{"localhost allowed", "http://localhost:8080", false},
+	}
 
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Localhost IP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://127.0.0.1", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Private IP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://192.168.0.11", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Loopback IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[::1]", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Localhost IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[fe80::1]", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Private IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[fd00::2f00]", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Public IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[2604:a880:cad:d0::dff:7001]", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("domain allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://friday.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
-
-	t.Run("localhost allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://localhost:8080", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
 
 func TestDisallowedLocal(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.AllowPrivate = false
 
-	t.Run("Loopback IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[::1]", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"Loopback IPv6 disallowed", "http://[::1]", true},
+		{"Localhost IPv6 disallowed", "http://[fe80::1]", true},
+		{"Private IPv6 disallowed", "http://[fd00::2f00]", true},
+		{"Resolves to Private disallowed", "http://local.suborbital.network", true},
+		{"Resolves to Private (with port) disallowed", "http://local.suborbital.network:8081", true},
+		{"Private disallowed", "http://localhost", true},
+		{"Localhost IP disallowed", "http://127.0.0.1", true},
+		{"Private IP disallowed", "http://192.168.0.11", true},
+		{"Resolves to public allowed", "https://suborbital.dev", false},
+	}
 
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Localhost IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[fe80::1]", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Private IPv6 disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://[fd00::2f00]", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Resolves to Private disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://local.suborbital.network", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Resolves to Private (with port) disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://local.suborbital.network:8081", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Private disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://localhost", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Localhost IP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://127.0.0.1", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Private IP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://192.168.0.11", nil)
-
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("Resolves to public allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://suborbital.dev", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
 
 func TestDisallowHTTP(t *testing.T) {
 	rules := defaultHTTPRules()
 	rules.AllowHTTP = false
 
-	t.Run("HTTP disallowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
+	tests := []struct {
+		name        string
+		url         string
+		shouldError bool
+	}{
+		{"HTTP disallowed", "http://example.com", true},
+		{"HTTPS allowed", "https://friday.com", false},
+	}
 
-		if err := rules.requestIsAllowed(req); err == nil {
-			t.Error("error did not occur, should have")
-		}
-	})
-
-	t.Run("HTTPS allowed", func(t *testing.T) {
-		req, _ := http.NewRequest(http.MethodGet, "https://friday.com", nil)
-
-		if err := rules.requestIsAllowed(req); err != nil {
-			t.Error("error occurred, should not have:", err)
-		}
-	})
+	for _, test := range tests {
+		testRequestIsAllowed(t, test.name, rules, test.url, test.shouldError)
+	}
 }
