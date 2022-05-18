@@ -18,6 +18,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.13.0
 	github.com/wasmerio/wasmer-go v1.0.4
 	golang.org/x/crypto v0.0.0-20220517005047-85d78b3ac167
+	golang.org/x/exp v0.0.0-20220516143420-24438e51023a
 	golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
 )
 

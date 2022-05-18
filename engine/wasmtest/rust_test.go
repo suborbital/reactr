@@ -380,3 +380,32 @@ func TestWasmFileGetStatic(t *testing.T) {
 		t.Error("failed, got:\n", result, "\nexpeted:\n", expected)
 	}
 }
+
+func TestSecretsCapability(t *testing.T) {
+
+	config := capabilities.DefaultCapabilityConfig()
+	config.Secrets = &capabilities.SecretsConfig{
+		Enabled: true,
+		Env: &capabilities.EnvSecretsConfig{
+			AllowedKeys: []string{"API_KEY"},
+		},
+	}
+
+	os.Setenv("API_KEY", "asdfghjkl")
+
+	api, _ := api.NewWithConfig(config)
+
+	e := engine.NewWithAPI(api)
+
+	e.RegisterFromFile("rs-get-secret", "../testdata/rs-get-secret/rs-get-secret.wasm")
+
+	res, err := e.Do(scheduler.NewJob("rs-get-secret", "API_KEY")).Then()
+	if err != nil {
+		t.Error(errors.Wrap(err, "failed to Then"))
+		return
+	}
+
+	if string(res.([]byte)) != "asdfghjkl" {
+		t.Error("rs-get-secret failed, got:", string(res.([]byte)))
+	}
+}

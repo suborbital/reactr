@@ -11,6 +11,7 @@ pub mod req;
 pub mod resp;
 pub mod runnable;
 pub mod util;
+pub mod secrets;
 
 /// This file represents the Rust "API" for Reactr Wasm runnables. The functions defined herein are used to exchange
 /// data between the host (Reactr, written in Go) and the Runnable (a Wasm module, in this case written in Rust).

@@ -56,6 +56,7 @@ func (d *defaultAPI) HostFunctions() []runtime.HostFn {
 		d.GetStaticFileHandler(),
 		d.DBExecHandler(),
 		d.AbortHandler(),
+		d.GetSecretValueHandler(),
 	}
 
 	return fns

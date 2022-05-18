@@ -20,6 +20,7 @@ type CapabilityConfig struct {
 	File    *FileConfig           `json:"file,omitempty" yaml:"file,omitempty"`
 	DB      *DatabaseConfig       `json:"db" yaml:"db"`
 	Request *RequestHandlerConfig `json:"requestHandler,omitempty" yaml:"requestHandler,omitempty"`
+	Secrets *SecretsConfig        `json:"secrets,omitempty" yaml:"secrets,omitempty"`
 }
 
 // DefaultCapabilityConfig returns the default all-enabled config (with a default logger)
@@ -71,6 +72,10 @@ func NewConfig(logger *vlog.Logger, dbType, dbConnString string, queries []Query
 			Enabled:       true,
 			AllowGetField: true,
 			AllowSetField: true,
+		},
+		Secrets: &SecretsConfig{
+			Enabled: true,
+			Env:     nil,
 		},
 	}
 

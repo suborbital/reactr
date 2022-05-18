@@ -18,6 +18,7 @@ type Capabilities struct {
 	Cache         CacheCapability
 	FileSource    FileCapability
 	Database      DatabaseCapability
+	Secrets       SecretsCapability
 
 	// RequestHandler and doFunc are special because they are more
 	// sensitive; they could cause memory leaks or expose internal state,
@@ -47,6 +48,7 @@ func NewWithConfig(config CapabilityConfig) (*Capabilities, error) {
 		GraphQLClient: DefaultGraphQLClient(*config.GraphQL),
 		Cache:         SetupCache(*config.Cache),
 		FileSource:    DefaultFileSource(*config.File),
+		Secrets:       NewEnvSecretsSource(*config.Secrets),
 		Database:      database,
 		RequestConfig: config.Request,
 	}
