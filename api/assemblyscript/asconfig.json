@@ -1,7 +1,7 @@
 {
   "targets": {
     "debug": {
-      "binaryFile": "../../rwasm/testdata/as-test/as-test.wasm",
+      "binaryFile": "build/untouched.wasm",
       "textFile": "build/untouched.wat",
       "sourceMap": true,
       "debug": true

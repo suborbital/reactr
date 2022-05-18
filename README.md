@@ -6,7 +6,7 @@ Reactr runs functions called Runnables, and transparently spawns workers to proc
 
 ## Wasm
 
-Reactr has support for Wasm-packaged Runnables. The `rwasm` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable), TypeScript/AssemblyScript (beta), and Swift (alpha). See [Wasm](./docs/wasm.md) and the [Subo CLI](https://github.com/suborbital/subo) for details.
+Reactr has support for Wasm-packaged Runnables. The `engine` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable), TypeScript/AssemblyScript (beta), and Swift (alpha). See [Wasm](https://docs.suborbital.dev/reactr/wasm) and the [Subo CLI](https://github.com/suborbital/subo) for details.
 
 ### The Basics
 
@@ -74,7 +74,7 @@ When you `Do` some work, you get a `Result`. A result is like a Rust future or a
 
 Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Cool, right?
 
-## Reactr has some very powerful capabilities, visit the [Reactr guide](./docs/guide.md) to learn more.
+## Reactr has some very powerful capabilities, visit the [Reactr guide](https://docs.suborbital.dev/reactr/) to learn more.
 
 Reactr is being actively developed and has planned improvements, including optimized memory usage, library stability, data persistence, and more. Cheers!
 
