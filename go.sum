@@ -88,6 +88,8 @@ github.com/buger/jsonparser v0.0.0-20180808090653-f4dd9f5a6b44/go.mod h1:bbYlZJ7
 github.com/bugsnag/bugsnag-go v0.0.0-20141110184014-b1d153021fcd/go.mod h1:2oa8nejYd4cQ/b0hMIopN0lCRxU0bueqREvZLWFrtK8=
 github.com/bugsnag/osext v0.0.0-20130617224835-0dd3f918b21b/go.mod h1:obH5gd0BsqsP2LwDJ9aOkm/6J86V6lyAXCoQWGw3K50=
 github.com/bugsnag/panicwrap v0.0.0-20151223152923-e2c28503fcd0/go.mod h1:D/8v3kj0zr8ZAKg1AQ6crr+5VwKN5eIywRkfhyM/+dE=
+github.com/bytecodealliance/wasmtime-go v0.37.0 h1:eNP2Snp5UFMuGuunRPxwVETJ/WpC8LhWonZAklXJfjk=
+github.com/bytecodealliance/wasmtime-go v0.37.0/go.mod h1:q320gUxqyI8yB+ZqRuaJOEnGkAnHh6WtJjMaT2CW4wI=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
 github.com/cenkalti/backoff/v4 v4.1.2 h1:6Yo7N8UP2K6LWZnW94DLVSSrbobcWdVzAYOisuDPIFo=
 github.com/cenkalti/backoff/v4 v4.1.2/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
@@ -686,8 +688,6 @@ github.com/suborbital/grav v0.5.0 h1:/MxfdhsKKwRvh545uYXIAXm1kvJNPqAwxpuLZFtH/vk
 github.com/suborbital/grav v0.5.0/go.mod h1:cul5DpYVRAmoUxaqzaKYOpoFCFb9LpzQiCrre2DP0Sg=
 github.com/suborbital/vektor v0.6.0 h1:HIGsnzFeAHYqHVYl4kcKG1ZNK858eC8xvDq4fcG4ILs=
 github.com/suborbital/vektor v0.6.0/go.mod h1:gYHhFyF94vL/DY3Zxv988zJW3Z7SsLgxvB321UtCNwM=
-github.com/suborbital/wasmtime-go v0.36.0-aarch64-2 h1:ACdourTkbyjGh6y6fiQTCrYdk9VHVemv3x79MSxopiU=
-github.com/suborbital/wasmtime-go v0.36.0-aarch64-2/go.mod h1:q320gUxqyI8yB+ZqRuaJOEnGkAnHh6WtJjMaT2CW4wI=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/gocapability v0.0.0-20180916011248-d98352740cb2/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/gocapability v0.0.0-20200815063812-42c35b437635/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
