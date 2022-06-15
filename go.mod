@@ -13,7 +13,7 @@ require (
 	github.com/lib/pq v1.10.6
 	github.com/pkg/errors v0.9.1
 	github.com/second-state/WasmEdge-go v0.9.2
-	github.com/suborbital/grav v0.5.0
+	github.com/suborbital/grav v0.5.1
 	github.com/suborbital/vektor v0.6.0
 	github.com/testcontainers/testcontainers-go v0.13.0
 	github.com/wasmerio/wasmer-go v1.0.4
@@ -57,7 +57,7 @@ require (
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	go.opencensus.io v0.22.3 // indirect
 	golang.org/x/net v0.0.0-20220425223048-2871e0cb64e4 // indirect
-	golang.org/x/sys v0.0.0-20220111092808-5a964db01320 // indirect
+	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a // indirect
 	google.golang.org/grpc v1.33.2 // indirect
