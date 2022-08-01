@@ -104,7 +104,7 @@ export class Env {
   cacheGet(key: string, ident: number): number;
   requestGetField(fieldType: FieldType, key: string, ident: number): number;
   requestSetField(fieldType: FieldType, key: string, value: Uint8Array, ident: number): number;
-  respSetHeader(key: string, value: Uint8Array, ident: number): void;
+  respSetHeader(key: string, value: string, ident: number): void;
   getStaticFile(name: string, ident: number): number;
   dbExec(queryType: QueryType, name: string, ident: number): number;
   getFfiResult(ptr: number, ident: number): number;

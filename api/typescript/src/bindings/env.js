@@ -177,10 +177,8 @@ export class Env {
     const realloc = this._exports["canonical_abi_realloc"];
     const ptr0 = utf8_encode(arg0, realloc, memory);
     const len0 = UTF8_ENCODED_LEN;
-    const val1 = arg1;
-    const len1 = val1.length;
-    const ptr1 = realloc(0, 0, 1, len1 * 1);
-    (new Uint8Array(memory.buffer, ptr1, len1 * 1)).set(new Uint8Array(val1.buffer, val1.byteOffset, len1 * 1));
+    const ptr1 = utf8_encode(arg1, realloc, memory);
+    const len1 = UTF8_ENCODED_LEN;
     this._exports['resp-set-header'](ptr0, len0, ptr1, len1, clamp_host(arg2, 0, 4294967295));
     return undefined;
   }
