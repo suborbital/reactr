@@ -3,7 +3,7 @@ module github.com/suborbital/reactr
 go 1.18
 
 require (
-	github.com/bytecodealliance/wasmtime-go v0.37.0
+	github.com/bytecodealliance/wasmtime-go v1.0.0
 	github.com/docker/go-connections v0.4.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/go-sql-driver/mysql v1.6.0
@@ -62,5 +62,5 @@ require (
 	google.golang.org/genproto v0.0.0-20201110150050-8816d57aaa9a // indirect
 	google.golang.org/grpc v1.33.2 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
