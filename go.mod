@@ -10,7 +10,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/jmoiron/sqlx v1.3.5
-	github.com/lib/pq v1.10.6
+	github.com/lib/pq v1.10.7
 	github.com/pkg/errors v0.9.1
 	github.com/second-state/WasmEdge-go v0.9.2
 	github.com/suborbital/grav v0.5.1
