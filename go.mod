@@ -17,7 +17,7 @@ require (
 	github.com/suborbital/vektor v0.6.0
 	github.com/testcontainers/testcontainers-go v0.13.0
 	github.com/wasmerio/wasmer-go v1.0.4
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
+	golang.org/x/crypto v0.0.0-20220924013350-4ba4fb4dd9e7
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 )
 
