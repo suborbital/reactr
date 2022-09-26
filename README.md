@@ -1,4 +1,4 @@
-![SOS_Reactr-Long-FullColour](https://user-images.githubusercontent.com/5942370/134702418-4791b47c-4800-42f8-b13e-d6ee2587e8b7.png)
+## Reactr has been deprecated. You can use the new [scheduler](https://github.com/suborbital/e2core/tree/main/scheduler) and [engine](https://github.com/suborbital/sat/tree/vmain/engine) packages, which are a drop-in replacements for this project.
 
 Reactr is a fast, performant function scheduling library. Reactr is designed to be flexible, with the ability to run embedded in your Go applications and first-class support for WebAssembly.
 
