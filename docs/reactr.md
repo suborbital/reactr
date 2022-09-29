@@ -1,12 +1,8 @@
----
-pagination_prev: null
----
+## Reactr has been deprecated. You can use the new [scheduler](https://github.com/suborbital/e2core/tree/main/scheduler) and [engine](https://github.com/suborbital/sat/tree/vmain/engine) packages, which are a drop-in replacements for this project. 
 
 # Reactr
 
 ## The next-gen function scheduler for Go and WebAssembly
-
-![Reactr Logo](/img/SOS_Reactr-Long-FullColour0.svg)
 
 ### The Basics
 
@@ -310,6 +306,6 @@ The `Register` function returns an optional helper function. Instead of passing 
 
 ## Additional features
 
-Reactr can integrate with [Grav](https://github.com/suborbital/grav), which is the decentralized message bus developed as part of the Suborbital Development Platform. Read about the integration on [the grav documentation page.](./grav.md)
+Reactr can integrate with [Grav](https://github.com/suborbital/grav), which is the decentralized message bus developed as part of the Suborbital Development Platform. 
 
-Reactr provides the building blocks for scalable asynchronous systems. This should be everything you need to help you improve the performance of your application. When you are looking to take advantage of Reactr's other features, check out its [Wasm](./wasm.md) capabilities!
+Reactr provides the building blocks for scalable asynchronous systems. This should be everything you need to help you improve the performance of your application. When you are looking to take advantage of Reactr's other features, check out its [Wasm](httos://github.com/suborbital/reactr/docs/wasm.md) capabilities!

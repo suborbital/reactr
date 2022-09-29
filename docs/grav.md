@@ -1,3 +1,5 @@
+## Reactr has been deprecated. You can use the new [scheduler](https://github.com/suborbital/e2core/tree/main/scheduler) and [engine](https://github.com/suborbital/sat/tree/vmain/engine) packages, which are a drop-in replacements for this project. 
+
 # Reactr ➕ Grav
 
 Reactr is designed to integrate with the other [Suborbital](https://suborbital.dev) projects such as [Grav](https://github.com/suborbital/grav). Grav is a decentralized message bus which allows for your application code to communicate in a scalable, resilient way.

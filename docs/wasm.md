@@ -1,10 +1,12 @@
+## Reactr has been deprecated. You can use the new [scheduler](https://github.com/suborbital/e2core/tree/main/scheduler) and [engine](https://github.com/suborbital/sat/tree/vmain/engine) packages, which are a drop-in replacements for this project. 
+
 # Reactr ❤️ WebAssembly
 
 Reactr has first-class support for WebAssembly-packaged Runnables. Wasm is an incredibly useful modern portable binary format that allows multiple languages to be compiled into .wasm modules.
 
-The current supported languages are Rust (stable), TypeScript/AssemblyScript (beta) and Swift (alpha). The Runnable API is available for each. More languages such as Go and C++ are coming soon!
+The current supported languages are Rust (stable) and TypeScript/JavaScript. The Runnable API is available for each.
 
-To create a Wasm runnable, check out the [subo CLI](https://github.com/suborbital/subo). Once you've generated a `.wasm` file, you can use it with Reactr just like any other Runnable!
+To create a Wasm runnable, check out the [subo CLI](https://suborbital/dev/subo). Once you've generated a `.wasm` file, you can use it with Reactr just like any other Runnable!
 
 A multitude of example Runnables can be found in the [testdata directory](https://github.com/suborbital/reactr/tree/main/engine/testdata).
 
