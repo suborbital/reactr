@@ -1,4 +1,4 @@
-## Reactr has been deprecated. You can use the new [scheduler](https://github.com/suborbital/e2core/tree/main/scheduler) and [engine](https://github.com/suborbital/sat/tree/vmain/engine) packages, which are a drop-in replacements for this project.
+## Reactr has been deprecated. You can use the new [scheduler](https://github.com/suborbital/e2core/tree/main/scheduler) and [engine](https://github.com/suborbital/sat/tree/vmain/engine) packages, which are a drop-in replacements for this project. You can find the [docs](https://github.com/suborbital/reactr/docs) in this repo, 
 
 Reactr is a fast, performant function scheduling library. Reactr is designed to be flexible, with the ability to run embedded in your Go applications and first-class support for WebAssembly.
 
@@ -6,7 +6,7 @@ Reactr runs functions called Runnables, and transparently spawns workers to proc
 
 ## Wasm
 
-Reactr has support for Wasm-packaged Runnables. The `engine` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable), TypeScript/AssemblyScript (beta), and Swift (alpha). See [Wasm](https://docs.suborbital.dev/reactr/wasm) and the [Subo CLI](https://github.com/suborbital/subo) for details.
+Reactr has support for Wasm-packaged Runnables. The `engine` package contains a multi-tenant Wasm scheduler, an API to grant capabilities to Wasm Runnables, and support for several languages including Rust (stable), TypeScript/AssemblyScript (beta), and Swift (alpha). See [Wasm](https://github.com/suborbital/reactr/docs/wasm.md) and the [Subo CLI](https://github.com/suborbital/subo) for details.
 
 ### The Basics
 
@@ -20,26 +20,26 @@ And then get started by defining something `Runnable`:
 package main
 
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/suborbital/reactr/rt"
+    "github.com/suborbital/reactr/rt"
 )
 
 type generic struct{}
 
 // Run runs a generic job
 func (g generic) Run(job rt.Job, ctx *rt.Ctx) (interface{}, error) {
-	fmt.Println("doing job:", job.String()) // get the string value of the job's data
+    fmt.Println("doing job:", job.String()) // get the string value of the job's data
 
-	// do your work here
+    // do your work here
 
-	return fmt.Sprintf("finished %s", job.String()), nil
+    return fmt.Sprintf("finished %s", job.String()), nil
 }
 
 // OnChange is called when Reactr starts or stops a worker to handle jobs,
 // and allows the Runnable to set up before receiving jobs or tear down if needed.
 func (g generic) OnChange(change rt.ChangeEvent) error {
-	return nil
+    return nil
 }
 ```
 A `Runnable` is something that can take care of a job, all it needs to do is conform to the `Runnable` interface as you see above.
@@ -49,33 +49,29 @@ Once you have a Runnable, create a Reactr instance, register it, and `Do` some w
 package main
 
 import (
-	"fmt"
-	"log"
+    "fmt"
+    "log"
 
-	"github.com/suborbital/reactr/rt"
+    "github.com/suborbital/reactr/rt"
 )
 
 func main() {
-	r := rt.New()
+    r := rt.New()
 
-	r.Register("generic", generic{})
+    r.Register("generic", generic{})
 
-	result := r.Do(r.Job("generic", "hard work"))
+    result := r.Do(r.Job("generic", "hard work"))
 
-	res, err := result.Then()
-	if err != nil {
-		log.Fatal(err)
-	}
+    res, err := result.Then()
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	fmt.Println("done!", res.(string))
+    fmt.Println("done!", res.(string))
 }
 ```
 When you `Do` some work, you get a `Result`. A result is like a Rust future or a JavaScript promise, it is something you can get the job's result from once it is finished.
 
 Calling `Then()` will block until the job is complete, and then give you the return value from the Runnable's `Run`. Cool, right?
-
-## Reactr has some very powerful capabilities, visit the [Reactr guide](https://docs.suborbital.dev/reactr/) to learn more.
-
-Reactr is being actively developed and has planned improvements, including optimized memory usage, library stability, data persistence, and more. Cheers!
 
 Copyright Suborbital contributors 2021
