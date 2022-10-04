@@ -308,4 +308,4 @@ The `Register` function returns an optional helper function. Instead of passing 
 
 Reactr can integrate with [Grav](https://github.com/suborbital/grav), which is the decentralized message bus developed as part of the Suborbital Development Platform. 
 
-Reactr provides the building blocks for scalable asynchronous systems. This should be everything you need to help you improve the performance of your application. When you are looking to take advantage of Reactr's other features, check out its [Wasm](,/wasm.md) capabilities!
+Reactr provides the building blocks for scalable asynchronous systems. This should be everything you need to help you improve the performance of your application. When you are looking to take advantage of Reactr's other features, check out its [Wasm](/wasm.md) capabilities!
