@@ -6,7 +6,7 @@ Reactr has first-class support for WebAssembly-packaged Runnables. Wasm is an in
 
 The current supported languages are Rust (stable) and TypeScript/JavaScript. The Runnable API is available for each.
 
-To create a Wasm runnable, check out the [subo CLI](https://suborbital/dev/subo). Once you've generated a `.wasm` file, you can use it with Reactr just like any other Runnable!
+To create a Wasm runnable, check out the [subo CLI](https://suborbital,dev/subo). Once you've generated a `.wasm` file, you can use it with Reactr just like any other Runnable!
 
 A multitude of example Runnables can be found in the [testdata directory](https://github.com/suborbital/reactr/tree/main/engine/testdata).
 
