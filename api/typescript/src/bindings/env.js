@@ -80,6 +80,7 @@ export class Env {
     const ptr0 = realloc(0, 0, 1, len0 * 1);
     (new Uint8Array(memory.buffer, ptr0, len0 * 1)).set(new Uint8Array(val0.buffer, val0.byteOffset, len0 * 1));
     this._exports['return-result'](ptr0, len0, clamp_host(arg1, 0, 4294967295));
+    return undefined;
   }
   returnError(arg0, arg1, arg2) {
     const memory = this._exports.memory;
@@ -87,6 +88,7 @@ export class Env {
     const ptr0 = utf8_encode(arg1, realloc, memory);
     const len0 = UTF8_ENCODED_LEN;
     this._exports['return-error'](clamp_host(arg0, -2147483648, 2147483647), ptr0, len0, clamp_host(arg2, 0, 4294967295));
+    return undefined;
   }
   logMsg(arg0, arg1, arg2) {
     const memory = this._exports.memory;
@@ -97,6 +99,7 @@ export class Env {
     if (!(variant1 in LogLevel))
     throw new RangeError("invalid variant specified for LogLevel");
     this._exports['log-msg'](ptr0, len0, Number.isInteger(variant1) ? variant1 : LogLevel[variant1], clamp_host(arg2, 0, 4294967295));
+    return undefined;
   }
   fetchUrl(arg0, arg1, arg2, arg3) {
     const memory = this._exports.memory;
@@ -154,6 +157,31 @@ export class Env {
     const ret = this._exports['request-get-field'](Number.isInteger(variant0) ? variant0 : FieldType[variant0], ptr1, len1, clamp_host(arg2, 0, 4294967295));
     return ret;
   }
+  requestSetField(arg0, arg1, arg2, arg3) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const variant0 = arg0;
+    if (!(variant0 in FieldType))
+    throw new RangeError("invalid variant specified for FieldType");
+    const ptr1 = utf8_encode(arg1, realloc, memory);
+    const len1 = UTF8_ENCODED_LEN;
+    const val2 = arg2;
+    const len2 = val2.length;
+    const ptr2 = realloc(0, 0, 1, len2 * 1);
+    (new Uint8Array(memory.buffer, ptr2, len2 * 1)).set(new Uint8Array(val2.buffer, val2.byteOffset, len2 * 1));
+    const ret = this._exports['request-set-field'](Number.isInteger(variant0) ? variant0 : FieldType[variant0], ptr1, len1, ptr2, len2, clamp_host(arg3, 0, 4294967295));
+    return ret;
+  }
+  respSetHeader(arg0, arg1, arg2) {
+    const memory = this._exports.memory;
+    const realloc = this._exports["canonical_abi_realloc"];
+    const ptr0 = utf8_encode(arg0, realloc, memory);
+    const len0 = UTF8_ENCODED_LEN;
+    const ptr1 = utf8_encode(arg1, realloc, memory);
+    const len1 = UTF8_ENCODED_LEN;
+    this._exports['resp-set-header'](ptr0, len0, ptr1, len1, clamp_host(arg2, 0, 4294967295));
+    return undefined;
+  }
   getStaticFile(arg0, arg1) {
     const memory = this._exports.memory;
     const realloc = this._exports["canonical_abi_realloc"];
@@ -195,5 +223,6 @@ export class Env {
     const ptr1 = utf8_encode(arg1, realloc, memory);
     const len1 = UTF8_ENCODED_LEN;
     this._exports['return-abort'](ptr0, len0, ptr1, len1, clamp_host(arg2, 0, 4294967295), clamp_host(arg3, 0, 4294967295), clamp_host(arg4, 0, 4294967295));
+    return undefined;
   }
 }
