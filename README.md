@@ -12,7 +12,7 @@ Reactr has support for Wasm-packaged Runnables. The `engine` package contains a 
 
 First, install Reactr's core package `rt`:
 ```bash
-go get github.com/suborbital/reactr/rt
+go get github.com/suborbital/sdk/rt
 ```
 
 And then get started by defining something `Runnable`:
@@ -22,7 +22,7 @@ package main
 import (
     "fmt"
 
-    "github.com/suborbital/reactr/rt"
+    "github.com/suborbital/sdk/rt"
 )
 
 type generic struct{}
@@ -52,7 +52,7 @@ import (
     "fmt"
     "log"
 
-    "github.com/suborbital/reactr/rt"
+    "github.com/suborbital/sdk/rt"
 )
 
 func main() {

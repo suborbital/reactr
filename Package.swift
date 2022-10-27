@@ -13,6 +13,6 @@ let package = Package(
         .target(
             name: "Suborbital",
             dependencies: [],
-            path: "api/swift/Sources"),
+            path: "sdk/swift/Sources"),
     ]
 )
