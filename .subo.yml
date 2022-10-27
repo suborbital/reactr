@@ -1,8 +1,8 @@
 dotVersionFiles:
-  - api/rust/core/Cargo.toml
-  - api/rust/codegen/Cargo.toml
-  - api/assemblyscript/package.json
-  - api/typescript/package.json
+  - sdk/rust/core/Cargo.toml
+  - sdk/rust/codegen/Cargo.toml
+  - sdk/assemblyscript/package.json
+  - sdk/typescript/package.json
 
 preMakeTargets:
   - test
