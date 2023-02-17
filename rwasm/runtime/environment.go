@@ -91,8 +91,15 @@ func (w *WasmEnvironment) UseInstance(ctx *rt.Ctx, instFunc func(*WasmInstance, 
 	// return it to the environment when finished
 	inst := <-w.availableInstances
 
+	go func() {
+		if err := w.AddInstance(); err != nil {
+			panic(err)
+		}
+	}()
+
 	defer func() {
-		w.availableInstances <- inst
+		inst.runtime.Close()
+		inst = nil
 	}()
 
 	// generate a random identifier as a reference to the instance in use to

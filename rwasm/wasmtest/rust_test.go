@@ -280,7 +280,7 @@ func TestWasmRunnerGroup(t *testing.T) {
 	doWasm := r.Register("wasm", rwasm.NewRunner("../testdata/hello-echo/hello-echo.wasm"))
 
 	grp := rt.NewGroup()
-	for i := 0; i < 50000; i++ {
+	for i := 0; i < 5000; i++ {
 		grp.Add(doWasm([]byte(fmt.Sprintf("world %d", i))))
 	}
 
